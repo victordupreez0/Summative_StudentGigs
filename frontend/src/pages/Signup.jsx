@@ -7,14 +7,17 @@ import { Separator } from "@/components/ui/separator";
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Briefcase, User } from "lucide-react";
 
-const Login = () => {
+const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
-
+  const [userType, setUserType] = useState(null);
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  
   return (
     <div className="min-h-screen bg-background">
   <Navbar />
@@ -23,8 +26,8 @@ const Login = () => {
         <div className="max-w-md mx-auto">
           <Card className="shadow-lg">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-bold">Log in to StudentGigs</CardTitle>
-              <p className="text-muted-foreground">Find gigs or hire students for your projects</p>
+              <CardTitle className="text-2xl font-bold">Create your account</CardTitle>
+              <p className="text-muted-foreground">Join StudentGigs to find work or hire talent</p>
             </CardHeader>
             
             <CardContent className="space-y-6">
@@ -57,16 +60,45 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Login Form */}
+              {/* Signup Form */}
               <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="firstName" className="block text-sm font-medium text-foreground mb-1">
+                      First name
+                    </label>
+                    <Input
+                      id="firstName"
+                      type="text"
+                      placeholder="First name"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="lastName" className="block text-sm font-medium text-foreground mb-1">
+                      Last name
+                    </label>
+                    <Input
+                      id="lastName"
+                      type="text"
+                      placeholder="Last name"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1">
-                    Email or Username
+                    Email
                   </label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder="Enter your email or username"
+                    placeholder="example@company.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -74,22 +106,18 @@ const Login = () => {
                 </div>
 
                 <div>
-                  <div className="flex justify-between items-center mb-1">
-                    <label htmlFor="password" className="block text-sm font-medium text-foreground">
-                      Password
-                    </label>
-                    <Link to="/forgot-password" className="text-sm text-primary hover:underline">
-                      Forgot password?
-                    </Link>
-                  </div>
+                  <label htmlFor="password" className="block text-sm font-medium text-foreground mb-1">
+                    Password (8+ characters)
+                  </label>
                   <div className="relative">
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password"
+                      placeholder="Create a password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
+                      minLength={8}
                     />
                     <Button
                       type="button"
@@ -107,27 +135,75 @@ const Login = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-2">
+                {/* User Type Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-3">
+                    I want to:
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setUserType("hire")}
+                      className={`p-4 border-2 rounded-lg transition-all ${
+                        userType === "hire" 
+                          ? "border-primary bg-primary/5" 
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      <Briefcase className="w-8 h-8 mx-auto mb-2 text-primary" />
+                      <div className="text-sm font-medium">Hire for a project</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUserType("work")}
+                      className={`p-4 border-2 rounded-lg transition-all ${
+                        userType === "work" 
+                          ? "border-primary bg-primary/5" 
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      <User className="w-8 h-8 mx-auto mb-2 text-primary" />
+                      <div className="text-sm font-medium">Work as a student</div>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-2">
                   <Checkbox
-                    id="remember"
-                    checked={rememberMe}
-                    onCheckedChange={(checked) => setRememberMe(!!checked)}
+                    id="terms"
+                    checked={agreeToTerms}
+                    onCheckedChange={(checked) => setAgreeToTerms(!!checked)}
+                    className="mt-1"
                   />
-                  <label htmlFor="remember" className="text-sm text-foreground">
-                    Remember me
+                  <label htmlFor="terms" className="text-sm text-foreground">
+                    I agree to the{" "}
+                    <Link to="/terms" className="text-primary hover:underline">
+                      Terms of Service
+                    </Link>{" "}
+                    and{" "}
+                    <Link to="/privacy" className="text-primary hover:underline">
+                      Privacy Policy
+                    </Link>
+                    .
                   </label>
                 </div>
 
-                <Button type="submit" className="w-full" size="lg">
-                  Log in
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  size="lg"
+                  variant="accent"
+                  disabled={!agreeToTerms || !userType}
+                >
+                  Create my account
                 </Button>
               </form>
 
               <div className="text-center">
                 <span className="text-sm text-muted-foreground">
-                  Don't have an account?{" "}
-                  <Link to="/signup" className="text-primary hover:underline font-medium">
-                    Sign up
+                  Already have an account?{" "}
+                  <Link to="/login" className="text-primary hover:underline font-medium">
+                    Log in
                   </Link>
                 </span>
               </div>
@@ -141,4 +217,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;
