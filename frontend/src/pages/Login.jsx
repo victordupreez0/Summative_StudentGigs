@@ -15,6 +15,12 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Placeholder handler — implement authentication here
+    console.log('Login submit', { email, password, rememberMe });
+  };
+
   return (
     <div className="min-h-screen bg-background">
   <Navbar />
@@ -53,7 +59,7 @@ const Login = () => {
                   <Separator className="w-full" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">or</span>
+                  <span className="bg-white px-2 text-muted-foreground">or</span>
                 </div>
               </div>
 

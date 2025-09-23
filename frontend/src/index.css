@@ -15,6 +15,13 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Global page background: white -> #999999 diagonal gradient */
+html, body, #root {
+  height: 100%;
+  background: linear-gradient(to bottom right, #F9FAFB, #BFBFBF);
+  background-attachment: fixed;
+}
+
 /* Light-mode specific UI tweaks */
 a:hover {
   color: #747bff;

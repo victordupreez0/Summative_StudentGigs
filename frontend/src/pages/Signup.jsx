@@ -17,6 +17,11 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [userType, setUserType] = useState(null);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Placeholder handler — implement signup logic here
+    console.log('Signup submit', { firstName, lastName, email, password, userType, agreeToTerms });
+  };
   
   return (
     <div className="min-h-screen bg-background">
@@ -56,7 +61,7 @@ const Signup = () => {
                   <Separator className="w-full" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">or</span>
+                  <span className="bg-white px-2 text-muted-foreground">or</span>
                 </div>
               </div>
 
