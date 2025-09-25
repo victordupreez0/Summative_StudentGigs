@@ -19,8 +19,27 @@ const Signup = () => {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Placeholder handler — implement signup logic here
-    console.log('Signup submit', { firstName, lastName, email, password, userType, agreeToTerms });
+    // Call backend signup
+    (async () => {
+      try {
+        const res = await fetch('http://localhost:4000/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ firstName, lastName, email, password, userType })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.message || 'Signup failed');
+          return;
+        }
+        // store token and redirect
+        localStorage.setItem('token', data.token);
+        window.location.href = '/student-dashboard';
+      } catch (err) {
+        console.error(err);
+        alert('Network error');
+      }
+    })();
   };
   
   return (

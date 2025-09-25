@@ -17,8 +17,27 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Placeholder handler — implement authentication here
-    console.log('Login submit', { email, password, rememberMe });
+    (async () => {
+      try {
+        const res = await fetch('http://localhost:4000/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.message || 'Login failed');
+          return;
+        }
+        localStorage.setItem('token', data.token);
+        // Redirect based on userType if available
+        const dest = data.user?.userType === 'hire' ? '/employer-dashboard' : '/student-dashboard';
+        window.location.href = dest;
+      } catch (err) {
+        console.error(err);
+        alert('Network error');
+      }
+    })();
   };
 
   return (
