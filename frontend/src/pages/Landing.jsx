@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -40,41 +41,26 @@ const Landing = () => {
     }
   ];
 
-  const recentJobs = [
-    {
-      title: "Frontend Web Developer for Student Portal",
-      company: "University of Technology",
-      type: "Remote",
-      level: "Intermediate",
-      duration: "2 months",
-      budget: "$30-50/hr",
-      tags: ["React", "JavaScript", "Tailwind CSS"],
-      applicants: 8,
-      timePosted: "Posted 2 days ago"
-    },
-    {
-      title: "Research Assistant for Marketing Project", 
-      company: "Market Research Lab",
-      type: "Remote",
-      level: "Entry Level", 
-      duration: "3 months",
-      budget: "$15-25/hr",
-      tags: ["Market Research", "Data Analysis", "Excel"],
-      applicants: 15,
-      timePosted: "Posted 1 day ago"
-    },
-    {
-      title: "Content Writer for Education Blog",
-      company: "EduPublishers",
-      type: "Remote",
-      level: "Beginner",
-      duration: "Ongoing",
-      budget: "$20 per article",
-      tags: ["Content Writing", "SEO", "Research"],
-      applicants: 12,
-      timePosted: "Posted 3 days ago"
-    }
-  ];
+  const [jobs, setJobs] = useState([])
+  const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000'
+
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/jobs`)
+        if (!res.ok) return
+        const data = await res.json()
+        if (!mounted) return
+        // sort newest first by created_at and keep as-is
+        data.sort((a,b) => new Date(b.created_at) - new Date(a.created_at))
+        setJobs(data)
+      } catch (e) {
+        console.error('Failed to load recent jobs', e)
+      }
+    })()
+    return () => { mounted = false }
+  }, [])
 
   const students = [
     {
@@ -231,8 +217,8 @@ const Landing = () => {
             </div>
           </div>
           <div className="space-y-6">
-            {recentJobs.map((job, index) => (
-              <Card key={index} className="hover:shadow-md transition-shadow">
+            {jobs.slice(0,5).map((job) => (
+              <Card key={job.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <div className="flex-1">
@@ -242,23 +228,23 @@ const Landing = () => {
                         </h3>
                         <Button variant="outline" size="sm">Save</Button>
                       </div>
-                      <p className="text-muted-foreground mb-2">{job.company} • {job.type}</p>
-                      <p className="text-sm text-muted-foreground mb-3">Looking for experienced developer to create a modern student portal interface.</p>
+                      <p className="text-muted-foreground mb-2">{job.user_id ? `Posted by user ${job.user_id}` : ''} • {job.projectType || 'Remote'}</p>
+                      <p className="text-sm text-muted-foreground mb-3">{job.description}</p>
                       <div className="flex flex-wrap gap-2 mb-3">
-                        {job.tags.map((tag, tagIndex) => (
+                        {(job.tags || []).map((tag, tagIndex) => (
                           <Badge key={tagIndex} variant="secondary">{tag}</Badge>
                         ))}
                       </div>
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span>{job.budget}</span>
-                        <span>{job.level}</span>
-                        <span>{job.duration}</span>
-                        <span>{job.applicants} applicants</span>
+                        <span>{job.budget || ''}</span>
+                        <span>{(job.education_levels && job.education_levels[0]) || ''}</span>
+                        <span>{job.projectLength || ''}</span>
+                        <span>{job.applicants || 0} applicants</span>
                       </div>
                     </div>
                     <div className="flex flex-col gap-2">
                       <Button size="sm">Apply Now</Button>
-                      <p className="text-xs text-muted-foreground text-center">{job.timePosted}</p>
+                      <p className="text-xs text-muted-foreground text-center">{job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}</p>
                     </div>
                   </div>
                 </CardContent>

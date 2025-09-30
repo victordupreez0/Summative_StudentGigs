@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -53,32 +54,25 @@ const StudentDashboard = () => {
     }
   ];
 
-  const recommendedJobs = [
-    {
-      title: "UI/UX Design for Student App",
-      company: "TechUniversity",
-      budget: "$150-200 (Fixed Price)",
-      posted: "Posted 2 days ago",
-      tags: ["UI Design", "Figma", "Mobile App"],
-      level: "Intermediate"
-    },
-    {
-      title: "Content Writing for Academic Blog", 
-      company: "EduPublishers",
-      budget: "$20/hour (Est. 10 hours)",
-      posted: "Posted 1 day ago",
-      tags: ["Content Writing", "SEO", "Education"],
-      level: "Entry Level"
-    },
-    {
-      title: "Web Development for Student Club",
-      company: "BusinessClub",
-      budget: "$300-400 (Fixed Price)", 
-      posted: "Posted 3 days ago",
-      tags: ["WordPress", "HTML/CSS", "JavaScript"],
-      level: "Intermediate"
-    }
-  ];
+  const [recommendedJobs, setRecommendedJobs] = useState([])
+  const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000'
+
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/jobs`)
+        if (!res.ok) return
+        const data = await res.json()
+        if (!mounted) return
+        data.sort((a,b) => new Date(b.created_at) - new Date(a.created_at))
+        setRecommendedJobs(data.slice(0,3))
+      } catch (e) {
+        console.error('Failed to load recommended jobs', e)
+      }
+    })()
+    return () => { mounted = false }
+  }, [])
 
   const recentActivity = [
     {
@@ -189,8 +183,8 @@ const StudentDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {recommendedJobs.map((job, index) => (
-                    <div key={index} className="border-b border-border last:border-0 pb-6 last:pb-0">
+                  {recommendedJobs.map((job) => (
+                    <div key={job.id} className="border-b border-border last:border-0 pb-6 last:pb-0">
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="font-semibold text-foreground hover:text-primary cursor-pointer">
                           {job.title}
@@ -199,17 +193,17 @@ const StudentDashboard = () => {
                           <Bookmark className="w-4 h-4" />
                         </Button>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">{job.company}</p>
-                      <p className="text-sm font-medium text-foreground mb-3">{job.budget}</p>
+                      <p className="text-sm text-muted-foreground mb-2">{job.user_id ? `Posted by user ${job.user_id}` : ''}</p>
+                      <p className="text-sm font-medium text-foreground mb-3">{job.projectLength || ''}</p>
                       <div className="flex flex-wrap gap-2 mb-3">
-                        {job.tags.map((tag, tagIndex) => (
+                        {(job.tags || []).map((tag, tagIndex) => (
                           <Badge key={tagIndex} variant="secondary">{tag}</Badge>
                         ))}
                       </div>
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <span>{job.level}</span>
-                          <span>{job.posted}</span>
+                          <span>{(job.education_levels && job.education_levels[0]) || ''}</span>
+                          <span>{job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}</span>
                         </div>
                         <div className="flex gap-2">
                           <Button variant="outline" size="sm">Save</Button>

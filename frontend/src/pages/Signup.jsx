@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,9 @@ import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Eye, EyeOff, Briefcase, User } from "lucide-react";
+import AuthContext from '@/context/AuthContext'
+
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000'
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -17,24 +20,24 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [userType, setUserType] = useState(null);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const auth = useContext(AuthContext)
   const handleSubmit = (e) => {
     e.preventDefault();
     // Call backend signup
     (async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/auth/signup', {
+        const res = await fetch(`${API_BASE}/api/auth/signup`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ firstName, lastName, email, password, userType })
         });
         const data = await res.json();
         if (!res.ok) {
-          alert(data.message || 'Signup failed');
+          alert(data.error || data.message || 'Signup failed');
           return;
         }
-        // store token and redirect
-        localStorage.setItem('token', data.token);
-        window.location.href = '/student-dashboard';
+  await auth.login({ token: data.token, user: { id: data.id, name: data.name, email: data.email } })
+        window.location.href = '/dashboard';
       } catch (err) {
         console.error(err);
         alert('Network error');

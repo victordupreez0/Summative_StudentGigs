@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,56 +14,24 @@ const BrowseJobs = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("");
 
-  const jobs = [
-    {
-      id: 1,
-      title: "Web Development for Student Portal",
-      company: "University of Technology",
-      location: "Remote",
-      type: "Part-time",
-      budget: "$25-35/hr",
-      budgetDetail: "Est. Budget: $1,500",
-      timePosted: "Posted 2 days ago",
-      description: "Looking for a student developer to build a responsive web portal for our university department. The portal will allow students to access course materials, submit assignments, and track their progress.",
-      tags: ["React", "Node.js", "MongoDB"],
-      applicants: 8,
-      level: "Intermediate",
-      duration: "2 months",
-      companyLogo: "/avatars/university.jpg"
-    },
-    {
-      id: 2,
-      title: "Content Writing for Academic Blog", 
-      company: "Professor Johnson",
-      location: "Remote",
-      type: "Freelance",
-      budget: "$20/hr",
-      budgetDetail: "Est. Budget: $800",
-      timePosted: "Posted 1 week ago",
-      description: "Seeking a student with strong research and writing skills to create content for an academic blog focused on environmental science. Topics will include climate change, sustainability, and conservation efforts.",
-      tags: ["Content Writing", "Research", "SEO"],
-      applicants: 5,
-      level: "Entry Level",
-      duration: "3 months",
-      companyLogo: "/avatars/professor.jpg"
-    },
-    {
-      id: 3,
-      title: "Data Analysis for Research Project",
-      company: "Smith Research Lab",
-      location: "On-site (Boston)",
-      type: "Part-time",
-      budget: "$30-40/hr", 
-      budgetDetail: "Est. Budget: $2,000",
-      timePosted: "Posted 3 days ago",
-      description: "We are looking for a student with strong data analysis skills to help with our ongoing research project. The ideal candidate will have experience with statistical analysis, data visualization, and report writing.",
-      tags: ["Python", "R", "Statistics"],
-      applicants: 12,
-      level: "Advanced",
-      duration: "4 months",
-      companyLogo: "/avatars/research.jpg"
-    }
-  ];
+  const [jobs, setJobs] = useState([])
+  const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000'
+
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/jobs`)
+        if (!res.ok) return
+        const data = await res.json()
+        if (!mounted) return
+        setJobs(data)
+      } catch (e) {
+        console.error('Failed to load jobs', e)
+      }
+    })()
+    return () => { mounted = false }
+  }, [])
 
   return (
     <div className="min-h-screen bg-background">
@@ -258,7 +226,7 @@ const BrowseJobs = () => {
                       <div className="flex-shrink-0">
                         <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                           <span className="text-primary font-semibold text-lg">
-                            {job.company.charAt(0)}
+                            {(job.category || `U`).charAt(0)}
                           </span>
                         </div>
                       </div>
@@ -269,7 +237,7 @@ const BrowseJobs = () => {
                             <h3 className="text-lg font-semibold text-foreground hover:text-primary cursor-pointer">
                               {job.title}
                             </h3>
-                            <p className="text-muted-foreground">{job.company}</p>
+                            <p className="text-muted-foreground">{job.user_id ? `Posted by user ${job.user_id}` : (job.category || '')}</p>
                           </div>
                           <Button variant="ghost" size="icon">
                             <Bookmark className="w-5 h-5" />
@@ -279,15 +247,15 @@ const BrowseJobs = () => {
                         <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-3">
                           <div className="flex items-center gap-1">
                             <MapPin className="w-4 h-4" />
-                            {job.location}
+                            {job.projectType || 'Remote'}
                           </div>
                           <div className="flex items-center gap-1">
                             <DollarSign className="w-4 h-4" />
-                            {job.budget}
+                            {job.projectLength || ''}
                           </div>
                           <div className="flex items-center gap-1">
                             <Clock className="w-4 h-4" />
-                            {job.duration}
+                            {job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}
                           </div>
                         </div>
 
@@ -296,7 +264,7 @@ const BrowseJobs = () => {
                         </p>
 
                         <div className="flex flex-wrap gap-2 mb-4">
-                          {job.tags.map((tag, index) => (
+                          {(job.tags || []).map((tag, index) => (
                             <Badge key={index} variant="secondary">
                               {tag}
                             </Badge>
@@ -305,12 +273,12 @@ const BrowseJobs = () => {
 
                         <div className="flex justify-between items-center">
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <span>{job.budgetDetail}</span>
+                            <span>{job.category || ''}</span>
                             <div className="flex items-center gap-1">
                               <Users className="w-4 h-4" />
-                              {job.applicants} applicants
+                              {job.applicants || 0} applicants
                             </div>
-                            <span>{job.timePosted}</span>
+                            <span>{job.created_at ? new Date(job.created_at).toLocaleString() : ''}</span>
                           </div>
                           <div className="flex gap-2">
                             <Button variant="outline" size="sm">Save</Button>

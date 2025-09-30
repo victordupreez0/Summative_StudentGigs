@@ -1,11 +1,15 @@
 import { Search, Bell, Mail } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useContext } from 'react'
+import AuthContext from '@/context/AuthContext'
 
 export const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate()
+  const { user, logout } = useContext(AuthContext)
   const isActive = (path) => {
     try {
       return location?.pathname === path || location?.pathname?.startsWith(path + '/');
@@ -90,14 +94,27 @@ export const Navbar = () => {
             <AvatarFallback>JD</AvatarFallback>
           </Avatar>
           
-          {/* Auth buttons for logged out state */}
+          {/* Auth buttons */}
           <div className="hidden md:flex items-center gap-2">
-            <Button variant="ghost" asChild>
-              <Link to="/login">Log in</Link>
-            </Button>
-            <Button variant="default" asChild>
-              <Link to="/signup">Sign up</Link>
-            </Button>
+            {!user ? (
+              <>
+                <Button variant="ghost" asChild>
+                  <Link to="/login">Log in</Link>
+                </Button>
+                <Button variant="default" asChild>
+                  <Link to="/signup">Sign up</Link>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" onClick={() => { logout(); navigate('/login') }}>
+                  Logout
+                </Button>
+                <Button variant="ghost" onClick={() => { navigate('/dashboard') }}>
+                  {user.name}
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>

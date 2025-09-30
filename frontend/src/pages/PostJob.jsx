@@ -11,6 +11,10 @@ import { ArrowLeft, Users, Clock, DollarSign, Eye, Save, UserPlus, CheckCircle }
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { useContext } from 'react'
+import AuthContext from '@/context/AuthContext'
+
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000'
 
 const PostJob = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -89,9 +93,11 @@ const PostJob = () => {
               </div>
             </div>
           </div>
-          <Button size="lg" disabled={currentStep < 5}>
-            Review and Post
-          </Button>
+          <PostButton
+            disabled={currentStep < 5}
+            currentStep={currentStep}
+            job={{ jobTitle, jobDescription, projectType, projectLength, jobCategory, tags, educationLevels }}
+          />
         </div>
 
         {/* Progress Steps */}
@@ -387,5 +393,42 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
     </div>
   );
 };
+
+function PostButton({ disabled, currentStep, job }){
+  const { token } = useContext(AuthContext)
+  const handlePost = async () => {
+    if (disabled) return
+    // basic payload
+    const payload = {
+      title: job.jobTitle,
+      description: job.jobDescription,
+      projectType: job.projectType,
+      projectLength: job.projectLength,
+      category: job.jobCategory,
+      tags: job.tags,
+      educationLevels: job.educationLevels,
+    }
+    try{
+      const res = await fetch(`${API_BASE}/api/jobs`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(payload)
+      })
+      const data = await res.json()
+      if (!res.ok) return alert(data.error || 'Could not post job')
+      alert('Job posted — id: ' + data.id)
+      window.location.href = '/dashboard'
+    }catch(e){
+      console.error(e)
+      alert('Network error')
+    }
+  }
+
+  return (
+    <Button size="lg" disabled={disabled} onClick={handlePost}>
+      {currentStep < 5 ? 'Review and Post' : 'Post Job'}
+    </Button>
+  )
+}
 
 export default PostJob;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,30 +8,34 @@ import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Eye, EyeOff } from "lucide-react";
+import AuthContext from '@/context/AuthContext'
+
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000'
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const auth = useContext(AuthContext)
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    (async () => {
+  (async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/auth/login', {
+        const res = await fetch(`${API_BASE}/api/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
         });
         const data = await res.json();
         if (!res.ok) {
-          alert(data.message || 'Login failed');
+          alert(data.error || data.message || 'Login failed');
           return;
         }
-        localStorage.setItem('token', data.token);
-        // Redirect based on userType if available
-        const dest = data.user?.userType === 'hire' ? '/employer-dashboard' : '/student-dashboard';
+        // use AuthContext to set token/user
+        await auth.login({ token: data.token, user: { id: data.id, name: data.name, email: data.email } })
+        const dest = '/dashboard'
         window.location.href = dest;
       } catch (err) {
         console.error(err);
