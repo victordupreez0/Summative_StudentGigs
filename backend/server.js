@@ -17,12 +17,25 @@ const port = process.env.PORT || 4000
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_change_me'
 
-// Use a pool so the server stays up even if DB is down initially.
-const DB_HOST = process.env.DB_HOST || '127.0.0.1'
-const DB_PORT = Number(process.env.DB_PORT || 3306)
-const DB_USER = process.env.DB_USER || 'root'
-const DB_PASS = process.env.DB_PASS || ''
-const DB_NAME = process.env.DB_NAME || 'studentgigs'
+// Parse database configuration from JAWSDB_URL or individual env vars
+let DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME
+
+if (process.env.JAWSDB_URL) {
+    // Parse JawsDB URL for Heroku
+    const url = new URL(process.env.JAWSDB_URL)
+    DB_HOST = url.hostname
+    DB_PORT = Number(url.port) || 3306
+    DB_USER = url.username
+    DB_PASS = url.password
+    DB_NAME = url.pathname.slice(1) // remove leading slash
+} else {
+    // Use individual environment variables (for local development)
+    DB_HOST = process.env.DB_HOST || '127.0.0.1'
+    DB_PORT = Number(process.env.DB_PORT || 3306)
+    DB_USER = process.env.DB_USER || 'root'
+    DB_PASS = process.env.DB_PASS || ''
+    DB_NAME = process.env.DB_NAME || 'studentgigs'
+}
 
 // `db` will be created after we ensure the database exists. Start as null.
 let db = null
