@@ -277,8 +277,9 @@ app.get('/api/jobs', (req, res) => {
 })
 
 // Catch-all handler for React Router (must be last)
-app.all('/:any(.*)', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'))
-})
+// Catch-all handler for React Router (must be last)
+app.use((req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+});
 
 // NOTE: server is started from initAndStart or the catch block above
