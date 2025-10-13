@@ -1,25 +1,22 @@
 {
   "name": "student_gigs",
   "version": "1.0.0",
-  "description": "Full-stack student gigs application",
+  "description": "A full-stack web application for connecting students with gig opportunities",
   "main": "backend/server.js",
   "scripts": {
-    "start": "node backend/server.js",
-    "build": "cd frontend && npm install && npm run build",
+    "start": "cd backend && npm start",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
+    "install:all": "npm run install:backend && npm run install:frontend",
     "install:backend": "cd backend && npm install",
     "install:frontend": "cd frontend && npm install",
-    "install:all": "npm run install:backend && npm run install:frontend",
-    "heroku-postbuild": "npm run install:backend && npm run install:frontend && npm run build"
+    "build:frontend": "cd frontend && npm run build",
+    "heroku-postbuild": "npm run install:backend && npm run install:frontend && npm run build:frontend"
   },
   "engines": {
     "node": "18.x"
   },
-  "keywords": ["student", "gigs", "jobs", "fullstack"],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "concurrently": "^8.2.2"
   }
