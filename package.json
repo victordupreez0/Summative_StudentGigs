@@ -12,7 +12,7 @@
     "install:backend": "cd backend && npm install",
     "install:frontend": "cd frontend && npm install",
     "build:frontend": "cd frontend && npm run build",
-    "heroku-postbuild": "npm run install:backend && npm run install:frontend && npm run build:frontend"
+    "heroku-postbuild": "npm run install:backend && cd frontend && npm install --include=dev && npm run build"
   },
   "engines": {
     "node": "18.x"
