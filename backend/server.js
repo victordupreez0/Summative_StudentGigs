@@ -277,7 +277,7 @@ app.get('/api/jobs', (req, res) => {
 })
 
 // Catch-all handler for React Router (must be last)
-app.get('*', (req, res) => {
+app.get('/:path(*)', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/dist/index.html'))
 })
 
