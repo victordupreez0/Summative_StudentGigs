@@ -7,7 +7,8 @@ const jwt = require('jsonwebtoken')
 
 const app = express()
 
-app.use(express.static(path.join(__dirname, "public")))
+// Serve static files from frontend build
+app.use(express.static(path.join(__dirname, '../frontend/dist')))
 app.use(cors())
 app.use(express.json())
 
@@ -260,6 +261,11 @@ app.get('/api/jobs', (req, res) => {
         const out = rows.map(r => ({ ...r, tags: r.tags ? JSON.parse(r.tags) : [], educationLevels: r.educationLevels ? JSON.parse(r.educationLevels) : [] }))
         res.json(out)
     })
+})
+
+// Catch-all handler for React Router (must be last)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'))
 })
 
 // NOTE: server is started from initAndStart or the catch block above
