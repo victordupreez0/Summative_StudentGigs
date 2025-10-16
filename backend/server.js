@@ -350,6 +350,148 @@ app.get('/api/jobs/my-jobs', authenticateToken, (req, res) => {
     })
 })
 
+// Apply to a job (protected - students only)
+app.post('/api/jobs/:jobId/apply', authenticateToken, (req, res) => {
+    if (!db) return res.status(500).json({ error: 'db not initialized' })
+    const userId = req.user && req.user.id
+    if (!userId) return res.status(401).json({ error: 'invalid token payload' })
+    
+    const jobId = req.params.jobId
+    const { coverLetter } = req.body
+    
+    if (!jobId) return res.status(400).json({ error: 'job id required' })
+    
+    // Insert application (UNIQUE constraint prevents duplicate applications)
+    db.query(
+        'INSERT INTO applications (job_id, user_id, cover_letter, status) VALUES (?, ?, ?, ?)',
+        [jobId, userId, coverLetter || null, 'pending'],
+        (err) => {
+            if (err) {
+                if (err.code === 'ER_DUP_ENTRY') {
+                    return res.status(400).json({ error: 'You have already applied to this job' })
+                }
+                console.error('Application error:', err)
+                return res.status(500).json({ error: 'db error' })
+            }
+            res.json({ success: true, message: 'Application submitted successfully' })
+        }
+    )
+})
+
+// Get applications for a specific job (protected - employer only)
+app.get('/api/jobs/:jobId/applications', authenticateToken, (req, res) => {
+    if (!db) return res.status(500).json({ error: 'db not initialized' })
+    const userId = req.user && req.user.id
+    if (!userId) return res.status(401).json({ error: 'invalid token payload' })
+    
+    const jobId = req.params.jobId
+    
+    // First verify the job belongs to this user
+    db.query('SELECT user_id FROM jobs WHERE id = ?', [jobId], (err, jobs) => {
+        if (err) return res.status(500).json({ error: 'db error' })
+        if (!jobs.length) return res.status(404).json({ error: 'job not found' })
+        if (jobs[0].user_id !== userId) return res.status(403).json({ error: 'unauthorized' })
+        
+        // Get applications with user details
+        db.query(
+            `SELECT a.id, a.job_id, a.user_id, a.status, a.cover_letter, a.created_at,
+                    u.name, u.email, u.profile_picture, u.avatar_color
+             FROM applications a
+             JOIN users u ON a.user_id = u.id
+             WHERE a.job_id = ?
+             ORDER BY a.created_at DESC`,
+            [jobId],
+            (err, applications) => {
+                if (err) return res.status(500).json({ error: 'db error' })
+                res.json(applications)
+            }
+        )
+    })
+})
+
+// Get all applications for all jobs by the employer (protected)
+app.get('/api/applications/my-jobs', authenticateToken, (req, res) => {
+    if (!db) return res.status(500).json({ error: 'db not initialized' })
+    const userId = req.user && req.user.id
+    if (!userId) return res.status(401).json({ error: 'invalid token payload' })
+    
+    // Get all applications for jobs posted by this employer
+    db.query(
+        `SELECT a.id, a.job_id, a.user_id, a.status, a.cover_letter, a.created_at,
+                u.name, u.email, u.profile_picture, u.avatar_color,
+                j.title AS job_title
+         FROM applications a
+         JOIN users u ON a.user_id = u.id
+         JOIN jobs j ON a.job_id = j.id
+         WHERE j.user_id = ?
+         ORDER BY a.created_at DESC`,
+        [userId],
+        (err, applications) => {
+            if (err) return res.status(500).json({ error: 'db error' })
+            res.json(applications)
+        }
+    )
+})
+
+// Get user's own applications (protected - students)
+app.get('/api/applications/my-applications', authenticateToken, (req, res) => {
+    if (!db) return res.status(500).json({ error: 'db not initialized' })
+    const userId = req.user && req.user.id
+    if (!userId) return res.status(401).json({ error: 'invalid token payload' })
+    
+    // Get all applications by this user
+    db.query(
+        `SELECT a.id, a.job_id, a.user_id, a.status, a.cover_letter, a.created_at,
+                j.title AS job_title, j.description, j.category
+         FROM applications a
+         JOIN jobs j ON a.job_id = j.id
+         WHERE a.user_id = ?
+         ORDER BY a.created_at DESC`,
+        [userId],
+        (err, applications) => {
+            if (err) return res.status(500).json({ error: 'db error' })
+            res.json(applications)
+        }
+    )
+})
+
+// Update application status (protected - employer only)
+app.patch('/api/applications/:applicationId/status', authenticateToken, (req, res) => {
+    if (!db) return res.status(500).json({ error: 'db not initialized' })
+    const userId = req.user && req.user.id
+    if (!userId) return res.status(401).json({ error: 'invalid token payload' })
+    
+    const applicationId = req.params.applicationId
+    const { status } = req.body
+    
+    if (!['pending', 'accepted', 'rejected'].includes(status)) {
+        return res.status(400).json({ error: 'invalid status' })
+    }
+    
+    // Verify the application's job belongs to this employer
+    db.query(
+        `SELECT j.user_id FROM applications a
+         JOIN jobs j ON a.job_id = j.id
+         WHERE a.id = ?`,
+        [applicationId],
+        (err, results) => {
+            if (err) return res.status(500).json({ error: 'db error' })
+            if (!results.length) return res.status(404).json({ error: 'application not found' })
+            if (results[0].user_id !== userId) return res.status(403).json({ error: 'unauthorized' })
+            
+            // Update status
+            db.query(
+                'UPDATE applications SET status = ? WHERE id = ?',
+                [status, applicationId],
+                (err) => {
+                    if (err) return res.status(500).json({ error: 'db error' })
+                    res.json({ success: true, message: 'Application status updated' })
+                }
+            )
+        }
+    )
+})
+
 // Catch-all handler for React Router (must be last)
 app.use((req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));

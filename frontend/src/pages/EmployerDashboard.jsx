@@ -28,6 +28,7 @@ const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000';
 const EmployerDashboard = () => {
   const { user, token } = useContext(AuthContext);
   const [activeJobs, setActiveJobs] = useState([]);
+  const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -56,7 +57,7 @@ const EmployerDashboard = () => {
             type: job.projectType || 'Remote',
             duration: job.projectLength || 'Not specified',
             budget: '$20-30/hr', // TODO: Add budget field to database
-            applicants: 0, // TODO: Add applicants count
+            applicants: 0, // Will be updated when applications load
             posted: `Posted ${getTimeAgo(job.created_at)}`,
             tags: job.tags || []
           }));
@@ -70,7 +71,39 @@ const EmployerDashboard = () => {
       }
     };
 
+    const fetchApplications = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/applications/my-jobs`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!res.ok) {
+          console.error('Failed to fetch applications');
+          return;
+        }
+        
+        const data = await res.json();
+        if (mounted) {
+          setApplications(data);
+          // Update job applicant counts
+          const applicantCounts = {};
+          data.forEach(app => {
+            applicantCounts[app.job_id] = (applicantCounts[app.job_id] || 0) + 1;
+          });
+          setActiveJobs(prev => prev.map(job => ({
+            ...job,
+            applicants: applicantCounts[job.id] || 0
+          })));
+        }
+      } catch (err) {
+        console.error('Failed to load applications', err);
+      }
+    };
+
     fetchMyJobs();
+    fetchApplications();
     return () => { mounted = false };
   }, [token]);
 
@@ -350,50 +383,70 @@ const EmployerDashboard = () => {
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
                   Recent Applicants
-                  <Badge variant="secondary">12 new</Badge>
+                  <Badge variant="secondary">{applications.filter(a => a.status === 'pending').length} new</Badge>
                 </CardTitle>
                 <Link to="/applicants" className="text-primary hover:underline text-sm">View all</Link>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {recentApplicants.map((applicant, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="w-10 h-10">
-                          <AvatarImage src={applicant.avatar} />
-                          <AvatarFallback>{applicant.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium text-foreground">{applicant.name}</p>
-                          <p className="text-sm text-muted-foreground">{applicant.position}</p>
-                          <div className="flex gap-2 mt-1">
-                            {applicant.skills.map((skill, skillIndex) => (
-                              <Badge key={skillIndex} variant="outline" className="text-xs">{skill}</Badge>
-                            ))}
+                {applications.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>No applications yet</p>
+                    <p className="text-sm">Applications will appear here when students apply to your jobs</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {applications.slice(0, 5).map((applicant) => {
+                      const statusMap = {
+                        'pending': 'New',
+                        'accepted': 'Accepted',
+                        'rejected': 'Rejected'
+                      };
+                      const statusVariant = {
+                        'pending': 'default',
+                        'accepted': 'success',
+                        'rejected': 'secondary'
+                      };
+                      
+                      return (
+                        <div key={applicant.id} className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div 
+                              className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                              style={{ backgroundColor: applicant.profile_picture ? 'transparent' : (applicant.avatar_color || '#1e40af') }}
+                            >
+                              {applicant.profile_picture ? (
+                                <img src={applicant.profile_picture} alt={applicant.name} className="w-full h-full rounded-full object-cover" />
+                              ) : (
+                                (applicant.name?.charAt(0) || 'U').toUpperCase()
+                              )}
+                            </div>
+                            <div>
+                              <p className="font-medium text-foreground">{applicant.name}</p>
+                              <p className="text-sm text-muted-foreground">{applicant.job_title}</p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Applied {new Date(applicant.created_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <Badge 
+                              variant={statusVariant[applicant.status]}
+                              className="mb-1"
+                            >
+                              {statusMap[applicant.status]}
+                            </Badge>
+                            <div className="flex gap-1 mt-2">
+                              <Button size="sm" variant="outline" onClick={() => {
+                                alert(`Reviewing application from ${applicant.name}\n\nCover Letter: ${applicant.cover_letter || 'No cover letter provided'}`);
+                              }}>Review</Button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <Badge 
-                          variant={applicant.status === 'New' ? 'default' : applicant.status === 'Interview' ? 'secondary' : 'outline'}
-                          className="mb-1"
-                        >
-                          {applicant.status}
-                        </Badge>
-                        <p className="text-xs text-muted-foreground">{applicant.appliedTime}</p>
-                        <div className="flex gap-1 mt-2">
-                          <Button size="sm" variant="outline">Review</Button>
-                          {applicant.status === 'Interview' && (
-                            <Button size="sm">Schedule</Button>
-                          )}
-                          {applicant.status === 'Shortlisted' && (
-                            <Button size="sm">Message</Button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

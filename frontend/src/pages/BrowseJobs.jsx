@@ -1,18 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Filter, MapPin, Clock, DollarSign, Users, Bookmark } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Search, Filter, MapPin, Clock, DollarSign, Users, Bookmark, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import AuthContext from '@/context/AuthContext';
 
 const BrowseJobs = () => {
+  const { user, token } = useContext(AuthContext);
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("");
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [coverLetter, setCoverLetter] = useState("");
+  const [applying, setApplying] = useState(false);
 
   const [jobs, setJobs] = useState([])
   const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000'
@@ -32,6 +39,48 @@ const BrowseJobs = () => {
     })()
     return () => { mounted = false }
   }, [])
+
+  const handleApplyClick = (job) => {
+    if (!user) {
+      alert('Please log in to apply for jobs');
+      return;
+    }
+    setSelectedJob(job);
+    setCoverLetter('');
+    setShowApplyModal(true);
+  };
+
+  const handleSubmitApplication = async () => {
+    if (!selectedJob || !token) return;
+    
+    setApplying(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/jobs/${selectedJob.id}/apply`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ coverLetter })
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok) {
+        alert('Application submitted successfully!');
+        setShowApplyModal(false);
+        setSelectedJob(null);
+        setCoverLetter('');
+      } else {
+        alert(data.error || 'Failed to submit application');
+      }
+    } catch (err) {
+      console.error('Application error:', err);
+      alert('Network error. Please try again.');
+    } finally {
+      setApplying(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -282,7 +331,7 @@ const BrowseJobs = () => {
                           </div>
                           <div className="flex gap-2">
                             <Button variant="outline" size="sm">Save</Button>
-                            <Button size="sm">Apply Now</Button>
+                            <Button size="sm" onClick={() => handleApplyClick(job)}>Apply Now</Button>
                           </div>
                         </div>
                       </div>
@@ -315,6 +364,66 @@ const BrowseJobs = () => {
           </div>
         </div>
       </div>
+
+      {/* Application Modal */}
+      {showApplyModal && selectedJob && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h2 className="text-2xl font-bold mb-2">Apply for {selectedJob.title}</h2>
+                  <p className="text-muted-foreground">{selectedJob.category}</p>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => setShowApplyModal(false)}
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-semibold mb-2">Job Description</h3>
+                  <p className="text-sm text-muted-foreground">{selectedJob.description}</p>
+                </div>
+
+                <div>
+                  <label htmlFor="coverLetter" className="block text-sm font-medium mb-2">
+                    Cover Letter (Optional)
+                  </label>
+                  <Textarea
+                    id="coverLetter"
+                    placeholder="Tell the employer why you're a great fit for this position..."
+                    value={coverLetter}
+                    onChange={(e) => setCoverLetter(e.target.value)}
+                    rows={6}
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="flex gap-3 justify-end">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowApplyModal(false)}
+                    disabled={applying}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={handleSubmitApplication}
+                    disabled={applying}
+                  >
+                    {applying ? 'Submitting...' : 'Submit Application'}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <Footer />
     </div>
