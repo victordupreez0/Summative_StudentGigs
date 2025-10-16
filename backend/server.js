@@ -69,10 +69,21 @@ async function initDatabase() {
                             name VARCHAR(255) NOT NULL,
                             email VARCHAR(255) NOT NULL UNIQUE,
                             password VARCHAR(255) NOT NULL,
+                            user_type ENUM('student', 'employer') NOT NULL DEFAULT 'student',
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
                         adminPool.query(createTableSql, (err) => {
                                 if (err) return reject(err)
+                                resolve()
+                        })
+                })
+                
+                // Add user_type column to existing users table if it doesn't exist
+                await new Promise((resolve, reject) => {
+                        const alterTableSql = `ALTER TABLE \`${DB_NAME}\`.users 
+                            ADD COLUMN IF NOT EXISTS user_type ENUM('student', 'employer') NOT NULL DEFAULT 'student' AFTER password;`
+                        adminPool.query(alterTableSql, (err) => {
+                                // Ignore error if column already exists
                                 resolve()
                         })
                 })
@@ -174,6 +185,8 @@ async function handleRegister(req, res) {
     const name = body.name || [body.firstName, body.lastName].filter(Boolean).join(' ').trim()
     const email = body.email
     const password = body.password
+    // Map frontend userType to database user_type: 'work' -> 'student', 'hire' -> 'employer'
+    const userType = body.userType === 'hire' ? 'employer' : 'student'
 
     if (!name || !email || !password) return res.status(400).json({ error: 'name, email and password required' })
 
@@ -183,11 +196,11 @@ async function handleRegister(req, res) {
             if (results.length) return res.status(409).json({ error: 'email already registered' })
 
             const hashed = await bcrypt.hash(password, 10)
-            db.query('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [name, email, hashed], (err2, result2) => {
+            db.query('INSERT INTO users (name, email, password, user_type) VALUES (?, ?, ?, ?)', [name, email, hashed, userType], (err2, result2) => {
                 if (err2) return res.status(500).json({ error: 'db insert error' })
                 const createdId = result2.insertId
-                const token = jwt.sign({ id: createdId, email, name }, JWT_SECRET, { expiresIn: '1h' })
-                res.status(201).json({ id: createdId, name, email, token })
+                const token = jwt.sign({ id: createdId, email, name, userType }, JWT_SECRET, { expiresIn: '1h' })
+                res.status(201).json({ id: createdId, name, email, userType, token })
             })
         })
     } catch (err) {
@@ -205,7 +218,7 @@ function handleLogin(req, res) {
     const { email, password } = req.body || {}
     if (!email || !password) return res.status(400).json({ error: 'email and password required' })
 
-    db.query('SELECT id, name, email, password FROM users WHERE email = ?', [email], async (err, results) => {
+    db.query('SELECT id, name, email, password, user_type FROM users WHERE email = ?', [email], async (err, results) => {
         if (err) return res.status(500).json({ error: 'db error' })
         if (!results.length) return res.status(401).json({ error: 'invalid credentials' })
 
@@ -213,8 +226,8 @@ function handleLogin(req, res) {
         const match = await bcrypt.compare(password, user.password)
         if (!match) return res.status(401).json({ error: 'invalid credentials' })
 
-        const token = jwt.sign({ id: user.id, email: user.email, name: user.name }, JWT_SECRET, { expiresIn: '1h' })
-        res.json({ id: user.id, name: user.name, email: user.email, token })
+        const token = jwt.sign({ id: user.id, email: user.email, name: user.name, userType: user.user_type }, JWT_SECRET, { expiresIn: '1h' })
+        res.json({ id: user.id, name: user.name, email: user.email, userType: user.user_type, token })
     })
 }
 
@@ -239,10 +252,11 @@ function authenticateToken(req, res, next) {
 app.get('/api/profile', authenticateToken, (req, res) => {
     const userId = req.user && req.user.id
     if (!userId) return res.status(400).json({ error: 'invalid token payload' })
-    db.query('SELECT id, name, email FROM users WHERE id = ?', [userId], (err, results) => {
+    db.query('SELECT id, name, email, user_type FROM users WHERE id = ?', [userId], (err, results) => {
         if (err) return res.status(500).json({ error: 'db error' })
         if (!results.length) return res.status(404).json({ error: 'user not found' })
-        res.json(results[0])
+        const user = results[0]
+        res.json({ id: user.id, name: user.name, email: user.email, userType: user.user_type })
     })
 })
 
@@ -277,9 +291,7 @@ app.get('/api/jobs', (req, res) => {
 })
 
 // Catch-all handler for React Router (must be last)
-// Catch-all handler for React Router (must be last)
 app.use((req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
-// NOTE: server is started from initAndStart or the catch block above

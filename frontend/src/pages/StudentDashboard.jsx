@@ -150,7 +150,7 @@ const StudentDashboard = () => {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           {stats.map((stat, index) => (
-            <Card key={index}>
+            <Card key={index} hover={true}>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -171,9 +171,9 @@ const StudentDashboard = () => {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
             {/* Recommended Jobs */}
-            <Card>
+            <Card hover={true}>
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Recommended Jobs</CardTitle>
+                <CardTitle>Recommended Jobs for Students</CardTitle>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">Sort by:</span>
                   <Button variant="outline" size="sm">
@@ -193,7 +193,7 @@ const StudentDashboard = () => {
                           <Bookmark className="w-4 h-4" />
                         </Button>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">{job.user_id ? `Posted by user ${job.user_id}` : ''}</p>
+                      <p className="text-sm text-muted-foreground mb-2">{job.user_id ? `Posted by employer` : ''}</p>
                       <p className="text-sm font-medium text-foreground mb-3">{job.projectLength || ''}</p>
                       <div className="flex flex-wrap gap-2 mb-3">
                         {(job.tags || []).map((tag, tagIndex) => (
@@ -222,7 +222,7 @@ const StudentDashboard = () => {
             </Card>
 
             {/* Recent Activity */}
-            <Card>
+            <Card hover={true}>
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
               </CardHeader>
@@ -250,7 +250,7 @@ const StudentDashboard = () => {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Profile Card */}
-            <Card className="bg-gradient-hero text-primary-foreground">
+            <Card className="bg-gradient-hero text-primary-foreground" hover={true}>
               <CardContent className="p-6">
                 <div className="text-center mb-4">
                   <Avatar className="w-20 h-20 mx-auto mb-4 border-4 border-primary-foreground/20">
@@ -299,7 +299,7 @@ const StudentDashboard = () => {
             </Card>
 
             {/* Quick Actions */}
-            <Card>
+            <Card hover={true}>
               <CardHeader>
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>

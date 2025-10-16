@@ -2,7 +2,17 @@ import React from 'react';
 
 export const Select = ({ children, className = '', value, onValueChange, ...props }) => (
   <select
-    className={`border rounded px-2 py-1 ${className}`}
+    className={`
+      w-full px-4 py-2.5
+      bg-white border border-slate-300 rounded-lg
+      text-slate-900 text-sm
+      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+      transition-all duration-200
+      disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed
+      hover:border-slate-400
+      cursor-pointer
+      ${className}
+    `}
     value={value}
     onChange={(e) => onValueChange && onValueChange(e.target.value)}
     {...props}

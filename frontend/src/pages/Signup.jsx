@@ -36,8 +36,14 @@ const Signup = () => {
           alert(data.error || data.message || 'Signup failed');
           return;
         }
-  await auth.login({ token: data.token, user: { id: data.id, name: data.name, email: data.email } })
-        window.location.href = '/dashboard';
+  await auth.login({ token: data.token, user: { id: data.id, name: data.name, email: data.email, userType: data.userType } })
+        
+        // Redirect based on user type
+        if (data.userType === 'employer') {
+          window.location.href = '/employer-dashboard';
+        } else {
+          window.location.href = '/dashboard';
+        }
       } catch (err) {
         console.error(err);
         alert('Network error');
@@ -162,37 +168,54 @@ const Signup = () => {
                   </div>
                 </div>
 
-                {/* User Type Selection */}
+                {/* User Type Selection - More Prominent */}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-3">
-                    I want to:
+                    I want to: <span className="text-red-500">*</span>
                   </label>
                   <div className="grid grid-cols-2 gap-4">
                     <button
                       type="button"
                       onClick={() => setUserType("hire")}
-                      className={`p-4 border-2 rounded-lg transition-all ${
+                      className={`p-6 border-2 rounded-xl transition-all duration-200 ${
                         userType === "hire" 
-                          ? "border-primary bg-primary/5" 
-                          : "border-border hover:border-primary/50"
+                          ? "border-blue-600 bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg scale-105" 
+                          : "border-slate-300 hover:border-blue-400 hover:bg-slate-50"
                       }`}
                     >
-                      <Briefcase className="w-8 h-8 mx-auto mb-2 text-primary" />
-                      <div className="text-sm font-medium">Hire for a project</div>
+                      <Briefcase className={`w-10 h-10 mx-auto mb-3 ${
+                        userType === "hire" ? "text-blue-600" : "text-slate-400"
+                      }`} />
+                      <div className={`text-base font-semibold mb-1 ${
+                        userType === "hire" ? "text-blue-900" : "text-slate-700"
+                      }`}>
+                        Hire for a project
+                      </div>
+                      <div className="text-xs text-slate-500">Post jobs & find talent</div>
                     </button>
                     <button
                       type="button"
                       onClick={() => setUserType("work")}
-                      className={`p-4 border-2 rounded-lg transition-all ${
+                      className={`p-6 border-2 rounded-xl transition-all duration-200 ${
                         userType === "work" 
-                          ? "border-primary bg-primary/5" 
-                          : "border-border hover:border-primary/50"
+                          ? "border-purple-600 bg-gradient-to-br from-purple-50 to-purple-100 shadow-lg scale-105" 
+                          : "border-slate-300 hover:border-purple-400 hover:bg-slate-50"
                       }`}
                     >
-                      <User className="w-8 h-8 mx-auto mb-2 text-primary" />
-                      <div className="text-sm font-medium">Work as a student</div>
+                      <User className={`w-10 h-10 mx-auto mb-3 ${
+                        userType === "work" ? "text-purple-600" : "text-slate-400"
+                      }`} />
+                      <div className={`text-base font-semibold mb-1 ${
+                        userType === "work" ? "text-purple-900" : "text-slate-700"
+                      }`}>
+                        Work as a student
+                      </div>
+                      <div className="text-xs text-slate-500">Find jobs & earn money</div>
                     </button>
                   </div>
+                  {!userType && (
+                    <p className="text-xs text-red-500 mt-2">Please select how you want to use StudentGigs</p>
+                  )}
                 </div>
 
                 <div className="flex items-start space-x-2">

@@ -189,7 +189,7 @@ const EmployerDashboard = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Welcome Section */}
+        {/* Welcome Section - Employer */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
@@ -197,9 +197,9 @@ const EmployerDashboard = () => {
             </div>
             <div>
               <h1 className="text-2xl font-bold flex items-center gap-2">
-                Welcome, Michael 👋
+                Welcome back, Michael 👋
               </h1>
-              <p className="text-muted-foreground">BusinessTech Workspace</p>
+              <p className="text-muted-foreground">BusinessTech Workspace • Employer Account</p>
             </div>
           </div>
 
@@ -213,11 +213,13 @@ const EmployerDashboard = () => {
               </div>
               <div className="flex gap-3">
                 <Button variant="accent" asChild>
-                  <Link to="/post-job">+ Post a job</Link>
+                  <Link to="/post-job">+ Post a Job</Link>
                 </Button>
-                <Button variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
-                  <Users className="w-4 h-4 mr-2" />
-                  Browse students
+                <Button variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" asChild>
+                  <Link to="/browse-talent">
+                    <Users className="w-4 h-4 mr-2" />
+                    Browse Students
+                  </Link>
                 </Button>
               </div>
             </div>
@@ -227,7 +229,7 @@ const EmployerDashboard = () => {
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           {stats.map((stat, index) => (
-            <Card key={index}>
+            <Card key={index} hover={true}>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -247,11 +249,11 @@ const EmployerDashboard = () => {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
             {/* Active Jobs */}
-            <Card>
+            <Card hover={true}>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
                   <Briefcase className="w-5 h-5" />
-                  Active jobs
+                  Active Jobs
                   <Badge variant="secondary">3</Badge>
                 </CardTitle>
                 <Link to="/jobs" className="text-primary hover:underline text-sm">View all</Link>
@@ -265,9 +267,9 @@ const EmployerDashboard = () => {
                         <span className="text-sm text-muted-foreground">{job.posted}</span>
                       </div>
                       <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                        <span>{job.type}</span>
-                        <span>{job.duration}</span>
-                        <span>{job.budget}</span>
+                        <span><MapPin className="w-4 h-4 inline mr-1" />{job.type}</span>
+                        <span><Clock className="w-4 h-4 inline mr-1" />{job.duration}</span>
+                        <span className="font-medium"><DollarSign className="w-4 h-4 inline mr-1" />{job.budget}</span>
                       </div>
                       <div className="flex flex-wrap gap-2 mb-3">
                         {job.tags.map((tag, tagIndex) => (
@@ -280,8 +282,11 @@ const EmployerDashboard = () => {
                           {job.applicants} applicants
                         </div>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm">Save</Button>
-                          <Button size="sm">Apply Now</Button>
+                          <Button variant="outline" size="sm">
+                            <Eye className="w-4 h-4 mr-1" />
+                            View
+                          </Button>
+                          <Button size="sm">Review Applicants</Button>
                         </div>
                       </div>
                     </div>
@@ -291,10 +296,10 @@ const EmployerDashboard = () => {
             </Card>
 
             {/* Recent Applicants */}
-            <Card>
+            <Card hover={true}>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
-                  Recent applicants
+                  Recent Applicants
                   <Badge variant="secondary">12 new</Badge>
                 </CardTitle>
                 <Link to="/applicants" className="text-primary hover:underline text-sm">View all</Link>
