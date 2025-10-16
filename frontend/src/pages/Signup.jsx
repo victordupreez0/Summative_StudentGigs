@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { Eye, EyeOff, Briefcase, User } from "lucide-react";
+import { Eye, EyeOff, Briefcase, User, Upload } from "lucide-react";
 import AuthContext from '@/context/AuthContext'
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000'
@@ -19,31 +19,76 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [userType, setUserType] = useState(null);
+  const [businessName, setBusinessName] = useState("");
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [profilePreview, setProfilePreview] = useState(null);
+  const [avatarColor, setAvatarColor] = useState("");
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const auth = useContext(AuthContext)
+
+  // Generate random pastel color on mount
+  useEffect(() => {
+    const pastelColors = ['#A8E6CF', '#C4A8E6', '#FFB6D9', '#A8D8EA']; // green, purple, pink, blue
+    const randomColor = pastelColors[Math.floor(Math.random() * pastelColors.length)];
+    setAvatarColor(randomColor);
+  }, []);
+
+  const handleProfilePictureChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfilePicture(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Validate business name for employers
+    if (userType === 'hire' && !businessName.trim()) {
+      alert('Business name is required for employer accounts');
+      return;
+    }
     // Call backend signup
     (async () => {
       try {
         const res = await fetch(`${API_BASE}/api/auth/signup`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ firstName, lastName, email, password, userType })
+          body: JSON.stringify({ 
+            firstName, 
+            lastName, 
+            email, 
+            password, 
+            userType,
+            businessName: userType === 'hire' ? businessName : null,
+            profilePicture: profilePreview, // Send base64 encoded image
+            avatarColor
+          })
         });
         const data = await res.json();
         if (!res.ok) {
           alert(data.error || data.message || 'Signup failed');
           return;
         }
-  await auth.login({ token: data.token, user: { id: data.id, name: data.name, email: data.email, userType: data.userType } })
+  await auth.login({ 
+    token: data.token, 
+    user: { 
+      id: data.id, 
+      name: data.name, 
+      email: data.email, 
+      userType: data.userType,
+      businessName: data.businessName,
+      profilePicture: data.profilePicture,
+      avatarColor: data.avatarColor
+    } 
+  })
         
-        // Redirect based on user type
-        if (data.userType === 'employer') {
-          window.location.href = '/employer-dashboard';
-        } else {
-          window.location.href = '/dashboard';
-        }
+        // Redirect to dashboard which will route based on user type
+        window.location.href = '/dashboard';
       } catch (err) {
         console.error(err);
         alert('Network error');
@@ -168,6 +213,46 @@ const Signup = () => {
                   </div>
                 </div>
 
+                {/* Profile Picture Upload */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1">
+                    Profile picture (optional)
+                  </label>
+                  <div className="flex items-center gap-4">
+                    <div 
+                      className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl"
+                      style={{ backgroundColor: profilePreview ? 'transparent' : avatarColor }}
+                    >
+                      {profilePreview ? (
+                        <img src={profilePreview} alt="Profile" className="w-full h-full rounded-full object-cover" />
+                      ) : (
+                        `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || '?'
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        id="profilePicture"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleProfilePictureChange}
+                        className="hidden"
+                      />
+                      <label htmlFor="profilePicture">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="cursor-pointer"
+                          onClick={() => document.getElementById('profilePicture').click()}
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          Upload image
+                        </Button>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
                 {/* User Type Selection - More Prominent */}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-3">
@@ -217,6 +302,23 @@ const Signup = () => {
                     <p className="text-xs text-red-500 mt-2">Please select how you want to use StudentGigs</p>
                   )}
                 </div>
+
+                {/* Business Name Field - Only for Employers */}
+                {userType === "hire" && (
+                  <div>
+                    <label htmlFor="businessName" className="block text-sm font-medium text-foreground mb-1">
+                      Business name <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      id="businessName"
+                      type="text"
+                      placeholder="Your company or business name"
+                      value={businessName}
+                      onChange={(e) => setBusinessName(e.target.value)}
+                      required={userType === "hire"}
+                    />
+                  </div>
+                )}
 
                 <div className="flex items-start space-x-2">
                   <Checkbox

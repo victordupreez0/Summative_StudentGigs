@@ -70,6 +70,9 @@ async function initDatabase() {
                             email VARCHAR(255) NOT NULL UNIQUE,
                             password VARCHAR(255) NOT NULL,
                             user_type ENUM('student', 'employer') NOT NULL DEFAULT 'student',
+                            business_name VARCHAR(255) NULL,
+                            profile_picture TEXT NULL,
+                            avatar_color VARCHAR(7) NULL,
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
                         adminPool.query(createTableSql, (err) => {
@@ -78,12 +81,15 @@ async function initDatabase() {
                         })
                 })
                 
-                // Add user_type column to existing users table if it doesn't exist
-                await new Promise((resolve, reject) => {
+                // Add new columns to existing users table if they don't exist
+                await new Promise((resolve) => {
                         const alterTableSql = `ALTER TABLE \`${DB_NAME}\`.users 
-                            ADD COLUMN IF NOT EXISTS user_type ENUM('student', 'employer') NOT NULL DEFAULT 'student' AFTER password;`
-                        adminPool.query(alterTableSql, (err) => {
-                                // Ignore error if column already exists
+                            ADD COLUMN IF NOT EXISTS user_type ENUM('student', 'employer') NOT NULL DEFAULT 'student' AFTER password,
+                            ADD COLUMN IF NOT EXISTS business_name VARCHAR(255) NULL AFTER user_type,
+                            ADD COLUMN IF NOT EXISTS profile_picture TEXT NULL AFTER business_name,
+                            ADD COLUMN IF NOT EXISTS avatar_color VARCHAR(7) NULL AFTER profile_picture;`
+                        adminPool.query(alterTableSql, () => {
+                                // Ignore error if columns already exist
                                 resolve()
                         })
                 })
@@ -104,6 +110,25 @@ async function initDatabase() {
                                     FOREIGN KEY (user_id) REFERENCES \`${DB_NAME}\`.users(id) ON DELETE CASCADE
                                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
                                 adminPool.query(createJobsSql, (err) => {
+                                        if (err) return reject(err)
+                                        resolve()
+                                })
+                        })
+
+                        // ensure applications table exists
+                        await new Promise((resolve, reject) => {
+                                const createApplicationsSql = `CREATE TABLE IF NOT EXISTS \`${DB_NAME}\`.applications (
+                                    id INT AUTO_INCREMENT PRIMARY KEY,
+                                    job_id INT NOT NULL,
+                                    user_id INT NOT NULL,
+                                    status ENUM('pending', 'accepted', 'rejected') NOT NULL DEFAULT 'pending',
+                                    cover_letter TEXT NULL,
+                                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                    FOREIGN KEY (job_id) REFERENCES \`${DB_NAME}\`.jobs(id) ON DELETE CASCADE,
+                                    FOREIGN KEY (user_id) REFERENCES \`${DB_NAME}\`.users(id) ON DELETE CASCADE,
+                                    UNIQUE KEY unique_application (job_id, user_id)
+                                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
+                                adminPool.query(createApplicationsSql, (err) => {
                                         if (err) return reject(err)
                                         resolve()
                                 })
@@ -187,6 +212,9 @@ async function handleRegister(req, res) {
     const password = body.password
     // Map frontend userType to database user_type: 'work' -> 'student', 'hire' -> 'employer'
     const userType = body.userType === 'hire' ? 'employer' : 'student'
+    const businessName = body.businessName || null
+    const profilePicture = body.profilePicture || null
+    const avatarColor = body.avatarColor || null
 
     if (!name || !email || !password) return res.status(400).json({ error: 'name, email and password required' })
 
@@ -196,11 +224,12 @@ async function handleRegister(req, res) {
             if (results.length) return res.status(409).json({ error: 'email already registered' })
 
             const hashed = await bcrypt.hash(password, 10)
-            db.query('INSERT INTO users (name, email, password, user_type) VALUES (?, ?, ?, ?)', [name, email, hashed, userType], (err2, result2) => {
+            db.query('INSERT INTO users (name, email, password, user_type, business_name, profile_picture, avatar_color) VALUES (?, ?, ?, ?, ?, ?, ?)', 
+                [name, email, hashed, userType, businessName, profilePicture, avatarColor], (err2, result2) => {
                 if (err2) return res.status(500).json({ error: 'db insert error' })
                 const createdId = result2.insertId
                 const token = jwt.sign({ id: createdId, email, name, userType }, JWT_SECRET, { expiresIn: '1h' })
-                res.status(201).json({ id: createdId, name, email, userType, token })
+                res.status(201).json({ id: createdId, name, email, userType, businessName, profilePicture, avatarColor, token })
             })
         })
     } catch (err) {
@@ -218,7 +247,7 @@ function handleLogin(req, res) {
     const { email, password } = req.body || {}
     if (!email || !password) return res.status(400).json({ error: 'email and password required' })
 
-    db.query('SELECT id, name, email, password, user_type FROM users WHERE email = ?', [email], async (err, results) => {
+    db.query('SELECT id, name, email, password, user_type, business_name, profile_picture, avatar_color FROM users WHERE email = ?', [email], async (err, results) => {
         if (err) return res.status(500).json({ error: 'db error' })
         if (!results.length) return res.status(401).json({ error: 'invalid credentials' })
 
@@ -227,7 +256,16 @@ function handleLogin(req, res) {
         if (!match) return res.status(401).json({ error: 'invalid credentials' })
 
         const token = jwt.sign({ id: user.id, email: user.email, name: user.name, userType: user.user_type }, JWT_SECRET, { expiresIn: '1h' })
-        res.json({ id: user.id, name: user.name, email: user.email, userType: user.user_type, token })
+        res.json({ 
+            id: user.id, 
+            name: user.name, 
+            email: user.email, 
+            userType: user.user_type, 
+            businessName: user.business_name,
+            profilePicture: user.profile_picture,
+            avatarColor: user.avatar_color,
+            token 
+        })
     })
 }
 
@@ -252,11 +290,19 @@ function authenticateToken(req, res, next) {
 app.get('/api/profile', authenticateToken, (req, res) => {
     const userId = req.user && req.user.id
     if (!userId) return res.status(400).json({ error: 'invalid token payload' })
-    db.query('SELECT id, name, email, user_type FROM users WHERE id = ?', [userId], (err, results) => {
+    db.query('SELECT id, name, email, user_type, business_name, profile_picture, avatar_color FROM users WHERE id = ?', [userId], (err, results) => {
         if (err) return res.status(500).json({ error: 'db error' })
         if (!results.length) return res.status(404).json({ error: 'user not found' })
         const user = results[0]
-        res.json({ id: user.id, name: user.name, email: user.email, userType: user.user_type })
+        res.json({ 
+            id: user.id, 
+            name: user.name, 
+            email: user.email, 
+            userType: user.user_type,
+            businessName: user.business_name,
+            profilePicture: user.profile_picture,
+            avatarColor: user.avatar_color
+        })
     })
 })
 
@@ -283,6 +329,20 @@ app.post('/api/jobs', authenticateToken, (req, res) => {
 app.get('/api/jobs', (req, res) => {
     if (!db) return res.status(500).json({ error: 'db not initialized' })
     db.query('SELECT id, user_id, title, description, project_type AS projectType, project_length AS projectLength, category, tags, education_levels AS educationLevels, created_at FROM jobs ORDER BY created_at DESC LIMIT 100', [], (err, rows) => {
+        if (err) return res.status(500).json({ error: 'db error' })
+        // parse JSON fields
+        const out = rows.map(r => ({ ...r, tags: r.tags ? JSON.parse(r.tags) : [], educationLevels: r.educationLevels ? JSON.parse(r.educationLevels) : [] }))
+        res.json(out)
+    })
+})
+
+// Get jobs posted by the logged-in user (protected)
+app.get('/api/jobs/my-jobs', authenticateToken, (req, res) => {
+    if (!db) return res.status(500).json({ error: 'db not initialized' })
+    const userId = req.user && req.user.id
+    if (!userId) return res.status(401).json({ error: 'invalid token payload' })
+    
+    db.query('SELECT id, user_id, title, description, project_type AS projectType, project_length AS projectLength, category, tags, education_levels AS educationLevels, created_at FROM jobs WHERE user_id = ? ORDER BY created_at DESC', [userId], (err, rows) => {
         if (err) return res.status(500).json({ error: 'db error' })
         // parse JSON fields
         const out = rows.map(r => ({ ...r, tags: r.tags ? JSON.parse(r.tags) : [], educationLevels: r.educationLevels ? JSON.parse(r.educationLevels) : [] }))

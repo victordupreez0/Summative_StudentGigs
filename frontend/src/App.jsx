@@ -6,6 +6,7 @@ import BrowseJobs from './pages/BrowseJobs';
 import PostJob from './pages/PostJob.jsx';
 import StudentDashboard from './pages/StudentDashboard';
 import EmployerDashboard from './pages/EmployerDashboard.jsx';
+import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
 import '@radix-ui/themes/styles.css';
 import { AuthProvider } from './context/AuthContext';
@@ -22,7 +23,10 @@ const App = () => (
         {/* Protected routes: require login */}
         <Route path="/browse-jobs" element={<ProtectedRoute><BrowseJobs /></ProtectedRoute>} />
         <Route path="/post-job" element={<ProtectedRoute><PostJob /></ProtectedRoute>} />
-        <Route path="/dashboard" element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
+        
+        {/* Dashboard routes - smart routing based on user type */}
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/student-dashboard" element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
         <Route path="/employer-dashboard" element={<ProtectedRoute><EmployerDashboard /></ProtectedRoute>} />
 
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

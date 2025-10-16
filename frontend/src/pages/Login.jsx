@@ -36,12 +36,8 @@ const Login = () => {
         // use AuthContext to set token/user
         await auth.login({ token: data.token, user: { id: data.id, name: data.name, email: data.email, userType: data.userType } })
         
-        // Redirect based on user type
-        if (data.userType === 'employer') {
-          window.location.href = '/employer-dashboard';
-        } else {
-          window.location.href = '/dashboard';
-        }
+        // Redirect to dashboard which will route based on user type
+        window.location.href = '/dashboard';
       } catch (err) {
         console.error(err);
         alert('Network error');

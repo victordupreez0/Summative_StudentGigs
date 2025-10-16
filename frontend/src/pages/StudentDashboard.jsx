@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
+import { UserAvatar } from "@/components/UserAvatar";
 import { 
   Eye, 
   Send, 
@@ -21,8 +22,10 @@ import {
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import AuthContext from '@/context/AuthContext';
 
 const StudentDashboard = () => {
+  const { user } = useContext(AuthContext);
   const stats = [
     {
       title: "Profile Views",
@@ -253,11 +256,12 @@ const StudentDashboard = () => {
             <Card className="bg-gradient-hero text-primary-foreground" hover={true}>
               <CardContent className="p-6">
                 <div className="text-center mb-4">
-                  <Avatar className="w-20 h-20 mx-auto mb-4 border-4 border-primary-foreground/20">
-                    <AvatarImage src="/avatars/student.jpg" />
-                    <AvatarFallback className="text-primary bg-primary-foreground">AJ</AvatarFallback>
-                  </Avatar>
-                  <h3 className="text-xl font-bold">Alex Johnson</h3>
+                  <UserAvatar 
+                    user={user} 
+                    size="xl"
+                    className="mx-auto mb-4 border-4 border-primary-foreground/20"
+                  />
+                  <h3 className="text-xl font-bold">{user?.name || 'Student'}</h3>
                   <p className="text-primary-foreground/80">Computer Science Student</p>
                   <div className="flex items-center justify-center gap-1 mt-2">
                     <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />

@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import { useContext } from 'react'
 import AuthContext from '@/context/AuthContext'
 
@@ -97,10 +98,21 @@ export const Navbar = () => {
           </Button>
           
           {/* User Avatar */}
-          <Avatar className="w-10 h-10 border-2 border-slate-200">
-            <AvatarImage src="/avatars/user.jpg" />
-            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white font-medium">JD</AvatarFallback>
-          </Avatar>
+          {user && (
+            <UserAvatar 
+              user={user} 
+              className="border-2 border-slate-200 cursor-pointer hover:border-blue-400 transition-colors" 
+              size="md"
+              onClick={() => navigate('/dashboard')}
+            />
+          )}
+          
+          {!user && (
+            <Avatar className="w-10 h-10 border-2 border-slate-200">
+              <AvatarImage src="/avatars/user.jpg" />
+              <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white font-medium">?</AvatarFallback>
+            </Avatar>
+          )}
           
           {/* Auth buttons - Professional Styling */}
           <div className="hidden md:flex items-center gap-3 ml-2">

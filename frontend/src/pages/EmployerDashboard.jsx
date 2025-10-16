@@ -1,7 +1,9 @@
+import { useState, useEffect, useContext } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import { 
   Briefcase, 
   Users, 
@@ -19,8 +21,72 @@ import {
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import AuthContext from '@/context/AuthContext';
+
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000';
 
 const EmployerDashboard = () => {
+  const { user, token } = useContext(AuthContext);
+  const [activeJobs, setActiveJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    
+    const fetchMyJobs = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/jobs/my-jobs`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!res.ok) {
+          console.error('Failed to fetch jobs');
+          if (mounted) setActiveJobs([]);
+          return;
+        }
+        
+        const data = await res.json();
+        if (mounted) {
+          // Map backend data to frontend format
+          const mappedJobs = data.map(job => ({
+            id: job.id,
+            title: job.title,
+            type: job.projectType || 'Remote',
+            duration: job.projectLength || 'Not specified',
+            budget: '$20-30/hr', // TODO: Add budget field to database
+            applicants: 0, // TODO: Add applicants count
+            posted: `Posted ${getTimeAgo(job.created_at)}`,
+            tags: job.tags || []
+          }));
+          setActiveJobs(mappedJobs);
+        }
+      } catch (err) {
+        console.error('Failed to load jobs', err);
+        if (mounted) setActiveJobs([]);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    fetchMyJobs();
+    return () => { mounted = false };
+  }, [token]);
+
+  const getTimeAgo = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'today';
+    if (diffDays === 1) return '1 day ago';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''} ago`;
+    return `${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) > 1 ? 's' : ''} ago`;
+  };
+
   const stats = [
     {
       title: "Applications",
@@ -30,7 +96,7 @@ const EmployerDashboard = () => {
     },
     {
       title: "Active jobs",
-      value: "3",
+      value: activeJobs.length.toString(),
       icon: Briefcase,
       color: "text-green-600"
     },
@@ -45,36 +111,6 @@ const EmployerDashboard = () => {
       value: "5",
       icon: Star,
       color: "text-yellow-600"
-    }
-  ];
-
-  const activeJobs = [
-    {
-      title: "Frontend Developer (React)",
-      type: "Remote",
-      duration: "Part-time",
-      budget: "$20-30/hr",
-      applicants: 12,
-      posted: "Posted 2 days ago",
-      tags: ["React", "JavaScript", "CSS"]
-    },
-    {
-      title: "UI/UX Designer", 
-      type: "Hybrid",
-      duration: "Project-based",
-      budget: "$500-1000",
-      applicants: 8,
-      posted: "Posted 5 days ago",
-      tags: ["Figma", "UI Design", "Prototyping"]
-    },
-    {
-      title: "Content Writer",
-      type: "Remote",
-      duration: "Freelance", 
-      budget: "$15-25/hr",
-      applicants: 15,
-      posted: "Posted 1 week ago",
-      tags: ["Copywriting", "SEO", "Marketing"]
     }
   ];
 
@@ -192,14 +228,12 @@ const EmployerDashboard = () => {
         {/* Welcome Section - Employer */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xl">BT</span>
-            </div>
+            <UserAvatar user={user} size="lg" />
             <div>
               <h1 className="text-2xl font-bold flex items-center gap-2">
-                Welcome back, Michael 👋
+                Welcome back, {user?.name || 'User'} 👋
               </h1>
-              <p className="text-muted-foreground">BusinessTech Workspace • Employer Account</p>
+              <p className="text-muted-foreground">{user?.businessName || 'Your Business'} • Employer Account</p>
             </div>
           </div>
 
@@ -254,44 +288,60 @@ const EmployerDashboard = () => {
                 <CardTitle className="flex items-center gap-2">
                   <Briefcase className="w-5 h-5" />
                   Active Jobs
-                  <Badge variant="secondary">3</Badge>
+                  <Badge variant="secondary">{activeJobs.length}</Badge>
                 </CardTitle>
-                <Link to="/jobs" className="text-primary hover:underline text-sm">View all</Link>
+                <Link to="/post-job" className="text-primary hover:underline text-sm">Post new job</Link>
               </CardHeader>
               <CardContent>
-                <div className="space-y-6">
-                  {activeJobs.map((job, index) => (
-                    <div key={index} className="border-b border-border last:border-0 pb-6 last:pb-0">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-semibold text-foreground">{job.title}</h3>
-                        <span className="text-sm text-muted-foreground">{job.posted}</span>
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                        <span><MapPin className="w-4 h-4 inline mr-1" />{job.type}</span>
-                        <span><Clock className="w-4 h-4 inline mr-1" />{job.duration}</span>
-                        <span className="font-medium"><DollarSign className="w-4 h-4 inline mr-1" />{job.budget}</span>
-                      </div>
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {job.tags.map((tag, tagIndex) => (
-                          <Badge key={tagIndex} variant="outline">{tag}</Badge>
-                        ))}
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Users className="w-4 h-4" />
-                          {job.applicants} applicants
+                {loading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                    <p className="text-sm text-muted-foreground">Loading your jobs...</p>
+                  </div>
+                ) : activeJobs.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Briefcase className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+                    <h3 className="text-lg font-semibold mb-2">No active jobs yet</h3>
+                    <p className="text-muted-foreground mb-4">Start by posting your first job to find talented students.</p>
+                    <Button asChild>
+                      <Link to="/post-job">+ Post Your First Job</Link>
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {activeJobs.map((job, index) => (
+                      <div key={job.id || index} className="border-b border-border last:border-0 pb-6 last:pb-0">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-semibold text-foreground">{job.title}</h3>
+                          <span className="text-sm text-muted-foreground">{job.posted}</span>
                         </div>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            <Eye className="w-4 h-4 mr-1" />
-                            View
-                          </Button>
-                          <Button size="sm">Review Applicants</Button>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                          <span><MapPin className="w-4 h-4 inline mr-1" />{job.type}</span>
+                          <span><Clock className="w-4 h-4 inline mr-1" />{job.duration}</span>
+                          <span className="font-medium"><DollarSign className="w-4 h-4 inline mr-1" />{job.budget}</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {job.tags.map((tag, tagIndex) => (
+                            <Badge key={tagIndex} variant="outline">{tag}</Badge>
+                          ))}
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <Users className="w-4 h-4" />
+                            {job.applicants} applicants
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm">
+                              <Eye className="w-4 h-4 mr-1" />
+                              View
+                            </Button>
+                            <Button size="sm">Review Applicants</Button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
