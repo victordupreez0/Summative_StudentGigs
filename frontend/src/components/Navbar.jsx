@@ -52,6 +52,18 @@ export const Navbar = () => {
           >
             Post a Job
           </Link>
+          {user && user.userType === 'student' && (
+            <Link 
+              to="/applications" 
+              className={`text-sm font-medium transition-all duration-200 ${
+                isActive('/applications') 
+                  ? 'text-blue-600 border-b-2 border-blue-600 pb-1' 
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              My Applications
+            </Link>
+          )}
           <Link 
             to="/browse-talent" 
             className={`text-sm font-medium transition-all duration-200 ${
