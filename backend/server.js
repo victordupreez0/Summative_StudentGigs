@@ -443,8 +443,13 @@ async function handleRegister(req, res) {
 
         db.query('SELECT id FROM users WHERE email = ?', [email], async (err, results) => {
             if (err) {
-                console.error('Database error checking email:', err.message, err.code)
-                return res.status(500).json({ error: 'db error: ' + (err.code || 'unknown') })
+                console.error('Database error checking email:', err.message, err.code, err.sqlMessage)
+                console.error('Query was: SELECT id FROM users WHERE email = ?')
+                return res.status(500).json({ 
+                    error: 'db error: ' + (err.code || 'unknown'),
+                    details: err.sqlMessage,
+                    suggestion: 'Check /api/debug/table-structure to see table columns'
+                })
             }
             if (results.length) return res.status(409).json({ error: 'email already registered' })
 
@@ -524,8 +529,45 @@ function handleLogin(req, res) {
 
     db.query('SELECT id, name, email, password, user_type, business_name, profile_picture, avatar_color FROM users WHERE email = ?', [email], async (err, results) => {
         if (err) {
-            console.error('Database error in login:', err.message, err.code)
-            return res.status(500).json({ error: 'db error: ' + (err.code || 'unknown') })
+            console.error('Database error in login (full query):', err.message, err.code, err.sqlMessage)
+            
+            // If error is due to missing columns, try minimal query
+            if (err.code === 'ER_BAD_FIELD_ERROR') {
+                console.log('Trying minimal login query (columns missing)')
+                db.query('SELECT id, name, email, password FROM users WHERE email = ?', [email], async (err2, results2) => {
+                    if (err2) {
+                        console.error('Minimal login query also failed:', err2.message, err2.code)
+                        return res.status(500).json({ 
+                            error: 'db error: ' + (err2.code || 'unknown'),
+                            suggestion: 'Table structure issue. Check /api/debug/table-structure'
+                        })
+                    }
+                    if (!results2.length) return res.status(401).json({ error: 'invalid credentials' })
+
+                    const user = results2[0]
+                    const match = await bcrypt.compare(password, user.password)
+                    if (!match) return res.status(401).json({ error: 'invalid credentials' })
+
+                    const token = jwt.sign({ id: user.id, email: user.email, name: user.name, userType: 'student' }, JWT_SECRET, { expiresIn: '1h' })
+                    res.json({ 
+                        id: user.id, 
+                        name: user.name, 
+                        email: user.email, 
+                        userType: 'student', // default
+                        businessName: null,
+                        profilePicture: null,
+                        avatarColor: null,
+                        token,
+                        warning: 'Limited user data due to table structure'
+                    })
+                })
+                return
+            }
+            
+            return res.status(500).json({ 
+                error: 'db error: ' + (err.code || 'unknown'),
+                details: err.sqlMessage
+            })
         }
         if (!results.length) return res.status(401).json({ error: 'invalid credentials' })
 
