@@ -25,6 +25,7 @@ import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import AuthContext from '@/context/AuthContext';
+import API_BASE from '@/config/api';
 
 const StudentDashboard = () => {
   const { user, token } = useContext(AuthContext);
@@ -64,7 +65,6 @@ const StudentDashboard = () => {
   ];
 
   const [recommendedJobs, setRecommendedJobs] = useState([])
-  const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000'
 
   useEffect(() => {
     let mounted = true

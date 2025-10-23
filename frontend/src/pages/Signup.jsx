@@ -9,8 +9,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Eye, EyeOff, Briefcase, User, Upload } from "lucide-react";
 import AuthContext from '@/context/AuthContext'
-
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000'
+import API_BASE from '@/config/api'
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);

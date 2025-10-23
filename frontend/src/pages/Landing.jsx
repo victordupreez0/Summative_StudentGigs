@@ -8,6 +8,7 @@ import { Star, Code, PenTool, BarChart3, Palette, Search, Users, DollarSign, Arr
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import API_BASE from '@/config/api';
 
 const Landing = () => {
   const categories = [
@@ -42,7 +43,6 @@ const Landing = () => {
   ];
 
   const [jobs, setJobs] = useState([])
-  const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000'
 
   useEffect(() => {
     let mounted = true

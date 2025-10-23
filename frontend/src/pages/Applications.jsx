@@ -22,8 +22,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import AuthContext from '@/context/AuthContext';
-
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000';
+import API_BASE from '@/config/api';
 
 const Applications = () => {
   const { user, token } = useContext(AuthContext);

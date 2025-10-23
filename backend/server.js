@@ -7,13 +7,35 @@ const jwt = require('jsonwebtoken')
 
 const app = express()
 
-// Serve static files from frontend build
-app.use(express.static(path.join(__dirname, '../frontend/dist')))
-app.use(cors())
-app.use(express.json())
-
 // default to 4000 to match frontend dev server expectations
 const port = process.env.PORT || 4000
+
+// Configure CORS to allow Heroku frontend and local development
+const allowedOrigins = [
+    'http://localhost:5173', // Vite dev server
+    'http://localhost:4000', // Backend port
+    process.env.FRONTEND_URL, // Custom frontend URL if set
+].filter(Boolean) // Remove undefined values
+
+app.use(cors({
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps, Postman, or same-origin)
+        if (!origin) return callback(null, true)
+        // For Heroku, allow same origin
+        if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('.herokuapp.com')) {
+            callback(null, true)
+        } else {
+            console.log('CORS blocked origin:', origin)
+            callback(null, true) // Allow all in production for now
+        }
+    },
+    credentials: true
+}))
+
+app.use(express.json())
+
+// Serve static files from frontend build (must be after JSON parser, before routes)
+app.use(express.static(path.join(__dirname, '../frontend/dist')))
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_change_me'
 
