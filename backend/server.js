@@ -30,6 +30,14 @@ app.get('/api/debug/table-structure', (req, res) => {
             console.error('Error getting table structure:', err)
             return res.status(500).json({ error: err.message, code: err.code })
         }
+        
+        const columnNames = columns.map(c => c.Field)
+        const requiredColumns = ['name', 'email', 'password']
+        const optionalColumns = ['user_type', 'business_name', 'profile_picture', 'avatar_color', 'created_at']
+        
+        const missingRequired = requiredColumns.filter(col => !columnNames.includes(col))
+        const missingOptional = optionalColumns.filter(col => !columnNames.includes(col))
+        
         res.json({ 
             table: 'users',
             columns: columns.map(c => ({
@@ -38,7 +46,17 @@ app.get('/api/debug/table-structure', (req, res) => {
                 null: c.Null,
                 key: c.Key,
                 default: c.Default
-            }))
+            })),
+            analysis: {
+                total_columns: columns.length,
+                column_names: columnNames,
+                missing_required: missingRequired,
+                missing_optional: missingOptional,
+                status: missingRequired.length === 0 ? 'OK - Can register users' : 'ERROR - Missing required columns',
+                recommendation: missingOptional.length > 0 
+                    ? `Add missing columns: ${missingOptional.join(', ')}. See fix_tables.sql or FIX_ER_BAD_FIELD_ERROR.md`
+                    : 'Table structure is complete!'
+            }
         })
     })
 })
@@ -432,61 +450,55 @@ async function handleRegister(req, res) {
 
             const hashed = await bcrypt.hash(password, 10)
             
-            // First, check what columns exist in the users table
-            db.query('SHOW COLUMNS FROM users', [], (errCols, columns) => {
-                if (errCols) {
-                    console.error('Error checking table structure:', errCols.message)
-                }
-                
-                // Log available columns for debugging
-                const availableColumns = columns ? columns.map(c => c.Field) : []
-                console.log('Available columns in users table:', availableColumns)
-                
-                // Build INSERT query based on available columns
-                const hasUserType = !columns || columns.some(c => c.Field === 'user_type')
-                const hasBusinessName = !columns || columns.some(c => c.Field === 'business_name')
-                const hasProfilePicture = !columns || columns.some(c => c.Field === 'profile_picture')
-                const hasAvatarColor = !columns || columns.some(c => c.Field === 'avatar_color')
-                
-                // Build dynamic INSERT query
-                let fields = ['name', 'email', 'password']
-                let values = [name, email, hashed]
-                let placeholders = ['?', '?', '?']
-                
-                if (hasUserType) {
-                    fields.push('user_type')
-                    values.push(userType)
-                    placeholders.push('?')
-                }
-                if (hasBusinessName) {
-                    fields.push('business_name')
-                    values.push(businessName)
-                    placeholders.push('?')
-                }
-                if (hasProfilePicture) {
-                    fields.push('profile_picture')
-                    values.push(profilePicture)
-                    placeholders.push('?')
-                }
-                if (hasAvatarColor) {
-                    fields.push('avatar_color')
-                    values.push(avatarColor)
-                    placeholders.push('?')
-                }
-                
-                const insertSql = `INSERT INTO users (${fields.join(', ')}) VALUES (${placeholders.join(', ')})`
-                console.log('INSERT query:', insertSql)
-                
-                db.query(insertSql, values, (err2, result2) => {
-                    if (err2) {
-                        console.error('Database insert error:', err2.message, err2.code, err2.sqlMessage)
-                        console.error('SQL State:', err2.sqlState)
-                        return res.status(500).json({ error: 'db insert error: ' + (err2.code || 'unknown') })
-                    }
+            // Try full insert first (with all columns)
+            const fullInsertSql = 'INSERT INTO users (name, email, password, user_type, business_name, profile_picture, avatar_color) VALUES (?, ?, ?, ?, ?, ?, ?)'
+            const fullValues = [name, email, hashed, userType, businessName, profilePicture, avatarColor]
+            
+            console.log('Attempting full INSERT with all columns')
+            
+            db.query(fullInsertSql, fullValues, (err2, result2) => {
+                if (err2 && err2.code === 'ER_BAD_FIELD_ERROR') {
+                    // Some columns don't exist, try minimal insert (just required fields)
+                    console.log('Full insert failed with ER_BAD_FIELD_ERROR, trying minimal insert')
+                    console.error('Error details:', err2.sqlMessage)
+                    
+                    const minimalSql = 'INSERT INTO users (name, email, password) VALUES (?, ?, ?)'
+                    const minimalValues = [name, email, hashed]
+                    
+                    db.query(minimalSql, minimalValues, (err3, result3) => {
+                        if (err3) {
+                            console.error('Minimal insert also failed:', err3.message, err3.code, err3.sqlMessage)
+                            return res.status(500).json({ 
+                                error: 'db insert error: ' + (err3.code || 'unknown'),
+                                message: 'Table structure incompatible. Please check /api/debug/table-structure'
+                            })
+                        }
+                        const createdId = result3.insertId
+                        const token = jwt.sign({ id: createdId, email, name, userType: 'student' }, JWT_SECRET, { expiresIn: '1h' })
+                        console.log('User created with minimal fields (id:', createdId, ')')
+                        res.status(201).json({ 
+                            id: createdId, 
+                            name, 
+                            email, 
+                            userType: 'student', // default since column doesn't exist
+                            businessName: null,
+                            profilePicture: null,
+                            avatarColor: null,
+                            token,
+                            warning: 'Some user fields not saved due to table structure'
+                        })
+                    })
+                } else if (err2) {
+                    // Different error
+                    console.error('Database insert error:', err2.message, err2.code, err2.sqlMessage)
+                    return res.status(500).json({ error: 'db insert error: ' + (err2.code || 'unknown') })
+                } else {
+                    // Success!
                     const createdId = result2.insertId
                     const token = jwt.sign({ id: createdId, email, name, userType }, JWT_SECRET, { expiresIn: '1h' })
+                    console.log('User created successfully with all fields (id:', createdId, ')')
                     res.status(201).json({ id: createdId, name, email, userType, businessName, profilePicture, avatarColor, token })
-                })
+                }
             })
         })
     } catch (err) {
