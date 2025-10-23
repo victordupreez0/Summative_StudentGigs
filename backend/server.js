@@ -10,6 +10,39 @@ const app = express()
 // default to 4000 to match frontend dev server expectations
 const port = process.env.PORT || 4000
 
+// Configure CORS to allow H// simple ping for smoke tests
+app.get('/api/ping', (req, res) => {
+    res.json({ ok: true })
+})
+
+// db status endpoint
+app.get('/api/dbstatus', async (req, res) => {
+    const connected = await checkDbConnected()
+    res.json({ db_connected: connected })
+})
+
+// db table structure endpoint (for debugging)
+app.get('/api/debug/table-structure', (req, res) => {
+    if (!db) return res.status(503).json({ error: 'database not available' })
+    
+    db.query('SHOW COLUMNS FROM users', [], (err, columns) => {
+        if (err) {
+            console.error('Error getting table structure:', err)
+            return res.status(500).json({ error: err.message, code: err.code })
+        }
+        res.json({ 
+            table: 'users',
+            columns: columns.map(c => ({
+                field: c.Field,
+                type: c.Type,
+                null: c.Null,
+                key: c.Key,
+                default: c.Default
+            }))
+        })
+    })
+})
+
 // Configure CORS to allow Heroku frontend and local development
 const allowedOrigins = [
     'http://localhost:5173', // Vite dev server
@@ -398,15 +431,62 @@ async function handleRegister(req, res) {
             if (results.length) return res.status(409).json({ error: 'email already registered' })
 
             const hashed = await bcrypt.hash(password, 10)
-            db.query('INSERT INTO users (name, email, password, user_type, business_name, profile_picture, avatar_color) VALUES (?, ?, ?, ?, ?, ?, ?)', 
-                [name, email, hashed, userType, businessName, profilePicture, avatarColor], (err2, result2) => {
-                if (err2) {
-                    console.error('Database insert error:', err2.message, err2.code, err2.sqlMessage)
-                    return res.status(500).json({ error: 'db insert error: ' + (err2.code || 'unknown') })
+            
+            // First, check what columns exist in the users table
+            db.query('SHOW COLUMNS FROM users', [], (errCols, columns) => {
+                if (errCols) {
+                    console.error('Error checking table structure:', errCols.message)
                 }
-                const createdId = result2.insertId
-                const token = jwt.sign({ id: createdId, email, name, userType }, JWT_SECRET, { expiresIn: '1h' })
-                res.status(201).json({ id: createdId, name, email, userType, businessName, profilePicture, avatarColor, token })
+                
+                // Log available columns for debugging
+                const availableColumns = columns ? columns.map(c => c.Field) : []
+                console.log('Available columns in users table:', availableColumns)
+                
+                // Build INSERT query based on available columns
+                const hasUserType = !columns || columns.some(c => c.Field === 'user_type')
+                const hasBusinessName = !columns || columns.some(c => c.Field === 'business_name')
+                const hasProfilePicture = !columns || columns.some(c => c.Field === 'profile_picture')
+                const hasAvatarColor = !columns || columns.some(c => c.Field === 'avatar_color')
+                
+                // Build dynamic INSERT query
+                let fields = ['name', 'email', 'password']
+                let values = [name, email, hashed]
+                let placeholders = ['?', '?', '?']
+                
+                if (hasUserType) {
+                    fields.push('user_type')
+                    values.push(userType)
+                    placeholders.push('?')
+                }
+                if (hasBusinessName) {
+                    fields.push('business_name')
+                    values.push(businessName)
+                    placeholders.push('?')
+                }
+                if (hasProfilePicture) {
+                    fields.push('profile_picture')
+                    values.push(profilePicture)
+                    placeholders.push('?')
+                }
+                if (hasAvatarColor) {
+                    fields.push('avatar_color')
+                    values.push(avatarColor)
+                    placeholders.push('?')
+                }
+                
+                const insertSql = `INSERT INTO users (${fields.join(', ')}) VALUES (${placeholders.join(', ')})`
+                console.log('INSERT query:', insertSql)
+                
+                db.query(insertSql, values, (err2, result2) => {
+                    if (err2) {
+                        console.error('Database insert error:', err2.message, err2.code, err2.sqlMessage)
+                        console.error('SQL State:', err2.sqlState)
+                        return res.status(500).json({ error: 'db insert error: ' + (err2.code || 'unknown') })
+                    }
+                    const createdId = result2.insertId
+                    const token = jwt.sign({ id: createdId, email, name, userType }, JWT_SECRET, { expiresIn: '1h' })
+                    res.status(201).json({ id: createdId, name, email, userType, businessName, profilePicture, avatarColor, token })
+                })
             })
         })
     } catch (err) {
