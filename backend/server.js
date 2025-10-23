@@ -610,9 +610,39 @@ function authenticateToken(req, res, next) {
 app.get('/api/profile', authenticateToken, (req, res) => {
     const userId = req.user && req.user.id
     if (!userId) return res.status(400).json({ error: 'invalid token payload' })
+    
     db.query('SELECT id, name, email, user_type, business_name, profile_picture, avatar_color FROM users WHERE id = ?', [userId], (err, results) => {
-        if (err) return res.status(500).json({ error: 'db error' })
+        if (err) {
+            console.error('Database error in profile (full query):', err.message, err.code, err.sqlMessage)
+            
+            // If error is due to missing columns, try minimal query
+            if (err.code === 'ER_BAD_FIELD_ERROR') {
+                console.log('Trying minimal profile query (columns missing)')
+                db.query('SELECT id, name, email FROM users WHERE id = ?', [userId], (err2, results2) => {
+                    if (err2) {
+                        console.error('Minimal profile query also failed:', err2.message, err2.code)
+                        return res.status(500).json({ error: 'db error: ' + (err2.code || 'unknown') })
+                    }
+                    if (!results2.length) return res.status(404).json({ error: 'user not found' })
+                    
+                    const user = results2[0]
+                    res.json({ 
+                        id: user.id, 
+                        name: user.name, 
+                        email: user.email, 
+                        userType: 'student', // default
+                        businessName: null,
+                        profilePicture: null,
+                        avatarColor: null
+                    })
+                })
+                return
+            }
+            
+            return res.status(500).json({ error: 'db error: ' + (err.code || 'unknown') })
+        }
         if (!results.length) return res.status(404).json({ error: 'user not found' })
+        
         const user = results[0]
         res.json({ 
             id: user.id, 
