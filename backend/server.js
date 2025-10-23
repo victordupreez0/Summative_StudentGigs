@@ -54,94 +54,175 @@ const adminPool = mysql.createPool({
 // Attempt to create the database and users table if the connected DB user has privileges.
 async function initDatabase() {
     try {
-        // create database if missing
+        // Skip database creation for JawsDB (database already exists and user lacks CREATE DATABASE privilege)
+        if (process.env.JAWSDB_URL) {
+            console.log('Using JawsDB - skipping database creation')
+        } else {
+            // create database if missing (local development only)
+            await new Promise((resolve, reject) => {
+                adminPool.query(`CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`` , (err) => {
+                    if (err) return reject(err)
+                    resolve()
+                })
+            })
+        }
+
+        // Use a pool connected to the database for table creation
+        const tablePool = process.env.JAWSDB_URL ? mysql.createPool({
+            host: DB_HOST,
+            port: DB_PORT,
+            user: DB_USER,
+            password: DB_PASS,
+            database: DB_NAME,
+            waitForConnections: true,
+            connectionLimit: 2,
+            queueLimit: 0,
+        }) : adminPool;
+
+        // ensure users table exists (no fully-qualified name for JawsDB)
         await new Promise((resolve, reject) => {
-            adminPool.query(`CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`` , (err) => {
-                if (err) return reject(err)
+            const createTableSql = process.env.JAWSDB_URL
+                ? `CREATE TABLE IF NOT EXISTS users (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    name VARCHAR(255) NOT NULL,
+                    email VARCHAR(255) NOT NULL UNIQUE,
+                    password VARCHAR(255) NOT NULL,
+                    user_type ENUM('student', 'employer') NOT NULL DEFAULT 'student',
+                    business_name VARCHAR(255) NULL,
+                    profile_picture TEXT NULL,
+                    avatar_color VARCHAR(7) NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
+                : `CREATE TABLE IF NOT EXISTS \`${DB_NAME}\`.users (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    name VARCHAR(255) NOT NULL,
+                    email VARCHAR(255) NOT NULL UNIQUE,
+                    password VARCHAR(255) NOT NULL,
+                    user_type ENUM('student', 'employer') NOT NULL DEFAULT 'student',
+                    business_name VARCHAR(255) NULL,
+                    profile_picture TEXT NULL,
+                    avatar_color VARCHAR(7) NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
+            
+            tablePool.query(createTableSql, (err) => {
+                if (err) {
+                    console.error('Failed to create users table:', err)
+                    return reject(err)
+                }
+                console.log('Users table created/verified')
+                resolve()
+            })
+        })
+        
+        // Skip ALTER TABLE for JawsDB (columns should be in CREATE TABLE above)
+        if (!process.env.JAWSDB_URL) {
+            await new Promise((resolve) => {
+                const alterTableSql = `ALTER TABLE \`${DB_NAME}\`.users 
+                    ADD COLUMN IF NOT EXISTS user_type ENUM('student', 'employer') NOT NULL DEFAULT 'student' AFTER password,
+                    ADD COLUMN IF NOT EXISTS business_name VARCHAR(255) NULL AFTER user_type,
+                    ADD COLUMN IF NOT EXISTS profile_picture TEXT NULL AFTER business_name,
+                    ADD COLUMN IF NOT EXISTS avatar_color VARCHAR(7) NULL AFTER profile_picture;`
+                adminPool.query(alterTableSql, () => {
+                    // Ignore error if columns already exist
+                    resolve()
+                })
+            })
+        }
+
+        // ensure jobs table exists
+        await new Promise((resolve, reject) => {
+            const createJobsSql = process.env.JAWSDB_URL
+                ? `CREATE TABLE IF NOT EXISTS jobs (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    title VARCHAR(255) NOT NULL,
+                    description TEXT,
+                    project_type VARCHAR(100),
+                    project_length VARCHAR(100),
+                    category VARCHAR(255),
+                    tags JSON NULL,
+                    education_levels JSON NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
+                : `CREATE TABLE IF NOT EXISTS \`${DB_NAME}\`.jobs (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    title VARCHAR(255) NOT NULL,
+                    description TEXT,
+                    project_type VARCHAR(100),
+                    project_length VARCHAR(100),
+                    category VARCHAR(255),
+                    tags JSON NULL,
+                    education_levels JSON NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES \`${DB_NAME}\`.users(id) ON DELETE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
+            
+            tablePool.query(createJobsSql, (err) => {
+                if (err) {
+                    console.error('Failed to create jobs table:', err)
+                    return reject(err)
+                }
+                console.log('Jobs table created/verified')
                 resolve()
             })
         })
 
-                // ensure users table exists in the selected database. Use fully-qualified name via adminPool
-                await new Promise((resolve, reject) => {
-                        const createTableSql = `CREATE TABLE IF NOT EXISTS \`${DB_NAME}\`.users (
-                            id INT AUTO_INCREMENT PRIMARY KEY,
-                            name VARCHAR(255) NOT NULL,
-                            email VARCHAR(255) NOT NULL UNIQUE,
-                            password VARCHAR(255) NOT NULL,
-                            user_type ENUM('student', 'employer') NOT NULL DEFAULT 'student',
-                            business_name VARCHAR(255) NULL,
-                            profile_picture TEXT NULL,
-                            avatar_color VARCHAR(7) NULL,
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
-                        adminPool.query(createTableSql, (err) => {
-                                if (err) return reject(err)
-                                resolve()
-                        })
-                })
-                
-                // Add new columns to existing users table if they don't exist
-                await new Promise((resolve) => {
-                        const alterTableSql = `ALTER TABLE \`${DB_NAME}\`.users 
-                            ADD COLUMN IF NOT EXISTS user_type ENUM('student', 'employer') NOT NULL DEFAULT 'student' AFTER password,
-                            ADD COLUMN IF NOT EXISTS business_name VARCHAR(255) NULL AFTER user_type,
-                            ADD COLUMN IF NOT EXISTS profile_picture TEXT NULL AFTER business_name,
-                            ADD COLUMN IF NOT EXISTS avatar_color VARCHAR(7) NULL AFTER profile_picture;`
-                        adminPool.query(alterTableSql, () => {
-                                // Ignore error if columns already exist
-                                resolve()
-                        })
-                })
+        // ensure applications table exists
+        await new Promise((resolve, reject) => {
+            const createApplicationsSql = process.env.JAWSDB_URL
+                ? `CREATE TABLE IF NOT EXISTS applications (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    job_id INT NOT NULL,
+                    user_id INT NOT NULL,
+                    status ENUM('pending', 'accepted', 'rejected') NOT NULL DEFAULT 'pending',
+                    cover_letter TEXT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    UNIQUE KEY unique_application (job_id, user_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
+                : `CREATE TABLE IF NOT EXISTS \`${DB_NAME}\`.applications (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    job_id INT NOT NULL,
+                    user_id INT NOT NULL,
+                    status ENUM('pending', 'accepted', 'rejected') NOT NULL DEFAULT 'pending',
+                    cover_letter TEXT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (job_id) REFERENCES \`${DB_NAME}\`.jobs(id) ON DELETE CASCADE,
+                    FOREIGN KEY (user_id) REFERENCES \`${DB_NAME}\`.users(id) ON DELETE CASCADE,
+                    UNIQUE KEY unique_application (job_id, user_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
+            
+            tablePool.query(createApplicationsSql, (err) => {
+                if (err) {
+                    console.error('Failed to create applications table:', err)
+                    return reject(err)
+                }
+                console.log('Applications table created/verified')
+                resolve()
+            })
+        })
 
-                        // ensure jobs table exists
-                        await new Promise((resolve, reject) => {
-                                const createJobsSql = `CREATE TABLE IF NOT EXISTS \`${DB_NAME}\`.jobs (
-                                    id INT AUTO_INCREMENT PRIMARY KEY,
-                                    user_id INT NOT NULL,
-                                    title VARCHAR(255) NOT NULL,
-                                    description TEXT,
-                                    project_type VARCHAR(100),
-                                    project_length VARCHAR(100),
-                                    category VARCHAR(255),
-                                    tags JSON NULL,
-                                    education_levels JSON NULL,
-                                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                    FOREIGN KEY (user_id) REFERENCES \`${DB_NAME}\`.users(id) ON DELETE CASCADE
-                                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
-                                adminPool.query(createJobsSql, (err) => {
-                                        if (err) return reject(err)
-                                        resolve()
-                                })
-                        })
-
-                        // ensure applications table exists
-                        await new Promise((resolve, reject) => {
-                                const createApplicationsSql = `CREATE TABLE IF NOT EXISTS \`${DB_NAME}\`.applications (
-                                    id INT AUTO_INCREMENT PRIMARY KEY,
-                                    job_id INT NOT NULL,
-                                    user_id INT NOT NULL,
-                                    status ENUM('pending', 'accepted', 'rejected') NOT NULL DEFAULT 'pending',
-                                    cover_letter TEXT NULL,
-                                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                    FOREIGN KEY (job_id) REFERENCES \`${DB_NAME}\`.jobs(id) ON DELETE CASCADE,
-                                    FOREIGN KEY (user_id) REFERENCES \`${DB_NAME}\`.users(id) ON DELETE CASCADE,
-                                    UNIQUE KEY unique_application (job_id, user_id)
-                                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
-                                adminPool.query(createApplicationsSql, (err) => {
-                                        if (err) return reject(err)
-                                        resolve()
-                                })
-                        })
-
-        console.log('Database and users table ensured')
+        console.log('Database initialization complete')
+        
+        // Close the temporary pool for JawsDB
+        if (process.env.JAWSDB_URL && tablePool !== adminPool) {
+            tablePool.end()
+        }
     } catch (err) {
-        console.warn('Could not create database/table automatically:', err && err.code ? err.code : err)
+        console.error('Database initialization error:', err && err.code ? err.code : err)
     }
 }
 
 // Try to initialize DB schema (best-effort) and then create the db pool
 async function initAndStart() {
+    console.log('Starting database initialization...')
+    console.log(`DB Config: host=${DB_HOST} port=${DB_PORT} user=${DB_USER} db=${DB_NAME}`)
+    console.log(`Using JawsDB: ${!!process.env.JAWSDB_URL}`)
+    
     await initDatabase()
 
     // create the actual db pool now that database exists
@@ -156,12 +237,16 @@ async function initAndStart() {
         queueLimit: 0,
     })
 
-    const ok = await checkDbConnected().catch(() => false)
+    const ok = await checkDbConnected().catch((err) => {
+        console.error('Database connection check failed:', err)
+        return false
+    })
     console.log(`MySQL connected: ${ok} (host=${DB_HOST} port=${DB_PORT} user=${DB_USER})`)
 
     // start the server only after DB init attempt
     app.listen(port, ()=>{
-        console.log(`listening on port ${port}`)
+        console.log(`Server listening on port ${port}`)
+        console.log(`Environment: ${process.env.NODE_ENV || 'development'}`)
     })
 }
 
