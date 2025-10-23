@@ -44,12 +44,23 @@ let DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME
 
 if (process.env.JAWSDB_URL) {
     // Parse JawsDB URL for Heroku
-    const url = new URL(process.env.JAWSDB_URL)
-    DB_HOST = url.hostname
-    DB_PORT = Number(url.port) || 3306
-    DB_USER = url.username
-    DB_PASS = url.password
-    DB_NAME = url.pathname.slice(1) // remove leading slash
+    try {
+        const url = new URL(process.env.JAWSDB_URL)
+        DB_HOST = url.hostname
+        DB_PORT = Number(url.port) || 3306
+        DB_USER = url.username
+        DB_PASS = url.password
+        DB_NAME = url.pathname.slice(1) // remove leading slash
+        console.log('Parsed JawsDB URL successfully')
+    } catch (err) {
+        console.error('Failed to parse JAWSDB_URL:', err)
+        // Fallback to prevent crash
+        DB_HOST = '127.0.0.1'
+        DB_PORT = 3306
+        DB_USER = 'root'
+        DB_PASS = ''
+        DB_NAME = 'studentgigs'
+    }
 } else {
     // Use individual environment variables (for local development)
     DB_HOST = process.env.DB_HOST || '127.0.0.1'
@@ -71,6 +82,8 @@ const adminPool = mysql.createPool({
     waitForConnections: true,
     connectionLimit: 2,
     queueLimit: 0,
+    connectTimeout: 10000, // 10 seconds
+    acquireTimeout: 10000,
 })
 
 // Attempt to create the database and users table if the connected DB user has privileges.
@@ -84,6 +97,7 @@ async function initDatabase() {
             await new Promise((resolve, reject) => {
                 adminPool.query(`CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`` , (err) => {
                     if (err) return reject(err)
+                    console.log('Database created/verified')
                     resolve()
                 })
             })
@@ -101,6 +115,19 @@ async function initDatabase() {
             queueLimit: 0,
         }) : adminPool;
 
+        // Test connection first
+        await new Promise((resolve, reject) => {
+            tablePool.getConnection((err, connection) => {
+                if (err) {
+                    console.error('Failed to get connection for table creation:', err)
+                    return reject(err)
+                }
+                console.log('Successfully connected to database for table creation')
+                connection.release()
+                resolve()
+            })
+        })
+
         // ensure users table exists (no fully-qualified name for JawsDB)
         await new Promise((resolve, reject) => {
             const createTableSql = process.env.JAWSDB_URL
@@ -114,7 +141,7 @@ async function initDatabase() {
                     profile_picture TEXT NULL,
                     avatar_color VARCHAR(7) NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
                 : `CREATE TABLE IF NOT EXISTS \`${DB_NAME}\`.users (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     name VARCHAR(255) NOT NULL,
@@ -125,11 +152,11 @@ async function initDatabase() {
                     profile_picture TEXT NULL,
                     avatar_color VARCHAR(7) NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
             
             tablePool.query(createTableSql, (err) => {
                 if (err) {
-                    console.error('Failed to create users table:', err)
+                    console.error('Failed to create users table:', err.message, err.code)
                     return reject(err)
                 }
                 console.log('Users table created/verified')
@@ -145,8 +172,8 @@ async function initDatabase() {
                     ADD COLUMN IF NOT EXISTS business_name VARCHAR(255) NULL AFTER user_type,
                     ADD COLUMN IF NOT EXISTS profile_picture TEXT NULL AFTER business_name,
                     ADD COLUMN IF NOT EXISTS avatar_color VARCHAR(7) NULL AFTER profile_picture;`
-                adminPool.query(alterTableSql, () => {
-                    // Ignore error if columns already exist
+                adminPool.query(alterTableSql, (err) => {
+                    if (err) console.log('ALTER TABLE skipped (columns may already exist)')
                     resolve()
                 })
             })
@@ -166,8 +193,10 @@ async function initDatabase() {
                     tags JSON NULL,
                     education_levels JSON NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    INDEX idx_user_id (user_id),
+                    INDEX idx_created_at (created_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
                 : `CREATE TABLE IF NOT EXISTS \`${DB_NAME}\`.jobs (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     user_id INT NOT NULL,
@@ -179,12 +208,14 @@ async function initDatabase() {
                     tags JSON NULL,
                     education_levels JSON NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (user_id) REFERENCES \`${DB_NAME}\`.users(id) ON DELETE CASCADE
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
+                    FOREIGN KEY (user_id) REFERENCES \`${DB_NAME}\`.users(id) ON DELETE CASCADE,
+                    INDEX idx_user_id (user_id),
+                    INDEX idx_created_at (created_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
             
             tablePool.query(createJobsSql, (err) => {
                 if (err) {
-                    console.error('Failed to create jobs table:', err)
+                    console.error('Failed to create jobs table:', err.message, err.code)
                     return reject(err)
                 }
                 console.log('Jobs table created/verified')
@@ -204,8 +235,11 @@ async function initDatabase() {
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                    UNIQUE KEY unique_application (job_id, user_id)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
+                    UNIQUE KEY unique_application (job_id, user_id),
+                    INDEX idx_user_id (user_id),
+                    INDEX idx_job_id (job_id),
+                    INDEX idx_status (status)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
                 : `CREATE TABLE IF NOT EXISTS \`${DB_NAME}\`.applications (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     job_id INT NOT NULL,
@@ -215,12 +249,15 @@ async function initDatabase() {
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (job_id) REFERENCES \`${DB_NAME}\`.jobs(id) ON DELETE CASCADE,
                     FOREIGN KEY (user_id) REFERENCES \`${DB_NAME}\`.users(id) ON DELETE CASCADE,
-                    UNIQUE KEY unique_application (job_id, user_id)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
+                    UNIQUE KEY unique_application (job_id, user_id),
+                    INDEX idx_user_id (user_id),
+                    INDEX idx_job_id (job_id),
+                    INDEX idx_status (status)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
             
             tablePool.query(createApplicationsSql, (err) => {
                 if (err) {
-                    console.error('Failed to create applications table:', err)
+                    console.error('Failed to create applications table:', err.message, err.code)
                     return reject(err)
                 }
                 console.log('Applications table created/verified')
@@ -235,7 +272,13 @@ async function initDatabase() {
             tablePool.end()
         }
     } catch (err) {
-        console.error('Database initialization error:', err && err.code ? err.code : err)
+        console.error('Database initialization error:', err.message || err)
+        console.error('Error details:', {
+            code: err.code,
+            errno: err.errno,
+            sqlMessage: err.sqlMessage,
+            sqlState: err.sqlState
+        })
     }
 }
 
@@ -257,6 +300,21 @@ async function initAndStart() {
         waitForConnections: true,
         connectionLimit: 10,
         queueLimit: 0,
+        connectTimeout: 15000, // 15 seconds
+        acquireTimeout: 15000,
+        timeout: 15000
+    })
+
+    // Add error handler for the pool
+    db.on('error', (err) => {
+        console.error('Database pool error:', err)
+        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+            console.error('Database connection was lost')
+        } else if (err.code === 'ER_CON_COUNT_ERROR') {
+            console.error('Database has too many connections')
+        } else if (err.code === 'ECONNREFUSED') {
+            console.error('Database connection was refused')
+        }
     })
 
     const ok = await checkDbConnected().catch((err) => {
@@ -326,21 +384,33 @@ async function handleRegister(req, res) {
     if (!name || !email || !password) return res.status(400).json({ error: 'name, email and password required' })
 
     try {
+        // Check if database connection is available
+        if (!db) {
+            console.error('Database not initialized')
+            return res.status(503).json({ error: 'database not available' })
+        }
+
         db.query('SELECT id FROM users WHERE email = ?', [email], async (err, results) => {
-            if (err) return res.status(500).json({ error: 'db error' })
+            if (err) {
+                console.error('Database error checking email:', err.message, err.code)
+                return res.status(500).json({ error: 'db error: ' + (err.code || 'unknown') })
+            }
             if (results.length) return res.status(409).json({ error: 'email already registered' })
 
             const hashed = await bcrypt.hash(password, 10)
             db.query('INSERT INTO users (name, email, password, user_type, business_name, profile_picture, avatar_color) VALUES (?, ?, ?, ?, ?, ?, ?)', 
                 [name, email, hashed, userType, businessName, profilePicture, avatarColor], (err2, result2) => {
-                if (err2) return res.status(500).json({ error: 'db insert error' })
+                if (err2) {
+                    console.error('Database insert error:', err2.message, err2.code, err2.sqlMessage)
+                    return res.status(500).json({ error: 'db insert error: ' + (err2.code || 'unknown') })
+                }
                 const createdId = result2.insertId
                 const token = jwt.sign({ id: createdId, email, name, userType }, JWT_SECRET, { expiresIn: '1h' })
                 res.status(201).json({ id: createdId, name, email, userType, businessName, profilePicture, avatarColor, token })
             })
         })
     } catch (err) {
-        console.error(err)
+        console.error('Register error:', err)
         res.status(500).json({ error: 'server error' })
     }
 }
@@ -354,8 +424,17 @@ function handleLogin(req, res) {
     const { email, password } = req.body || {}
     if (!email || !password) return res.status(400).json({ error: 'email and password required' })
 
+    // Check if database connection is available
+    if (!db) {
+        console.error('Database not initialized')
+        return res.status(503).json({ error: 'database not available' })
+    }
+
     db.query('SELECT id, name, email, password, user_type, business_name, profile_picture, avatar_color FROM users WHERE email = ?', [email], async (err, results) => {
-        if (err) return res.status(500).json({ error: 'db error' })
+        if (err) {
+            console.error('Database error in login:', err.message, err.code)
+            return res.status(500).json({ error: 'db error: ' + (err.code || 'unknown') })
+        }
         if (!results.length) return res.status(401).json({ error: 'invalid credentials' })
 
         const user = results[0]
