@@ -123,22 +123,22 @@ const OpenJobs = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
       
       {/* Secondary Navigation */}
-      <div className="bg-background-section">
+      <div className="border-b border-gray-200">
         <div className="container mx-auto px-4">
           <nav className="flex items-center gap-8 h-16">
             <Link 
               to="/browse-jobs" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
+              className="text-sm font-medium text-muted-foreground hover:text-primary py-2"
             >
               Browse Jobs
             </Link>
             <Link 
               to="/open-jobs" 
-              className="text-sm font-medium text-primary border-b-2 border-primary py-5"
+              className="text-sm font-medium text-primary border-b-2 border-primary py-2"
             >
               Open Jobs
             </Link>

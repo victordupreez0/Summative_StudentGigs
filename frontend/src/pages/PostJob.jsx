@@ -177,10 +177,10 @@ const PostJob = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gray-50">
         <Navbar />
         <div className="container mx-auto px-4 py-8 text-center">
-          <p>Loading job data...</p>
+          <p className="text-gray-600">Loading job data...</p>
         </div>
         <Footer />
       </div>
@@ -188,30 +188,30 @@ const PostJob = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50">
   <Navbar />
       
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" asChild>
+            <Button variant="ghost" size="icon" asChild className="text-gray-700 hover:text-gray-900">
               <Link to="/dashboard">
                 <ArrowLeft className="w-5 h-5" />
               </Link>
             </Button>
             <div>
-              <h1 className="text-2xl font-bold">{jobId ? 'Edit Job' : 'Post a Job'}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{jobId ? 'Edit Job' : 'Post a Job'}</h1>
               <div className="flex items-center gap-4 mt-2">
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
                   <Save className="w-4 h-4 mr-2" />
                   Save as Draft
                 </Button>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
                   <UserPlus className="w-4 h-4 mr-2" />
                   Invite collaborators
                 </Button>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
                   <Eye className="w-4 h-4 mr-2" />
                   Preview
                 </Button>
@@ -254,10 +254,10 @@ const PostJob = () => {
               <div key={step.number} className="flex items-center">
                 <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
                   step.completed 
-                    ? 'bg-primary border-primary text-primary-foreground' 
+                    ? 'bg-gray-700 border-gray-700 text-white' 
                     : step.active 
-                      ? 'border-primary text-primary bg-primary/10' 
-                      : 'border-border text-muted-foreground'
+                      ? 'border-purple-600 text-purple-600 bg-purple-50' 
+                      : 'border-gray-300 text-gray-400'
                 }`}>
                   {step.completed ? (
                     <CheckCircle className="w-5 h-5" />
@@ -266,13 +266,13 @@ const PostJob = () => {
                   )}
                 </div>
                 <span className={`ml-2 text-sm font-medium ${
-                  step.active ? 'text-foreground' : 'text-muted-foreground'
+                  step.active ? 'text-gray-900' : 'text-gray-500'
                 }`}>
                   {step.title}
                 </span>
                 {index < steps.length - 1 && (
                   <div className={`mx-4 flex-1 h-0.5 ${
-                    step.completed ? 'bg-primary' : 'bg-border'
+                    step.completed ? 'bg-gray-700' : 'bg-gray-300'
                   }`} />
                 )}
               </div>
@@ -284,9 +284,9 @@ const PostJob = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Form */}
           <div className="lg:col-span-2">
-            <Card>
+            <Card className="border-gray-200 bg-white">
               <CardHeader>
-                <CardTitle>
+                <CardTitle className="text-gray-900">
                   {currentStep === 1 && "Tell us about your job"}
                   {currentStep === 2 && "Job Details"}
                   {currentStep === 3 && "Required Expertise"}
@@ -299,7 +299,7 @@ const PostJob = () => {
                 {currentStep === 1 && (
                   <>
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
+                      <label className="block text-sm font-medium text-gray-900 mb-2">
                         Job Title
                       </label>
                       <Input
@@ -307,13 +307,13 @@ const PostJob = () => {
                         value={jobTitle}
                         onChange={(e) => setJobTitle(e.target.value)}
                       />
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-xs text-gray-600 mt-1">
                         This helps attract the right students to your job post
                       </p>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
+                      <label className="block text-sm font-medium text-gray-900 mb-2">
                         Job Description
                       </label>
                       <Textarea
@@ -324,14 +324,14 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                         onChange={(e) => setJobDescription(e.target.value)}
                         rows={8}
                       />
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-xs text-gray-600 mt-1">
                         Be clear about deliverables, timeline, and what you're looking for in an applicant
                       </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
+                        <label className="block text-sm font-medium text-gray-900 mb-2">
                           Project Type
                         </label>
                         <Select value={projectType} onValueChange={setProjectType}>
@@ -347,7 +347,7 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
+                        <label className="block text-sm font-medium text-gray-900 mb-2">
                           Project Length
                         </label>
                         <Select value={projectLength} onValueChange={setProjectLength}>
@@ -365,7 +365,7 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
+                      <label className="block text-sm font-medium text-gray-900 mb-2">
                         Job Category
                       </label>
                       <Select value={jobCategory} onValueChange={setJobCategory}>
@@ -384,12 +384,12 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
+                      <label className="block text-sm font-medium text-gray-900 mb-2">
                         Tags
                       </label>
                       <div className="flex flex-wrap gap-2 mb-2">
                         {tags.map((tag) => (
-                          <Badge key={tag} variant="secondary" className="cursor-pointer" onClick={() => removeTag(tag)}>
+                          <Badge key={tag} variant="secondary" className="cursor-pointer bg-gray-100 text-gray-700 border-gray-200" onClick={() => removeTag(tag)}>
                             {tag} ×
                           </Badge>
                         ))}

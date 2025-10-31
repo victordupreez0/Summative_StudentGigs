@@ -124,13 +124,13 @@ const EmployerDashboard = () => {
       title: "Applications",
       value: "32",
       icon: Users,
-      color: "text-blue-600"
+      color: "text-gray-600"
     },
     {
       title: "Active jobs",
       value: activeJobs.length.toString(),
       icon: Briefcase,
-      color: "text-green-600"
+      color: "text-gray-600"
     },
     {
       title: "Interviews",
@@ -142,7 +142,7 @@ const EmployerDashboard = () => {
       title: "Hires",
       value: "5",
       icon: Star,
-      color: "text-yellow-600"
+      color: "text-amber-500"
     }
   ];
 
@@ -215,11 +215,11 @@ const EmployerDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50">
   <Navbar />
       
       {/* Secondary Navigation */}
-      <div className="bg-background-section">
+      <div className="border-b border-gray-200">
         <div className="container mx-auto px-4">
           <nav className="flex items-center gap-8 h-16">
             <Link 
@@ -230,31 +230,31 @@ const EmployerDashboard = () => {
             </Link>
             <Link 
               to="/open-jobs" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
               Open Jobs
             </Link>
             <Link 
               to="/employer-dashboard" 
-              className="text-sm font-medium text-primary border-b-2 border-primary py-5"
+              className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2"
             >
               Dashboard
             </Link>
             <Link 
               to="/applicants" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
               Applicants
             </Link>
             <Link 
               to="/messages" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
               Messages
             </Link>
             <Link 
               to="/profile" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
               Profile
             </Link>
@@ -271,7 +271,7 @@ const EmployerDashboard = () => {
               <h1 className="text-2xl font-bold flex items-center gap-2">
                 Welcome back, {user?.name || 'User'} 👋
               </h1>
-              <p className="text-muted-foreground">{user?.businessName || 'Your Business'} • Employer Account</p>
+              <p className="text-gray-600">{user?.businessName || 'Your Business'} • Employer Account</p>
             </div>
           </div>
 
@@ -279,15 +279,15 @@ const EmployerDashboard = () => {
             <div className="flex flex-col lg:flex-row items-center justify-between">
               <div className="mb-4 lg:mb-0">
                 <h2 className="text-xl font-semibold mb-2">Find talented students for your projects</h2>
-                <p className="text-primary-foreground/90">
+                <p className="text-charcoal">
                   Post jobs, review applications, and hire the best students for your team.
                 </p>
               </div>
               <div className="flex gap-3">
-                <Button variant="accent" asChild>
+                <Button className="bg-purple-600 hover:bg-purple-700 text-white" asChild>
                   <Link to="/post-job">+ Post a Job</Link>
                 </Button>
-                <Button variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" asChild>
+                <Button variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900" asChild>
                   <Link to="/browse-talent">
                     <Users className="w-4 h-4 mr-2" />
                     Browse Students
@@ -301,14 +301,14 @@ const EmployerDashboard = () => {
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           {stats.map((stat, index) => (
-            <Card key={index} hover={true}>
+            <Card key={index} hover={true} className="border-gray-200 bg-white">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                    <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
                   </div>
-                  <div className={`w-12 h-12 rounded-full bg-background-gray flex items-center justify-center`}>
+                  <div className={`w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center`}>
                     <stat.icon className={`w-6 h-6 ${stat.color}`} />
                   </div>
                 </div>
@@ -321,27 +321,27 @@ const EmployerDashboard = () => {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
             {/* Active Jobs */}
-            <Card hover={true}>
+            <Card hover={true} className="border-gray-200 bg-white">
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-gray-900">
                   <Briefcase className="w-5 h-5" />
                   Active Jobs
-                  <Badge variant="secondary">{activeJobs.length}</Badge>
+                  <Badge variant="secondary" className="bg-gray-100 text-gray-700 border-gray-200">{activeJobs.length}</Badge>
                 </CardTitle>
-                <Link to="/post-job" className="text-primary hover:underline text-sm">Post new job</Link>
+                <Link to="/post-job" className="text-purple-600 hover:text-purple-700 hover:underline text-sm">Post new job</Link>
               </CardHeader>
               <CardContent>
                 {loading ? (
                   <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-                    <p className="text-sm text-muted-foreground">Loading your jobs...</p>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-2"></div>
+                    <p className="text-sm text-gray-600">Loading your jobs...</p>
                   </div>
                 ) : activeJobs.length === 0 ? (
                   <div className="text-center py-12">
-                    <Briefcase className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-                    <h3 className="text-lg font-semibold mb-2">No active jobs yet</h3>
-                    <p className="text-muted-foreground mb-4">Start by posting your first job to find talented students.</p>
-                    <Button asChild>
+                    <Briefcase className="w-16 h-16 mx-auto mb-4 text-gray-400 opacity-50" />
+                    <h3 className="text-lg font-semibold mb-2 text-gray-900">No active jobs yet</h3>
+                    <p className="text-gray-600 mb-4">Start by posting your first job to find talented students.</p>
+                    <Button className="bg-gray-900 hover:bg-gray-800 text-white" asChild>
                       <Link to="/post-job">+ Post Your First Job</Link>
                     </Button>
                   </div>

@@ -39,21 +39,21 @@ const StudentDashboard = () => {
       value: "28",
       change: "12% from last week",
       icon: Eye,
-      color: "text-blue-600"
+      color: "text-gray-600"
     },
     {
       title: "Applications", 
       value: "5",
       change: "3 awaiting response",
       icon: Send,
-      color: "text-green-600"
+      color: "text-gray-600"
     },
     {
       title: "Saved Jobs",
       value: "12", 
       change: "2 closing soon",
       icon: Bookmark,
-      color: "text-yellow-600"
+      color: "text-gray-600"
     },
     {
       title: "Earnings",
@@ -131,71 +131,71 @@ const StudentDashboard = () => {
       message: "You applied for Web Development for Student Club",
       time: "1 hour ago",
       icon: Send,
-      color: "text-blue-600"
+      color: "text-gray-600"
     },
     {
       type: "acceptance",
       message: "Your application for Social Media Assistant was accepted",
       time: "Yesterday", 
       icon: CheckCircle,
-      color: "text-green-600"
+      color: "text-purple-600"
     },
     {
       type: "review",
       message: "You received a 5-star review from CompuTech",
       time: "2 days ago",
       icon: Star,
-      color: "text-yellow-600"
+      color: "text-amber-500"
     }
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50">
   <Navbar />
       
       {/* Secondary Navigation */}
-      <div className="bg-background-section">
+      <div className="border-b border-gray-200">
         <div className="container mx-auto px-4">
           <nav className="flex items-center gap-8 h-16">
             <Link 
               to="/browse-jobs" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
               Browse Jobs
             </Link>
             <Link 
               to="/open-jobs" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
               Open Jobs
             </Link>
             <Link 
               to="/student-dashboard" 
-              className="text-sm font-medium text-primary border-b-2 border-primary py-5"
+              className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-5"
             >
               Dashboard
             </Link>
             <Link 
               to="/my-jobs" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
               My Jobs
             </Link>
             <Link 
               to="/applications" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
               Applications
             </Link>
             <Link 
               to="/messages" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
               Messages
             </Link>
             <Link 
               to="/student-profile" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-2"
             >
               Profile
             </Link>
@@ -207,15 +207,15 @@ const StudentDashboard = () => {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           {stats.map((stat, index) => (
-            <Card key={index} hover={true}>
+            <Card key={index} hover={true} className="border-gray-200 bg-white">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                    <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{stat.change}</p>
+                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                    <p className="text-xs text-gray-500 mt-1">{stat.change}</p>
                   </div>
-                  <div className={`w-12 h-12 rounded-full bg-background-gray flex items-center justify-center`}>
+                  <div className={`w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center`}>
                     <stat.icon className={`w-6 h-6 ${stat.color}`} />
                   </div>
                 </div>
@@ -228,12 +228,12 @@ const StudentDashboard = () => {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
             {/* Recommended Jobs */}
-            <Card hover={true}>
+            <Card hover={true} className="border-gray-200 bg-white">
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Recommended Jobs for Students</CardTitle>
+                <CardTitle className="text-gray-900">Recommended Jobs for Students</CardTitle>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Sort by:</span>
-                  <Button variant="outline" size="sm">
+                  <span className="text-sm text-gray-600">Sort by:</span>
+                  <Button variant="outline" size="sm" className="border-gray-300 text-gray-700">
                     Relevance ▽
                   </Button>
                 </div>
@@ -241,37 +241,37 @@ const StudentDashboard = () => {
               <CardContent>
                 <div className="space-y-6">
                   {recommendedJobs.map((job) => (
-                    <div key={job.id} className="border-b border-border last:border-0 pb-6 last:pb-0">
+                    <div key={job.id} className="border-b border-gray-200 last:border-0 pb-6 last:pb-0">
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-semibold text-foreground hover:text-primary cursor-pointer">
+                        <h3 className="font-semibold text-gray-900 hover:text-purple-600 cursor-pointer">
                           {job.title}
                         </h3>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-900">
                           <Bookmark className="w-4 h-4" />
                         </Button>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">{job.user_id ? `Posted by employer` : ''}</p>
-                      <p className="text-sm font-medium text-foreground mb-3">{job.projectLength || ''}</p>
+                      <p className="text-sm text-gray-600 mb-2">{job.user_id ? `Posted by employer` : ''}</p>
+                      <p className="text-sm font-medium text-gray-900 mb-3">{job.projectLength || ''}</p>
                       <div className="flex flex-wrap gap-2 mb-3">
                         {(job.tags || []).map((tag, tagIndex) => (
-                          <Badge key={tagIndex} variant="secondary">{tag}</Badge>
+                          <Badge key={tagIndex} variant="secondary" className="bg-gray-100 text-gray-700 border-gray-200">{tag}</Badge>
                         ))}
                       </div>
                       <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-4 text-sm text-gray-600">
                           <span>{(job.education_levels && job.education_levels[0]) || ''}</span>
                           <span>{job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}</span>
                         </div>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm">Save</Button>
-                          <Button size="sm" onClick={() => handleApplyClick(job)}>Apply Now</Button>
+                          <Button variant="outline" size="sm" className="border-gray-300 text-gray-700 hover:bg-gray-50">Save</Button>
+                          <Button size="sm" className="bg-gray-900 hover:bg-gray-800 text-white" onClick={() => handleApplyClick(job)}>Apply Now</Button>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
                 <div className="text-center mt-6">
-                  <Button variant="outline" asChild>
+                  <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50" asChild>
                     <Link to="/browse-jobs">View all</Link>
                   </Button>
                 </div>
@@ -279,20 +279,20 @@ const StudentDashboard = () => {
             </Card>
 
             {/* Recent Activity */}
-            <Card hover={true}>
+            <Card hover={true} className="border-gray-200 bg-white">
               <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
+                <CardTitle className="text-gray-900">Recent Activity</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {recentActivity.map((activity, index) => (
                     <div key={index} className="flex items-start gap-3">
-                      <div className={`w-8 h-8 rounded-full bg-background-gray flex items-center justify-center flex-shrink-0`}>
+                      <div className={`w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0`}>
                         <activity.icon className={`w-4 h-4 ${activity.color}`} />
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm text-foreground">{activity.message}</p>
-                        <p className="text-xs text-muted-foreground">{activity.time}</p>
+                        <p className="text-sm text-gray-900">{activity.message}</p>
+                        <p className="text-xs text-gray-500">{activity.time}</p>
                       </div>
                     </div>
                   ))}

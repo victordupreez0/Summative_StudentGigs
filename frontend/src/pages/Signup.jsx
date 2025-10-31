@@ -96,21 +96,21 @@ const Signup = () => {
   };
   
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50">
   <Navbar />
       
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-md mx-auto">
-          <Card className="shadow-sm border-gray-200">
+          <Card className="shadow-sm border-gray-200 bg-white">
             <CardHeader className="text-center">
-              <CardTitle className="text-xl font-semibold">Create your account</CardTitle>
-              <p className="text-muted-foreground text-sm">Join StudentGigs to find work or hire talent</p>
+              <CardTitle className="text-xl font-semibold text-gray-900">Create your account</CardTitle>
+              <p className="text-gray-600 text-sm">Join StudentGigs to find work or hire talent</p>
             </CardHeader>
             
             <CardContent className="space-y-6">
               {/* Social Login Buttons */}
               <div className="space-y-3">
-                <Button variant="social" className="w-full bg-white hover:bg-gray-50 border border-gray-300" type="button">
+                <Button variant="social" className="w-full bg-white hover:bg-gray-50 border border-gray-300 text-gray-700" type="button">
                   <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                     <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -120,7 +120,7 @@ const Signup = () => {
                   Continue with Google
                 </Button>
                 
-                <Button variant="social" className="w-full bg-white hover:bg-gray-50 border border-gray-300" type="button">
+                <Button variant="social" className="w-full bg-white hover:bg-gray-50 border border-gray-300 text-gray-700" type="button">
                   <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
                   </svg>
@@ -133,7 +133,7 @@ const Signup = () => {
                   <Separator className="w-full" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-muted-foreground">or</span>
+                  <span className="bg-white px-2 text-gray-500">or</span>
                 </div>
               </div>
 
@@ -141,7 +141,7 @@ const Signup = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="firstName" className="block text-sm font-medium text-foreground mb-1">
+                    <label htmlFor="firstName" className="block text-sm font-medium text-gray-900 mb-1">
                       First name
                     </label>
                     <Input
@@ -154,7 +154,7 @@ const Signup = () => {
                     />
                   </div>
                   <div>
-                    <label htmlFor="lastName" className="block text-sm font-medium text-foreground mb-1">
+                    <label htmlFor="lastName" className="block text-sm font-medium text-gray-900 mb-1">
                       Last name
                     </label>
                     <Input
@@ -169,7 +169,7 @@ const Signup = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1">
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-900 mb-1">
                     Email
                   </label>
                   <Input
@@ -183,7 +183,7 @@ const Signup = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-foreground mb-1">
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-900 mb-1">
                     Password (8+ characters)
                   </label>
                   <div className="relative">
@@ -200,7 +200,7 @@ const Signup = () => {
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-gray-600"
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? (
@@ -214,7 +214,7 @@ const Signup = () => {
 
                 {/* Profile Picture Upload */}
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">
+                  <label className="block text-sm font-medium text-gray-900 mb-1">
                     Profile picture (optional)
                   </label>
                   <div className="flex items-center gap-4">
@@ -241,7 +241,7 @@ const Signup = () => {
                           type="button"
                           variant="outline"
                           size="sm"
-                          className="cursor-pointer"
+                          className="cursor-pointer border-gray-300 text-gray-700 hover:bg-gray-50"
                           onClick={() => document.getElementById('profilePicture').click()}
                         >
                           <Upload className="w-4 h-4 mr-2" />
@@ -254,7 +254,7 @@ const Signup = () => {
 
                 {/* User Type Selection - More Prominent */}
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-3">
+                  <label className="block text-sm font-medium text-gray-900 mb-3">
                     I want to: <span className="text-red-500">*</span>
                   </label>
                   <div className="grid grid-cols-2 gap-4">
@@ -263,12 +263,12 @@ const Signup = () => {
                       onClick={() => setUserType("hire")}
                       className={`p-6 border-2 rounded-lg transition-all duration-200 ${
                         userType === "hire" 
-                          ? "border-gray-900 bg-gray-50 shadow-sm" 
+                          ? "border-purple-600 bg-purple-50 shadow-sm" 
                           : "border-gray-300 hover:border-gray-400 hover:bg-gray-50"
                       }`}
                     >
                       <Briefcase className={`w-10 h-10 mx-auto mb-3 ${
-                        userType === "hire" ? "text-gray-900" : "text-gray-400"
+                        userType === "hire" ? "text-purple-600" : "text-gray-400"
                       }`} />
                       <div className={`text-base font-medium mb-1 ${
                         userType === "hire" ? "text-gray-900" : "text-gray-700"
@@ -282,12 +282,12 @@ const Signup = () => {
                       onClick={() => setUserType("work")}
                       className={`p-6 border-2 rounded-lg transition-all duration-200 ${
                         userType === "work" 
-                          ? "border-gray-900 bg-gray-50 shadow-sm" 
+                          ? "border-purple-600 bg-purple-50 shadow-sm" 
                           : "border-gray-300 hover:border-gray-400 hover:bg-gray-50"
                       }`}
                     >
                       <User className={`w-10 h-10 mx-auto mb-3 ${
-                        userType === "work" ? "text-gray-900" : "text-gray-400"
+                        userType === "work" ? "text-purple-600" : "text-gray-400"
                       }`} />
                       <div className={`text-base font-medium mb-1 ${
                         userType === "work" ? "text-gray-900" : "text-gray-700"
@@ -305,7 +305,7 @@ const Signup = () => {
                 {/* Business Name Field - Only for Employers */}
                 {userType === "hire" && (
                   <div>
-                    <label htmlFor="businessName" className="block text-sm font-medium text-foreground mb-1">
+                    <label htmlFor="businessName" className="block text-sm font-medium text-gray-900 mb-1">
                       Business name <span className="text-red-500">*</span>
                     </label>
                     <Input
@@ -326,13 +326,13 @@ const Signup = () => {
                     onCheckedChange={(checked) => setAgreeToTerms(!!checked)}
                     className="mt-1"
                   />
-                  <label htmlFor="terms" className="text-sm text-foreground">
+                  <label htmlFor="terms" className="text-sm text-gray-900">
                     I agree to the{" "}
-                    <Link to="/terms" className="text-gray-900 hover:underline">
+                    <Link to="/terms" className="text-purple-600 hover:text-purple-700 hover:underline">
                       Terms of Service
                     </Link>{" "}
                     and{" "}
-                    <Link to="/privacy" className="text-gray-900 hover:underline">
+                    <Link to="/privacy" className="text-purple-600 hover:text-purple-700 hover:underline">
                       Privacy Policy
                     </Link>
                     .
@@ -341,7 +341,7 @@ const Signup = () => {
 
                 <Button 
                   type="submit" 
-                  className="w-full bg-gray-900 hover:bg-gray-800" 
+                  className="w-full bg-gray-900 hover:bg-gray-800 text-white" 
                   size="lg"
                   disabled={!agreeToTerms || !userType}
                 >
@@ -350,9 +350,9 @@ const Signup = () => {
               </form>
 
               <div className="text-center">
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm text-gray-600">
                   Already have an account?{" "}
-                  <Link to="/login" className="text-gray-900 hover:underline font-medium">
+                  <Link to="/login" className="text-purple-600 hover:text-purple-700 hover:underline font-medium">
                     Log in
                   </Link>
                 </span>

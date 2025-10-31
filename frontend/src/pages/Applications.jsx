@@ -107,21 +107,21 @@ const Applications = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gray-50">
         <Navbar />
         <div className="container mx-auto px-4 py-16 text-center">
-          <p className="text-muted-foreground">Loading applications...</p>
+          <p className="text-gray-600">Loading applications...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
       
       {/* Header */}
-      <div className="bg-gradient-hero text-primary-foreground">
+      <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white">
         <div className="container mx-auto px-4 py-12">
           <div className="flex items-center gap-4 mb-4">
             <Button 

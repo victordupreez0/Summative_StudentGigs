@@ -133,10 +133,10 @@ const JobDetails = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gray-50">
         <Navbar />
         <div className="container mx-auto px-4 py-8">
-          <p>Loading...</p>
+          <p className="text-gray-600">Loading...</p>
         </div>
         <Footer />
       </div>
@@ -145,11 +145,11 @@ const JobDetails = () => {
 
   if (!job) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gray-50">
         <Navbar />
         <div className="container mx-auto px-4 py-8">
-          <p>Job not found</p>
-          <Button asChild className="mt-4">
+          <p className="text-gray-900">Job not found</p>
+          <Button asChild className="mt-4 bg-gray-900 hover:bg-gray-800">
             <Link to="/browse-jobs">Back to Jobs</Link>
           </Button>
         </div>
@@ -163,7 +163,7 @@ const JobDetails = () => {
   const isEmployer = user && user.userType === 'employer';
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
 
       <div className="container mx-auto px-4 py-8">

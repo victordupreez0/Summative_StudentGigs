@@ -17,14 +17,14 @@ const Landing = () => {
       title: "Web Development",
       description: "Website creation, coding, debugging and maintenance",
       jobs: "246 jobs available",
-      color: "text-blue-600"
+      color: "text-gray-700"
     },
     {
       icon: PenTool,
       title: "Content Writing", 
       description: "Blog posts, articles, copywriting and proofreading",
       jobs: "189 jobs available",
-      color: "text-green-600"
+      color: "text-gray-700"
     },
     {
       icon: BarChart3,
@@ -38,7 +38,7 @@ const Landing = () => {
       title: "Graphic Design",
       description: "Logos, illustrations, UI/UX design and branding",
       jobs: "178 jobs available", 
-      color: "text-pink-600"
+      color: "text-gray-700"
     }
   ];
 
@@ -110,24 +110,24 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50">
   <Navbar />
       
       {/* Hero Section */}
-      <section className="bg-gradient-hero text-primary-foreground">
+      <section className="">
         <div className="container mx-auto px-4 py-20">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl font-bold mb-6">
               Find the perfect student talent for your projects
             </h1>
-            <p className="text-xl mb-8 text-primary-foreground/90">
+            <p className="text-xl mb-8 text-charcoal">
               Connect with skilled students for your short-term projects, research assistance, or part-time roles.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="accent" size="lg" asChild>
+              <Button className="bg-purple-600 hover:bg-purple-700 text-white" size="lg" asChild>
                 <Link to="/post-job">Post a Job</Link>
               </Button>
-              <Button variant="outline" size="lg" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" asChild>
+              <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-gray-900" asChild>
                 <Link to="/browse-jobs">Find Work</Link>
               </Button>
             </div>
@@ -136,22 +136,22 @@ const Landing = () => {
       </section>
 
       {/* Popular Categories */}
-      <section className="py-16 bg-background-section">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">Popular Categories</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Popular Categories</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {categories.map((category, index) => (
-              <Card key={index} className="hover:shadow-md transition-shadow cursor-pointer group">
+              <Card key={index} className="hover:shadow-md transition-shadow cursor-pointer group border-gray-200 bg-white">
                 <CardContent className="p-6 text-center">
                   <div className="mb-4">
                     <category.icon className={`w-12 h-12 mx-auto ${category.color}`} />
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">{category.title}</h3>
-                  <p className="text-muted-foreground text-sm mb-3">{category.description}</p>
-                  <p className="text-primary text-sm font-medium">{category.jobs}</p>
-                  <Button variant="link" className="mt-2 group-hover:text-primary">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{category.title}</h3>
+                  <p className="text-gray-600 text-sm mb-3">{category.description}</p>
+                  <p className="text-purple-600 text-sm font-medium">{category.jobs}</p>
+                  <Button variant="link" className="mt-2 text-gray-700 hover:text-purple-600">
                     View Jobs <ArrowRight className="w-4 h-4 ml-1" />
                   </Button>
                 </CardContent>
@@ -162,42 +162,42 @@ const Landing = () => {
       </section>
 
       {/* How It Works */}
-      <section className="py-16">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">How It Works</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">How It Works</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-8 h-8 text-primary" />
+              <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-8 h-8 text-purple-600" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">Create Your Profile</h3>
-              <p className="text-muted-foreground">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Create Your Profile</h3>
+              <p className="text-gray-600">
                 Sign up and create a detailed profile showcasing your skills, education and experience to stand out to potential employers.
               </p>
             </div>
             <div className="text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Search className="w-8 h-8 text-primary" />
+              <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="w-8 h-8 text-purple-600" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">Find Opportunities</h3>
-              <p className="text-muted-foreground">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Find Opportunities</h3>
+              <p className="text-gray-600">
                 Browse through available jobs that match your interests, or post your own job if you're looking for student talent.
               </p>
             </div>
             <div className="text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <DollarSign className="w-8 h-8 text-primary" />
+              <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <DollarSign className="w-8 h-8 text-purple-600" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">Collaborate & Earn</h3>
-              <p className="text-muted-foreground">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Collaborate & Earn</h3>
+              <p className="text-gray-600">
                 Connect with employers, complete projects, build your portfolio, and earn money while gaining valuable professional experience.
               </p>
             </div>
           </div>
           <div className="text-center mt-8">
-            <Button size="lg" asChild>
+            <Button className="bg-gray-900 hover:bg-gray-800 text-white" size="lg" asChild>
               <Link to="/signup">Get Started Today</Link>
             </Button>
           </div>
@@ -205,37 +205,37 @@ const Landing = () => {
       </section>
 
       {/* Recent Jobs */}
-      <section className="py-16 bg-background-section">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold text-foreground">Recent Jobs</h2>
+            <h2 className="text-3xl font-bold text-gray-900">Recent Jobs</h2>
             <div className="flex items-center gap-4">
-              <Button variant="outline">
+              <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">
                 Filter <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
-              <Button variant="outline">Most Recent</Button>
+              <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">Most Recent</Button>
             </div>
           </div>
           <div className="space-y-6">
             {jobs.slice(0,5).map((job) => (
-              <Card key={job.id} className="hover:shadow-md transition-shadow">
+              <Card key={job.id} className="hover:shadow-md transition-shadow border-gray-200 bg-white">
                 <CardContent className="p-6">
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-start justify-between mb-2">
-                        <h3 className="text-lg font-semibold text-foreground hover:text-primary cursor-pointer">
+                        <h3 className="text-lg font-semibold text-gray-900 hover:text-purple-600 cursor-pointer">
                           {job.title}
                         </h3>
-                        <Button variant="outline" size="sm">Save</Button>
+                        <Button variant="outline" size="sm" className="border-gray-300">Save</Button>
                       </div>
-                      <p className="text-muted-foreground mb-2">{job.user_id ? `Posted by user ${job.user_id}` : ''} • {job.projectType || 'Remote'}</p>
-                      <p className="text-sm text-muted-foreground mb-3">{job.description}</p>
+                      <p className="text-gray-600 mb-2">{job.user_id ? `Posted by user ${job.user_id}` : ''} • {job.projectType || 'Remote'}</p>
+                      <p className="text-sm text-gray-600 mb-3">{job.description}</p>
                       <div className="flex flex-wrap gap-2 mb-3">
                         {(job.tags || []).map((tag, tagIndex) => (
-                          <Badge key={tagIndex} variant="secondary">{tag}</Badge>
+                          <Badge key={tagIndex} variant="secondary" className="bg-gray-100 text-gray-700 border-gray-200">{tag}</Badge>
                         ))}
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-4 text-sm text-gray-600">
                         <span>{job.budget || ''}</span>
                         <span>{(job.education_levels && job.education_levels[0]) || ''}</span>
                         <span>{job.projectLength || ''}</span>
@@ -243,8 +243,8 @@ const Landing = () => {
                       </div>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <Button size="sm">Apply Now</Button>
-                      <p className="text-xs text-muted-foreground text-center">{job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}</p>
+                      <Button size="sm" className="bg-gray-900 hover:bg-gray-800">Apply Now</Button>
+                      <p className="text-xs text-gray-500 text-center">{job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -252,7 +252,7 @@ const Landing = () => {
             ))}
           </div>
           <div className="text-center mt-8">
-            <Button variant="outline" asChild>
+            <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50" asChild>
               <Link to="/browse-jobs">View All Jobs</Link>
             </Button>
           </div>
@@ -260,41 +260,41 @@ const Landing = () => {
       </section>
 
       {/* Top Rated Students */}
-      <section className="py-16">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold text-foreground">Top Rated Students</h2>
-            <Button variant="outline" asChild>
+            <h2 className="text-3xl font-bold text-gray-900">Top Rated Students</h2>
+            <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50" asChild>
               <Link to="/browse-talent">View All Students</Link>
             </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {students.map((student, index) => (
-              <Card key={index} className="hover:shadow-md transition-shadow">
+              <Card key={index} className="hover:shadow-md transition-shadow border-gray-200 bg-white">
                 <CardContent className="p-6">
                   <div className="flex items-center mb-4">
-                    <Avatar className="w-12 h-12 mr-3">
+                    <Avatar className="w-12 h-12 mr-3 border border-gray-200">
                       <AvatarImage src={student.avatar} />
-                      <AvatarFallback>{student.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                      <AvatarFallback className="bg-gray-100 text-gray-700">{student.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                     </Avatar>
                     <div>
-                      <h3 className="font-semibold text-foreground">{student.name}</h3>
-                      <p className="text-sm text-muted-foreground">{student.title}</p>
+                      <h3 className="font-semibold text-gray-900">{student.name}</h3>
+                      <p className="text-sm text-gray-600">{student.title}</p>
                     </div>
                     <div className="ml-auto flex items-center">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
-                      <span className="text-sm font-medium">{student.rating}</span>
+                      <Star className="w-4 h-4 fill-amber-400 text-amber-400 mr-1" />
+                      <span className="text-sm font-medium text-gray-900">{student.rating}</span>
                     </div>
                   </div>
-                  <p className="text-sm text-muted-foreground mb-4">{student.description}</p>
+                  <p className="text-sm text-gray-600 mb-4">{student.description}</p>
                   <div className="flex flex-wrap gap-2 mb-4">
                     {student.skills.map((skill, skillIndex) => (
-                      <Badge key={skillIndex} variant="outline">{skill}</Badge>
+                      <Badge key={skillIndex} variant="outline" className="border-gray-300 text-gray-700">{skill}</Badge>
                     ))}
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">{student.jobs} jobs completed</span>
-                    <Button size="sm" variant="outline">View Profile</Button>
+                    <span className="text-sm text-gray-600">{student.jobs} jobs completed</span>
+                    <Button size="sm" variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">View Profile</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -304,29 +304,29 @@ const Landing = () => {
       </section>
 
       {/* Testimonials */}
-      <section className="py-16 bg-background-section">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">What People Are Saying</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">What People Are Saying</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {testimonials.map((testimonial, index) => (
-              <Card key={index}>
+              <Card key={index} className="border-gray-200 bg-white">
                 <CardContent className="p-6">
                   <div className="flex items-center mb-4">
                     {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
                     ))}
                   </div>
-                  <p className="text-muted-foreground mb-4">"{testimonial.content}"</p>
+                  <p className="text-gray-600 mb-4">"{testimonial.content}"</p>
                   <div className="flex items-center">
-                    <Avatar className="w-10 h-10 mr-3">
+                    <Avatar className="w-10 h-10 mr-3 border border-gray-200">
                       <AvatarImage src={testimonial.avatar} />
-                      <AvatarFallback>{testimonial.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                      <AvatarFallback className="bg-gray-100 text-gray-700">{testimonial.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-semibold text-foreground">{testimonial.name}</p>
-                      <p className="text-sm text-muted-foreground">{testimonial.title}</p>
+                      <p className="font-semibold text-gray-900">{testimonial.name}</p>
+                      <p className="text-sm text-gray-600">{testimonial.title}</p>
                     </div>
                   </div>
                 </CardContent>
