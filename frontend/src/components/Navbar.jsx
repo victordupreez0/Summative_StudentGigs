@@ -30,24 +30,24 @@ export const Navbar = () => {
           <span className="text-2xl font-bold text-slate-900 tracking-tight">StudentGigs</span>
         </Link>
         
-        {/* Navigation - Professional Typography */}
-        <nav className="hidden md:flex items-center gap-10">
+        {/* Navigation - Modern Typography with Better Spacing */}
+        <nav className="hidden md:flex items-center gap-8">
           <Link 
             to="/browse-jobs" 
-            className={`text-sm font-medium transition-all duration-200 ${
+            className={`text-sm font-semibold transition-all duration-300 ${
               isActive('/browse-jobs') 
-                ? 'text-blue-600 border-b-2 border-blue-600 pb-1' 
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'text-indigo-600 border-b-2 border-indigo-600 pb-1' 
+                : 'text-gray-600 hover:text-indigo-600'
             }`}
           >
             Find Work
           </Link>
           <Link 
             to="/post-job" 
-            className={`text-sm font-medium transition-all duration-200 ${
+            className={`text-sm font-semibold transition-all duration-300 ${
               isActive('/post-job') 
-                ? 'text-blue-600 border-b-2 border-blue-600 pb-1' 
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'text-indigo-600 border-b-2 border-indigo-600 pb-1' 
+                : 'text-gray-600 hover:text-indigo-600'
             }`}
           >
             Post a Job
@@ -55,10 +55,10 @@ export const Navbar = () => {
           {user && user.userType === 'student' && (
             <Link 
               to="/applications" 
-              className={`text-sm font-medium transition-all duration-200 ${
+              className={`text-sm font-semibold transition-all duration-300 ${
                 isActive('/applications') 
-                  ? 'text-blue-600 border-b-2 border-blue-600 pb-1' 
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'text-indigo-600 border-b-2 border-indigo-600 pb-1' 
+                  : 'text-gray-600 hover:text-indigo-600'
               }`}
             >
               My Applications
@@ -66,83 +66,83 @@ export const Navbar = () => {
           )}
           <Link 
             to="/browse-talent" 
-            className={`text-sm font-medium transition-all duration-200 ${
+            className={`text-sm font-semibold transition-all duration-300 ${
               isActive('/browse-talent') 
-                ? 'text-blue-600 border-b-2 border-blue-600 pb-1' 
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'text-indigo-600 border-b-2 border-indigo-600 pb-1' 
+                : 'text-gray-600 hover:text-indigo-600'
             }`}
           >
             Browse Talent
           </Link>
           <Link 
             to="/resources" 
-            className={`text-sm font-medium transition-all duration-200 ${
+            className={`text-sm font-semibold transition-all duration-300 ${
               isActive('/resources') 
-                ? 'text-blue-600 border-b-2 border-blue-600 pb-1' 
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'text-indigo-600 border-b-2 border-indigo-600 pb-1' 
+                : 'text-gray-600 hover:text-indigo-600'
             }`}
           >
             Resources
           </Link>
         </nav>
         
-        {/* Search - Professional Input */}
-        <div className="hidden lg:flex items-center gap-2 flex-1 max-w-md mx-12">
+        {/* Search - Compact Modern Input */}
+        <div className="hidden lg:flex items-center gap-2 flex-1 max-w-xs">
           <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input 
               placeholder="Search jobs..." 
-              className="pl-11 bg-slate-50 border-slate-200"
+              className="pl-11 py-2.5 bg-gray-50 border-gray-200 text-sm"
             />
           </div>
         </div>
         
         {/* Right side actions */}
-        <div className="flex items-center gap-3">
-          {/* Notifications - Professional Icon Buttons */}
-          <Button variant="ghost" size="default" className="w-10 h-10 p-0 rounded-full hover:bg-slate-100">
-            <Bell className="w-5 h-5 text-slate-600" />
+        <div className="flex items-center gap-4">
+          {/* Notifications - Larger Modern Icon Buttons */}
+          <Button variant="ghost" size="default" className="w-11 h-11 p-0 rounded-xl hover:bg-indigo-50 hover:scale-110">
+            <Bell className="w-6 h-6 text-gray-600 hover:text-indigo-600" />
           </Button>
           
           {/* Messages */}
-          <Button variant="ghost" size="default" className="w-10 h-10 p-0 rounded-full hover:bg-slate-100">
-            <Mail className="w-5 h-5 text-slate-600" />
+          <Button variant="ghost" size="default" className="w-11 h-11 p-0 rounded-xl hover:bg-indigo-50 hover:scale-110">
+            <Mail className="w-6 h-6 text-gray-600 hover:text-indigo-600" />
           </Button>
           
           {/* User Avatar */}
           {user && (
             <UserAvatar 
               user={user} 
-              className="border-2 border-slate-200 cursor-pointer hover:border-blue-400 transition-colors" 
+              className="border-2 border-indigo-200 cursor-pointer hover:border-indigo-400 transition-all hover:scale-110 shadow-md" 
               size="md"
               onClick={() => navigate('/dashboard')}
             />
           )}
           
           {!user && (
-            <Avatar className="w-10 h-10 border-2 border-slate-200">
+            <Avatar className="w-11 h-11 border-2 border-gray-200 shadow-md">
               <AvatarImage src="/avatars/user.jpg" />
-              <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white font-medium">?</AvatarFallback>
+              <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-semibold">?</AvatarFallback>
             </Avatar>
           )}
           
-          {/* Auth buttons - Professional Styling */}
+          {/* Auth buttons - Modern Styling */}
           <div className="hidden md:flex items-center gap-3 ml-2">
             {!user ? (
               <>
-                <Button variant="ghost" asChild>
+                <Button variant="ghost" asChild className="font-semibold">
                   <Link to="/login">Log in</Link>
                 </Button>
-                <Button variant="primary" asChild>
+                <Button variant="primary" asChild className="shadow-lg">
                   <Link to="/signup">Sign up</Link>
                 </Button>
               </>
             ) : (
               <>
-                <Button variant="ghost" onClick={() => { logout(); navigate('/login') }}>
+                <Button variant="ghost" onClick={() => { logout(); navigate('/login') }} className="font-semibold">
                   Logout
                 </Button>
-                <Button variant="ghost" onClick={() => { navigate('/dashboard') }}>
+                <Button variant="outline" onClick={() => { navigate('/dashboard') }} className="font-semibold">
                   {user.name}
                 </Button>
               </>

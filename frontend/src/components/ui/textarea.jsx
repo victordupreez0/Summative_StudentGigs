@@ -3,16 +3,17 @@ import React from 'react';
 export const Textarea = ({ className = '', ...props }) => (
   <textarea 
     className={`
-      w-full px-4 py-3
-      bg-white border border-slate-300 rounded-lg
-      text-slate-900 text-sm
-      placeholder:text-slate-400
-      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-      transition-all duration-200
-      disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed
-      hover:border-slate-400
+      w-full px-5 py-3
+      bg-white border-2 border-gray-200 rounded-xl
+      text-gray-900 text-sm font-medium
+      placeholder:text-gray-400
+      focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+      transition-all duration-300
+      disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed
+      hover:border-gray-300 hover:shadow-md
       resize-vertical
-      min-h-[100px]
+      min-h-[120px]
+      shadow-sm
       ${className}
     `} 
     {...props} 

@@ -1,31 +1,38 @@
 @import "tailwindcss";
 
 :root {
-  /* Professional Font Stack */
+  /* Modern Font Stack */
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   line-height: 1.6;
   font-weight: 400;
 
-  /* Professional Color Palette */
-  --color-primary: #1e40af; /* Deep Professional Blue */
-  --color-primary-hover: #1e3a8a;
-  --color-secondary: #0f172a; /* Rich Dark Navy */
-  --color-accent: #3b82f6; /* Bright Blue Accent */
-  --color-success: #059669; /* Professional Green */
-  --color-warning: #d97706; /* Amber Warning */
-  --color-danger: #dc2626; /* Red Alert */
+  /* Modern Vibrant Color Palette */
+  --color-primary: #6366f1; /* Modern Indigo */
+  --color-primary-hover: #4f46e5;
+  --color-primary-dark: #4338ca;
+  --color-secondary: #0ea5e9; /* Sky Blue */
+  --color-accent: #8b5cf6; /* Purple Accent */
+  --color-success: #10b981; /* Emerald Green */
+  --color-warning: #f59e0b; /* Amber Warning */
+  --color-danger: #ef4444; /* Red Alert */
+  
+  /* Gradient Colors */
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --gradient-success: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
   
   /* Neutral Tones */
-  --color-gray-50: #f8fafc;
-  --color-gray-100: #f1f5f9;
-  --color-gray-200: #e2e8f0;
-  --color-gray-300: #cbd5e1;
-  --color-gray-400: #94a3b8;
-  --color-gray-500: #64748b;
-  --color-gray-600: #475569;
-  --color-gray-700: #334155;
-  --color-gray-800: #1e293b;
-  --color-gray-900: #0f172a;
+  --color-gray-50: #fafafa;
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #e5e5e5;
+  --color-gray-300: #d4d4d4;
+  --color-gray-400: #a3a3a3;
+  --color-gray-500: #737373;
+  --color-gray-600: #525252;
+  --color-gray-700: #404040;
+  --color-gray-800: #262626;
+  --color-gray-900: #171717;
 
   /* Force light mode as the default color scheme */
   color-scheme: light;
@@ -35,22 +42,23 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  letter-spacing: -0.011em;
+  letter-spacing: -0.02em;
 }
 
-/* Professional gradient background */
+/* Modern gradient background */
 html, body, #root {
   height: 100%;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, #fafafa 0%, #f0f0ff 50%, #f5f3ff 100%);
   background-attachment: fixed;
 }
 
-/* Professional Typography */
+/* Modern Typography */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.03em;
   color: var(--color-gray-900);
+  line-height: 1.2;
 }
 
 /* Refined link styles */
