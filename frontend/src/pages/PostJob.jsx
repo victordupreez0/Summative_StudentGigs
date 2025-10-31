@@ -17,6 +17,8 @@ import API_BASE from '@/config/api'
 
 const PostJob = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  
+  // Step 1: Basics
   const [jobTitle, setJobTitle] = useState("");
   const [jobDescription, setJobDescription] = useState("");
   const [projectType, setProjectType] = useState("");
@@ -25,6 +27,27 @@ const PostJob = () => {
   const [tags, setTags] = useState([]);
   const [newTag, setNewTag] = useState("");
   const [educationLevels, setEducationLevels] = useState([]);
+
+  // Step 2: Details
+  const [workLocation, setWorkLocation] = useState("");
+  const [studentCount, setStudentCount] = useState("");
+  const [weeklyHours, setWeeklyHours] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [attachments, setAttachments] = useState([]);
+
+  // Step 3: Expertise
+  const [experienceLevel, setExperienceLevel] = useState("");
+  const [requiredSkills, setRequiredSkills] = useState([]);
+  const [newSkill, setNewSkill] = useState("");
+  const [preferredMajors, setPreferredMajors] = useState([]);
+  const [languages, setLanguages] = useState([]);
+
+  // Step 4: Budget
+  const [budgetType, setBudgetType] = useState("hourly");
+  const [hourlyRateMin, setHourlyRateMin] = useState("");
+  const [hourlyRateMax, setHourlyRateMax] = useState("");
+  const [fixedBudget, setFixedBudget] = useState("");
+  const [paymentSchedule, setPaymentSchedule] = useState("");
 
   const steps = [
     { number: 1, title: "Basics", active: currentStep >= 1, completed: currentStep > 1 },
@@ -45,11 +68,38 @@ const PostJob = () => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
+  const addSkill = () => {
+    if (newSkill.trim() && !requiredSkills.includes(newSkill.trim())) {
+      setRequiredSkills([...requiredSkills, newSkill.trim()]);
+      setNewSkill("");
+    }
+  };
+
+  const removeSkill = (skillToRemove) => {
+    setRequiredSkills(requiredSkills.filter(skill => skill !== skillToRemove));
+  };
+
   const handleEducationChange = (level, checked) => {
     if (checked) {
       setEducationLevels([...educationLevels, level]);
     } else {
       setEducationLevels(educationLevels.filter(l => l !== level));
+    }
+  };
+
+  const handleLanguageChange = (language, checked) => {
+    if (checked) {
+      setLanguages([...languages, language]);
+    } else {
+      setLanguages(languages.filter(l => l !== language));
+    }
+  };
+
+  const handleMajorChange = (major, checked) => {
+    if (checked) {
+      setPreferredMajors([...preferredMajors, major]);
+    } else {
+      setPreferredMajors(preferredMajors.filter(m => m !== major));
     }
   };
 
@@ -95,7 +145,28 @@ const PostJob = () => {
           <PostButton
             disabled={currentStep < 5}
             currentStep={currentStep}
-            job={{ jobTitle, jobDescription, projectType, projectLength, jobCategory, tags, educationLevels }}
+            job={{ 
+              jobTitle, 
+              jobDescription, 
+              projectType, 
+              projectLength, 
+              jobCategory, 
+              tags, 
+              educationLevels,
+              workLocation,
+              studentCount,
+              weeklyHours,
+              startDate,
+              experienceLevel,
+              requiredSkills,
+              preferredMajors,
+              languages,
+              budgetType,
+              hourlyRateMin,
+              hourlyRateMax,
+              fixedBudget,
+              paymentSchedule
+            }}
           />
         </div>
 
@@ -285,32 +356,550 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                 {/* Step 2: Details */}
                 {currentStep === 2 && (
                   <div className="space-y-6">
-                    <p className="text-muted-foreground">Additional job details and requirements will be configured here.</p>
-                    {/* Placeholder for step 2 content */}
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        Work Location
+                      </label>
+                      <Select value={workLocation} onValueChange={setWorkLocation}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select work location" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="remote">100% Remote</SelectItem>
+                          <SelectItem value="hybrid">Hybrid (Remote & On-site)</SelectItem>
+                          <SelectItem value="onsite">On-site</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Remote work increases your pool of qualified students
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-2">
+                          Number of Students Needed
+                        </label>
+                        <Select value={studentCount} onValueChange={setStudentCount}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="How many?" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="1">1 student</SelectItem>
+                            <SelectItem value="2-3">2-3 students</SelectItem>
+                            <SelectItem value="4-5">4-5 students</SelectItem>
+                            <SelectItem value="6+">More than 5 students</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-2">
+                          Weekly Time Commitment
+                        </label>
+                        <Select value={weeklyHours} onValueChange={setWeeklyHours}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Hours per week" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="less-10">Less than 10 hrs/week</SelectItem>
+                            <SelectItem value="10-20">10-20 hrs/week</SelectItem>
+                            <SelectItem value="20-30">20-30 hrs/week</SelectItem>
+                            <SelectItem value="30+">More than 30 hrs/week</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        Preferred Start Date
+                      </label>
+                      <Input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        When would you like the student to start?
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        Additional Requirements (Optional)
+                      </label>
+                      <Textarea
+                        placeholder="Any specific requirements not covered above? e.g., need access to specific software, must attend weekly meetings on campus, etc."
+                        rows={4}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        Attachments (Optional)
+                      </label>
+                      <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer">
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                            📎
+                          </div>
+                          <p className="text-sm font-medium">Upload project files or documents</p>
+                          <p className="text-xs text-muted-foreground">PDF, DOC, or images up to 10MB</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
 
                 {/* Step 3: Expertise */}
                 {currentStep === 3 && (
                   <div className="space-y-6">
-                    <p className="text-muted-foreground">Required skills and expertise will be configured here.</p>
-                    {/* Placeholder for step 3 content */}
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        Experience Level Required
+                      </label>
+                      <div className="space-y-3">
+                        {[
+                          { value: 'entry', label: 'Entry Level', desc: 'New students or those with limited experience' },
+                          { value: 'intermediate', label: 'Intermediate', desc: 'Students with some relevant coursework or projects' },
+                          { value: 'advanced', label: 'Advanced', desc: 'Students with significant experience or specialized skills' }
+                        ].map((level) => (
+                          <div
+                            key={level.value}
+                            className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                              experienceLevel === level.value 
+                                ? 'border-primary bg-primary/5' 
+                                : 'border-border hover:border-primary/50'
+                            }`}
+                            onClick={() => setExperienceLevel(level.value)}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center ${
+                                experienceLevel === level.value 
+                                  ? 'border-primary bg-primary' 
+                                  : 'border-border'
+                              }`}>
+                                {experienceLevel === level.value && (
+                                  <div className="w-2 h-2 bg-white rounded-full" />
+                                )}
+                              </div>
+                              <div>
+                                <p className="font-medium text-foreground">{level.label}</p>
+                                <p className="text-sm text-muted-foreground">{level.desc}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        Required Skills
+                      </label>
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {requiredSkills.map((skill) => (
+                          <Badge key={skill} variant="secondary" className="cursor-pointer" onClick={() => removeSkill(skill)}>
+                            {skill} ×
+                          </Badge>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="e.g., Python, React, Data Analysis..."
+                          value={newSkill}
+                          onChange={(e) => setNewSkill(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
+                        />
+                        <Button type="button" onClick={addSkill}>Add</Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Add 3-5 key skills that are essential for this role
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-3">
+                        Preferred Majors (Optional)
+                      </label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {[
+                          'Computer Science',
+                          'Business',
+                          'Engineering',
+                          'Marketing',
+                          'Design',
+                          'Data Science',
+                          'Communications',
+                          'Mathematics'
+                        ].map((major) => (
+                          <div key={major} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={major}
+                              checked={preferredMajors.includes(major)}
+                              onCheckedChange={(checked) => handleMajorChange(major, !!checked)}
+                            />
+                            <label htmlFor={major} className="text-sm text-foreground">
+                              {major}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-3">
+                        Language Requirements
+                      </label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {['English', 'Spanish', 'Mandarin', 'French', 'German', 'Other'].map((language) => (
+                          <div key={language} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={language}
+                              checked={languages.includes(language)}
+                              onCheckedChange={(checked) => handleLanguageChange(language, !!checked)}
+                            />
+                            <label htmlFor={language} className="text-sm text-foreground">
+                              {language}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 )}
 
                 {/* Step 4: Budget */}
                 {currentStep === 4 && (
                   <div className="space-y-6">
-                    <p className="text-muted-foreground">Budget and payment details will be configured here.</p>
-                    {/* Placeholder for step 4 content */}
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-3">
+                        How would you like to pay?
+                      </label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div
+                          className={`border-2 rounded-lg p-6 cursor-pointer transition-all ${
+                            budgetType === 'hourly' 
+                              ? 'border-primary bg-primary/5' 
+                              : 'border-border hover:border-primary/50'
+                          }`}
+                          onClick={() => setBudgetType('hourly')}
+                        >
+                          <div className="flex items-start gap-3">
+                            <Clock className="w-5 h-5 text-primary mt-1" />
+                            <div>
+                              <p className="font-semibold text-foreground mb-1">Hourly Rate</p>
+                              <p className="text-sm text-muted-foreground">
+                                Best for ongoing work with flexible hours
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div
+                          className={`border-2 rounded-lg p-6 cursor-pointer transition-all ${
+                            budgetType === 'fixed' 
+                              ? 'border-primary bg-primary/5' 
+                              : 'border-border hover:border-primary/50'
+                          }`}
+                          onClick={() => setBudgetType('fixed')}
+                        >
+                          <div className="flex items-start gap-3">
+                            <DollarSign className="w-5 h-5 text-primary mt-1" />
+                            <div>
+                              <p className="font-semibold text-foreground mb-1">Fixed Price</p>
+                              <p className="text-sm text-muted-foreground">
+                                Best for one-time projects with clear deliverables
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {budgetType === 'hourly' && (
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-2">
+                          Hourly Rate Range
+                        </label>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs text-muted-foreground mb-1">
+                              Minimum ($/hr)
+                            </label>
+                            <Input
+                              type="number"
+                              placeholder="15"
+                              value={hourlyRateMin}
+                              onChange={(e) => setHourlyRateMin(e.target.value)}
+                              min="0"
+                              step="0.50"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-muted-foreground mb-1">
+                              Maximum ($/hr)
+                            </label>
+                            <Input
+                              type="number"
+                              placeholder="30"
+                              value={hourlyRateMax}
+                              onChange={(e) => setHourlyRateMax(e.target.value)}
+                              min="0"
+                              step="0.50"
+                            />
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          💡 Average student hourly rate is $15-25/hr depending on skills and experience
+                        </p>
+                      </div>
+                    )}
+
+                    {budgetType === 'fixed' && (
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-2">
+                          Project Budget
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                            $
+                          </span>
+                          <Input
+                            type="number"
+                            placeholder="500"
+                            value={fixedBudget}
+                            onChange={(e) => setFixedBudget(e.target.value)}
+                            min="0"
+                            className="pl-7"
+                          />
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Set a budget for the entire project
+                        </p>
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        Payment Schedule
+                      </label>
+                      <Select value={paymentSchedule} onValueChange={setPaymentSchedule}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select payment schedule" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {budgetType === 'hourly' ? (
+                            <>
+                              <SelectItem value="weekly">Weekly</SelectItem>
+                              <SelectItem value="bi-weekly">Bi-weekly</SelectItem>
+                              <SelectItem value="monthly">Monthly</SelectItem>
+                            </>
+                          ) : (
+                            <>
+                              <SelectItem value="upfront">100% upfront</SelectItem>
+                              <SelectItem value="milestone">By milestone</SelectItem>
+                              <SelectItem value="completion">Upon completion</SelectItem>
+                              <SelectItem value="split">50% upfront, 50% on completion</SelectItem>
+                            </>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="flex gap-3">
+                        <div className="text-2xl">ℹ️</div>
+                        <div>
+                          <p className="font-medium text-foreground mb-1">Budget Tips</p>
+                          <ul className="text-sm text-muted-foreground space-y-1">
+                            <li>• Consider the student's skill level when setting rates</li>
+                            <li>• Entry-level students: $12-18/hr</li>
+                            <li>• Intermediate students: $18-25/hr</li>
+                            <li>• Advanced students: $25-40/hr</li>
+                            <li>• Include a small buffer for revisions or adjustments</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
 
                 {/* Step 5: Review */}
                 {currentStep === 5 && (
                   <div className="space-y-6">
-                    <p className="text-muted-foreground">Review your job post before publishing.</p>
-                    {/* Placeholder for step 5 content */}
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                      <div className="flex gap-3">
+                        <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                        <div>
+                          <p className="font-medium text-green-900">Ready to post!</p>
+                          <p className="text-sm text-green-700">Review your job post below before publishing</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Job Preview */}
+                    <div className="border rounded-lg p-6 bg-white">
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h3 className="text-2xl font-bold text-foreground mb-2">{jobTitle || 'Untitled Job'}</h3>
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            <Badge variant="secondary">{projectType || 'Not specified'}</Badge>
+                            <Badge variant="secondary">{jobCategory || 'No category'}</Badge>
+                            <Badge variant="outline">{workLocation || 'Location TBD'}</Badge>
+                          </div>
+                        </div>
+                        <Button variant="outline" size="sm" onClick={() => setCurrentStep(1)}>
+                          Edit
+                        </Button>
+                      </div>
+
+                      <div className="space-y-6">
+                        {/* Description */}
+                        <div>
+                          <h4 className="font-semibold text-foreground mb-2">Job Description</h4>
+                          <p className="text-muted-foreground whitespace-pre-wrap">
+                            {jobDescription || 'No description provided'}
+                          </p>
+                        </div>
+
+                        {/* Project Details */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4 border-y">
+                          <div>
+                            <p className="text-xs text-muted-foreground mb-1">Project Length</p>
+                            <p className="font-medium">{projectLength || 'Not specified'}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground mb-1">Time Commitment</p>
+                            <p className="font-medium">{weeklyHours || 'Not specified'}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground mb-1">Students Needed</p>
+                            <p className="font-medium">{studentCount || 'Not specified'}</p>
+                          </div>
+                        </div>
+
+                        {/* Budget */}
+                        <div>
+                          <h4 className="font-semibold text-foreground mb-2">Budget</h4>
+                          <div className="flex items-center gap-2">
+                            <DollarSign className="w-5 h-5 text-green-600" />
+                            {budgetType === 'hourly' ? (
+                              <p className="text-lg font-medium">
+                                ${hourlyRateMin || '0'} - ${hourlyRateMax || '0'} /hr
+                              </p>
+                            ) : (
+                              <p className="text-lg font-medium">
+                                ${fixedBudget || '0'} (Fixed Price)
+                              </p>
+                            )}
+                          </div>
+                          {paymentSchedule && (
+                            <p className="text-sm text-muted-foreground mt-1">
+                              Payment: {paymentSchedule}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Skills & Requirements */}
+                        <div>
+                          <h4 className="font-semibold text-foreground mb-2">Required Skills</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {requiredSkills.length > 0 ? (
+                              requiredSkills.map((skill) => (
+                                <Badge key={skill} variant="secondary">{skill}</Badge>
+                              ))
+                            ) : (
+                              <p className="text-muted-foreground text-sm">No skills specified</p>
+                            )}
+                          </div>
+                        </div>
+
+                        {experienceLevel && (
+                          <div>
+                            <h4 className="font-semibold text-foreground mb-2">Experience Level</h4>
+                            <p className="text-muted-foreground capitalize">{experienceLevel}</p>
+                          </div>
+                        )}
+
+                        {educationLevels.length > 0 && (
+                          <div>
+                            <h4 className="font-semibold text-foreground mb-2">Education Level</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {educationLevels.map((level) => (
+                                <Badge key={level} variant="outline">{level}</Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {preferredMajors.length > 0 && (
+                          <div>
+                            <h4 className="font-semibold text-foreground mb-2">Preferred Majors</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {preferredMajors.map((major) => (
+                                <Badge key={major} variant="outline">{major}</Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {languages.length > 0 && (
+                          <div>
+                            <h4 className="font-semibold text-foreground mb-2">Languages</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {languages.map((lang) => (
+                                <Badge key={lang} variant="outline">{lang}</Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {tags.length > 0 && (
+                          <div>
+                            <h4 className="font-semibold text-foreground mb-2">Tags</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {tags.map((tag) => (
+                                <Badge key={tag}>{tag}</Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {startDate && (
+                          <div>
+                            <h4 className="font-semibold text-foreground mb-2">Start Date</h4>
+                            <p className="text-muted-foreground">{new Date(startDate).toLocaleDateString()}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Visibility Settings */}
+                    <div className="border rounded-lg p-6">
+                      <h4 className="font-semibold text-foreground mb-4">Job Visibility</h4>
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox id="public" defaultChecked />
+                          <label htmlFor="public" className="text-sm">
+                            Make this job public (visible to all students)
+                          </label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox id="featured" />
+                          <label htmlFor="featured" className="text-sm">
+                            Feature this job (appears at the top of search results)
+                          </label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox id="notifications" defaultChecked />
+                          <label htmlFor="notifications" className="text-sm">
+                            Send me email notifications for applications
+                          </label>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -327,7 +916,11 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                     onClick={nextStep}
                     disabled={currentStep === 5}
                   >
-                    {currentStep === 4 ? 'Next: Review' : 'Next: Job Details'}
+                    {currentStep === 1 && 'Next: Details'}
+                    {currentStep === 2 && 'Next: Expertise'}
+                    {currentStep === 3 && 'Next: Budget'}
+                    {currentStep === 4 && 'Next: Review'}
+                    {currentStep === 5 && 'Reviewed'}
                   </Button>
                 </div>
               </CardContent>
@@ -397,7 +990,7 @@ function PostButton({ disabled, currentStep, job }){
   const { token } = useContext(AuthContext)
   const handlePost = async () => {
     if (disabled) return
-    // basic payload
+    // comprehensive payload
     const payload = {
       title: job.jobTitle,
       description: job.jobDescription,
@@ -406,6 +999,19 @@ function PostButton({ disabled, currentStep, job }){
       category: job.jobCategory,
       tags: job.tags,
       educationLevels: job.educationLevels,
+      workLocation: job.workLocation,
+      studentCount: job.studentCount,
+      weeklyHours: job.weeklyHours,
+      startDate: job.startDate,
+      experienceLevel: job.experienceLevel,
+      requiredSkills: job.requiredSkills,
+      preferredMajors: job.preferredMajors,
+      languages: job.languages,
+      budgetType: job.budgetType,
+      hourlyRateMin: job.hourlyRateMin,
+      hourlyRateMax: job.hourlyRateMax,
+      fixedBudget: job.fixedBudget,
+      paymentSchedule: job.paymentSchedule
     }
     try{
       const res = await fetch(`${API_BASE}/api/jobs`, {
@@ -415,7 +1021,7 @@ function PostButton({ disabled, currentStep, job }){
       })
       const data = await res.json()
       if (!res.ok) return alert(data.error || 'Could not post job')
-      alert('Job posted — id: ' + data.id)
+      alert('Job posted successfully! Job ID: ' + data.id)
       window.location.href = '/dashboard'
     }catch(e){
       console.error(e)
