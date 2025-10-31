@@ -32,50 +32,50 @@ export const Navbar = () => {
       <div className="container mx-auto px-6 h-20 flex items-center justify-between">
         {/* Logo - Professional Design */}
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-200">
-            <span className="text-white font-bold text-lg">SG</span>
+          <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-200">
+            <span className="text-white font-semibold text-lg">SG</span>
           </div>
-          <span className="text-2xl font-bold text-slate-900 tracking-tight">StudentGigs</span>
+          <span className="text-xl font-semibold text-slate-900 tracking-tight">StudentGigs</span>
         </Link>
         
         {/* Navigation - Modern Typography with Better Spacing */}
         <nav className="hidden md:flex items-center gap-8">
           <Link 
             to="/browse-jobs" 
-            className={`text-sm font-semibold transition-all duration-300 ${
+            className={`text-sm font-medium transition-all duration-300 ${
               isActive('/browse-jobs') 
-                ? 'text-indigo-600' 
-                : 'text-gray-600 hover:text-indigo-600'
+                ? 'text-gray-900' 
+                : 'text-gray-600 hover:text-gray-900'
             }`}
           >
             Find Work
           </Link>
           <Link 
             to="/post-job" 
-            className={`text-sm font-semibold transition-all duration-300 ${
+            className={`text-sm font-medium transition-all duration-300 ${
               isActive('/post-job') 
-                ? 'text-indigo-600' 
-                : 'text-gray-600 hover:text-indigo-600'
+                ? 'text-gray-900' 
+                : 'text-gray-600 hover:text-gray-900'
             }`}
           >
             Post a Job
           </Link>
           <Link 
             to="/browse-talent" 
-            className={`text-sm font-semibold transition-all duration-300 ${
+            className={`text-sm font-medium transition-all duration-300 ${
               isActive('/browse-talent') 
-                ? 'text-indigo-600' 
-                : 'text-gray-600 hover:text-indigo-600'
+                ? 'text-gray-900' 
+                : 'text-gray-600 hover:text-gray-900'
             }`}
           >
             Browse Talent
           </Link>
           <Link 
             to="/resources" 
-            className={`text-sm font-semibold transition-all duration-300 ${
+            className={`text-sm font-medium transition-all duration-300 ${
               isActive('/resources') 
-                ? 'text-indigo-600' 
-                : 'text-gray-600 hover:text-indigo-600'
+                ? 'text-gray-900' 
+                : 'text-gray-600 hover:text-gray-900'
             }`}
           >
             Resources
@@ -96,12 +96,12 @@ export const Navbar = () => {
         {/* Right side actions */}
         <div className="flex items-center gap-4">
           {/* Notifications - Larger Modern Icon Buttons */}
-          <button className="w-11 h-11 p-0 rounded-xl hover:bg-indigo-50 flex items-center justify-center transition-colors">
+          <button className="w-10 h-10 p-0 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors">
             <Bell className="w-5 h-5" style={{ stroke: '#374151', strokeWidth: 2 }} />
           </button>
           
           {/* Messages */}
-          <button className="w-11 h-11 p-0 rounded-xl hover:bg-indigo-50 flex items-center justify-center transition-colors">
+          <button className="w-10 h-10 p-0 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors">
             <Mail className="w-5 h-5" style={{ stroke: '#374151', strokeWidth: 2 }} />
           </button>
           
@@ -112,7 +112,7 @@ export const Navbar = () => {
                 <div className="cursor-pointer">
                   <UserAvatar 
                     user={user} 
-                    className="border-2 border-indigo-200 hover:border-indigo-400 transition-all shadow-md" 
+                    className="border-2 border-gray-200 hover:border-gray-400 transition-all shadow-sm" 
                     size="md"
                   />
                 </div>
@@ -131,7 +131,7 @@ export const Navbar = () => {
                   <LayoutDashboard className="mr-2 h-4 w-4" />
                   <span>Dashboard</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/profile')}>
+                <DropdownMenuItem onClick={() => navigate('/student-profile')}>
                   <User className="mr-2 h-4 w-4" />
                   <span>Profile</span>
                 </DropdownMenuItem>
@@ -147,19 +147,19 @@ export const Navbar = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Avatar className="w-11 h-11 border-2 border-gray-200 shadow-md">
+            <Avatar className="w-10 h-10 border-2 border-gray-200 shadow-sm">
               <AvatarImage src="/avatars/user.jpg" />
-              <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-semibold">?</AvatarFallback>
+              <AvatarFallback className="bg-gray-700 text-white font-medium">?</AvatarFallback>
             </Avatar>
           )}
           
           {/* Auth buttons - Modern Styling */}
           {!user && (
             <div className="hidden md:flex items-center gap-3 ml-2">
-              <Button variant="ghost" asChild className="font-semibold">
+              <Button variant="ghost" asChild className="font-medium">
                 <Link to="/login">Log in</Link>
               </Button>
-              <Button variant="primary" asChild className="shadow-lg">
+              <Button asChild className="bg-gray-900 hover:bg-gray-800 shadow-sm">
                 <Link to="/signup">Sign up</Link>
               </Button>
             </div>

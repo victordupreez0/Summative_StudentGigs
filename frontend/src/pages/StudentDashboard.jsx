@@ -194,7 +194,7 @@ const StudentDashboard = () => {
               Messages
             </Link>
             <Link 
-              to="/profile" 
+              to="/student-profile" 
               className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
             >
               Profile
@@ -369,7 +369,7 @@ const StudentDashboard = () => {
                   </Link>
                 </Button>
                 <Button variant="outline" className="w-full justify-start" asChild>
-                  <Link to="/profile">
+                  <Link to="/student-profile">
                     <Upload className="w-4 h-4 mr-2" />
                     Update Portfolio
                   </Link>

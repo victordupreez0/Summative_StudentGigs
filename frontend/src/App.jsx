@@ -6,6 +6,7 @@ import BrowseJobs from './pages/BrowseJobs';
 import PostJob from './pages/PostJob.jsx';
 import JobDetails from './pages/JobDetails';
 import StudentDashboard from './pages/StudentDashboard';
+import StudentProfile from './pages/StudentProfile';
 import EmployerDashboard from './pages/EmployerDashboard.jsx';
 import Dashboard from './pages/Dashboard';
 import Applications from './pages/Applications';
@@ -34,6 +35,7 @@ const App = () => (
         {/* Dashboard routes - smart routing based on user type */}
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/student-dashboard" element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
+        <Route path="/student-profile" element={<ProtectedRoute><StudentProfile /></ProtectedRoute>} />
         <Route path="/employer-dashboard" element={<ProtectedRoute><EmployerDashboard /></ProtectedRoute>} />
 
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
