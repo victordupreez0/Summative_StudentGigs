@@ -363,9 +363,20 @@ const EmployerDashboard = () => {
                             {job.applicants} applicants
                           </div>
                           <div className="flex gap-2">
-                            <Button variant="outline" size="sm">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => window.location.href = `/jobs/${job.id}`}
+                            >
                               <Eye className="w-4 h-4 mr-1" />
                               View
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => window.location.href = `/jobs/${job.id}/edit`}
+                            >
+                              Edit
                             </Button>
                             <Button size="sm">Review Applicants</Button>
                           </div>

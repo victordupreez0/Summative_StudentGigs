@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Users, Clock, DollarSign, Eye, Save, UserPlus, CheckCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { useContext } from 'react'
@@ -16,6 +16,10 @@ import AuthContext from '@/context/AuthContext'
 import API_BASE from '@/config/api'
 
 const PostJob = () => {
+  const { jobId } = useParams(); // Check if we're editing
+  const navigate = useNavigate();
+  const { token } = useContext(AuthContext);
+  const [loading, setLoading] = useState(!!jobId); // Loading state for fetching existing job
   const [currentStep, setCurrentStep] = useState(1);
   
   // Step 1: Basics
@@ -48,6 +52,66 @@ const PostJob = () => {
   const [hourlyRateMax, setHourlyRateMax] = useState("");
   const [fixedBudget, setFixedBudget] = useState("");
   const [paymentSchedule, setPaymentSchedule] = useState("");
+
+  // Fetch existing job data if editing
+  useEffect(() => {
+    if (jobId) {
+      const fetchJob = async () => {
+        try {
+          const res = await fetch(`${API_BASE}/api/jobs/${jobId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const data = await res.json();
+          
+          if (res.ok) {
+            // The API returns the job data directly, not wrapped in a 'job' property
+            const job = data;
+            
+            // Populate all form fields with existing data
+            setJobTitle(job.title || "");
+            setJobDescription(job.description || "");
+            setProjectType(job.projectType || "");
+            setProjectLength(job.projectLength || "");
+            setJobCategory(job.category || "");
+            
+            // Parse arrays if they're strings, or use them directly if already arrays
+            setTags(Array.isArray(job.tags) ? job.tags : (job.tags ? job.tags.split(',') : []));
+            setEducationLevels(Array.isArray(job.educationLevels) ? job.educationLevels : (job.educationLevels ? job.educationLevels.split(',') : []));
+            
+            // Step 2 fields
+            setWorkLocation(job.workLocation || "");
+            setStudentCount(job.studentCount?.toString() || "");
+            setWeeklyHours(job.weeklyHours?.toString() || "");
+            setStartDate(job.startDate || "");
+            
+            // Step 3 fields
+            setExperienceLevel(job.experienceLevel || "");
+            setRequiredSkills(Array.isArray(job.requiredSkills) ? job.requiredSkills : (job.requiredSkills ? job.requiredSkills.split(',') : []));
+            setPreferredMajors(Array.isArray(job.preferredMajors) ? job.preferredMajors : (job.preferredMajors ? job.preferredMajors.split(',') : []));
+            setLanguages(Array.isArray(job.languages) ? job.languages : (job.languages ? job.languages.split(',') : []));
+            
+            // Step 4 fields
+            setBudgetType(job.budgetType || "hourly");
+            setHourlyRateMin(job.hourlyRateMin?.toString() || "");
+            setHourlyRateMax(job.hourlyRateMax?.toString() || "");
+            setFixedBudget(job.fixedBudget?.toString() || "");
+            setPaymentSchedule(job.paymentSchedule || "");
+          } else {
+            alert(data.error || 'Failed to load job data');
+            navigate('/dashboard');
+          }
+        } catch (error) {
+          console.error('Error fetching job:', error);
+          alert('Error loading job data');
+          navigate('/dashboard');
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      fetchJob();
+    }
+  }, [jobId, token, navigate]);
 
   const steps = [
     { number: 1, title: "Basics", active: currentStep >= 1, completed: currentStep > 1 },
@@ -111,6 +175,18 @@ const PostJob = () => {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8 text-center">
+          <p>Loading job data...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
   <Navbar />
@@ -125,7 +201,7 @@ const PostJob = () => {
               </Link>
             </Button>
             <div>
-              <h1 className="text-2xl font-bold">Post a Job</h1>
+              <h1 className="text-2xl font-bold">{jobId ? 'Edit Job' : 'Post a Job'}</h1>
               <div className="flex items-center gap-4 mt-2">
                 <Button variant="ghost" size="sm">
                   <Save className="w-4 h-4 mr-2" />
@@ -145,6 +221,7 @@ const PostJob = () => {
           <PostButton
             disabled={currentStep < 5}
             currentStep={currentStep}
+            jobId={jobId}
             job={{ 
               jobTitle, 
               jobDescription, 
@@ -986,8 +1063,10 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
   );
 };
 
-function PostButton({ disabled, currentStep, job }){
+function PostButton({ disabled, currentStep, job, jobId }){
   const { token } = useContext(AuthContext)
+  const navigate = useNavigate()
+  
   const handlePost = async () => {
     if (disabled) return
     // comprehensive payload
@@ -1013,16 +1092,22 @@ function PostButton({ disabled, currentStep, job }){
       fixedBudget: job.fixedBudget,
       paymentSchedule: job.paymentSchedule
     }
+    
     try{
-      const res = await fetch(`${API_BASE}/api/jobs`, {
-        method: 'POST',
+      // Use PUT for editing, POST for creating
+      const url = jobId ? `${API_BASE}/api/jobs/${jobId}` : `${API_BASE}/api/jobs`;
+      const method = jobId ? 'PUT' : 'POST';
+      
+      const res = await fetch(url, {
+        method: method,
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(payload)
       })
       const data = await res.json()
-      if (!res.ok) return alert(data.error || 'Could not post job')
-      alert('Job posted successfully! Job ID: ' + data.id)
-      window.location.href = '/dashboard'
+      if (!res.ok) return alert(data.error || `Could not ${jobId ? 'update' : 'post'} job`)
+      
+      alert(jobId ? 'Job updated successfully!' : 'Job posted successfully! Job ID: ' + data.id)
+      navigate('/dashboard')
     }catch(e){
       console.error(e)
       alert('Network error')
@@ -1031,7 +1116,7 @@ function PostButton({ disabled, currentStep, job }){
 
   return (
     <Button size="lg" disabled={disabled} onClick={handlePost}>
-      {currentStep < 5 ? 'Review and Post' : 'Post Job'}
+      {jobId ? 'Save Changes' : (currentStep < 5 ? 'Review and Post' : 'Post Job')}
     </Button>
   )
 }

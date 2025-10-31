@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import BrowseJobs from './pages/BrowseJobs';
 import PostJob from './pages/PostJob.jsx';
+import JobDetails from './pages/JobDetails';
 import StudentDashboard from './pages/StudentDashboard';
 import EmployerDashboard from './pages/EmployerDashboard.jsx';
 import Dashboard from './pages/Dashboard';
@@ -24,6 +25,8 @@ const App = () => (
         {/* Protected routes: require login */}
         <Route path="/browse-jobs" element={<ProtectedRoute><BrowseJobs /></ProtectedRoute>} />
         <Route path="/post-job" element={<ProtectedRoute><PostJob /></ProtectedRoute>} />
+        <Route path="/jobs/:jobId" element={<ProtectedRoute><JobDetails /></ProtectedRoute>} />
+        <Route path="/jobs/:jobId/edit" element={<ProtectedRoute><PostJob /></ProtectedRoute>} />
         <Route path="/applications" element={<ProtectedRoute><Applications /></ProtectedRoute>} />
         
         {/* Dashboard routes - smart routing based on user type */}
