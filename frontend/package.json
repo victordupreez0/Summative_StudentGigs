@@ -4,14 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-  "dev": "vite",
-  "build": "vite build",
-  "build:tailwind": "npx tailwindcss -i ./src/index.css -o ./src/tailwind.output.css --jit --config ./tailwind.config.cjs",
-  "build:tailwind:node": "node ./scripts/build-tailwind.js",
-  "lint": "eslint .",
-  "preview": "vite preview"
+    "dev": "vite",
+    "build": "vite build",
+    "build:tailwind": "npx tailwindcss -i ./src/index.css -o ./src/tailwind.output.css --jit --config ./tailwind.config.cjs",
+    "build:tailwind:node": "node ./scripts/build-tailwind.js",
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
   "dependencies": {
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/themes": "^3.2.1",
     "@tailwindcss/vite": "^4.1.11",
     "lucide-react": "^0.544.0",

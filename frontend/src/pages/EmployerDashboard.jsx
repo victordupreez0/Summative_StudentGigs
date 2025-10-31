@@ -219,36 +219,42 @@ const EmployerDashboard = () => {
   <Navbar />
       
       {/* Secondary Navigation */}
-      <div className="bg-background-section border-b border-border">
+      <div className="bg-background-section">
         <div className="container mx-auto px-4">
-          <nav className="flex items-center gap-8 h-12">
+          <nav className="flex items-center gap-8 h-16">
+            <Link 
+              to="/browse-jobs" 
+              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
+            >
+              Browse Jobs
+            </Link>
             <Link 
               to="/open-jobs" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary pb-3"
+              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
             >
               Open Jobs
             </Link>
             <Link 
               to="/employer-dashboard" 
-              className="text-sm font-medium text-primary border-b-2 border-primary pb-3"
+              className="text-sm font-medium text-primary border-b-2 border-primary py-5"
             >
               Dashboard
             </Link>
             <Link 
               to="/applicants" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary pb-3"
+              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
             >
               Applicants
             </Link>
             <Link 
               to="/messages" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary pb-3"
+              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
             >
               Messages
             </Link>
             <Link 
               to="/profile" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary pb-3"
+              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
             >
               Profile
             </Link>

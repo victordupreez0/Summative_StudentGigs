@@ -9,6 +9,7 @@ import StudentDashboard from './pages/StudentDashboard';
 import EmployerDashboard from './pages/EmployerDashboard.jsx';
 import Dashboard from './pages/Dashboard';
 import Applications from './pages/Applications';
+import OpenJobs from './pages/OpenJobs';
 import NotFound from './pages/NotFound';
 import '@radix-ui/themes/styles.css';
 import { AuthProvider } from './context/AuthContext';
@@ -24,6 +25,7 @@ const App = () => (
 
         {/* Protected routes: require login */}
         <Route path="/browse-jobs" element={<ProtectedRoute><BrowseJobs /></ProtectedRoute>} />
+        <Route path="/open-jobs" element={<ProtectedRoute><OpenJobs /></ProtectedRoute>} />
         <Route path="/post-job" element={<ProtectedRoute><PostJob /></ProtectedRoute>} />
         <Route path="/jobs/:jobId" element={<ProtectedRoute><JobDetails /></ProtectedRoute>} />
         <Route path="/jobs/:jobId/edit" element={<ProtectedRoute><PostJob /></ProtectedRoute>} />

@@ -1,9 +1,17 @@
-import { Search, Bell, Mail } from "lucide-react";
+import { Search, Bell, Mail, User, Settings, LogOut, LayoutDashboard } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserAvatar } from "@/components/UserAvatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useContext } from 'react'
 import AuthContext from '@/context/AuthContext'
 
@@ -36,7 +44,7 @@ export const Navbar = () => {
             to="/browse-jobs" 
             className={`text-sm font-semibold transition-all duration-300 ${
               isActive('/browse-jobs') 
-                ? 'text-indigo-600 border-b-2 border-indigo-600 pb-1' 
+                ? 'text-indigo-600' 
                 : 'text-gray-600 hover:text-indigo-600'
             }`}
           >
@@ -46,29 +54,17 @@ export const Navbar = () => {
             to="/post-job" 
             className={`text-sm font-semibold transition-all duration-300 ${
               isActive('/post-job') 
-                ? 'text-indigo-600 border-b-2 border-indigo-600 pb-1' 
+                ? 'text-indigo-600' 
                 : 'text-gray-600 hover:text-indigo-600'
             }`}
           >
             Post a Job
           </Link>
-          {user && user.userType === 'student' && (
-            <Link 
-              to="/applications" 
-              className={`text-sm font-semibold transition-all duration-300 ${
-                isActive('/applications') 
-                  ? 'text-indigo-600 border-b-2 border-indigo-600 pb-1' 
-                  : 'text-gray-600 hover:text-indigo-600'
-              }`}
-            >
-              My Applications
-            </Link>
-          )}
           <Link 
             to="/browse-talent" 
             className={`text-sm font-semibold transition-all duration-300 ${
               isActive('/browse-talent') 
-                ? 'text-indigo-600 border-b-2 border-indigo-600 pb-1' 
+                ? 'text-indigo-600' 
                 : 'text-gray-600 hover:text-indigo-600'
             }`}
           >
@@ -78,7 +74,7 @@ export const Navbar = () => {
             to="/resources" 
             className={`text-sm font-semibold transition-all duration-300 ${
               isActive('/resources') 
-                ? 'text-indigo-600 border-b-2 border-indigo-600 pb-1' 
+                ? 'text-indigo-600' 
                 : 'text-gray-600 hover:text-indigo-600'
             }`}
           >
@@ -100,26 +96,57 @@ export const Navbar = () => {
         {/* Right side actions */}
         <div className="flex items-center gap-4">
           {/* Notifications - Larger Modern Icon Buttons */}
-          <Button variant="ghost" size="default" className="w-11 h-11 p-0 rounded-xl hover:bg-indigo-50 hover:scale-110">
-            <Bell className="w-6 h-6 text-gray-600 hover:text-indigo-600" />
-          </Button>
+          <button className="w-11 h-11 p-0 rounded-xl hover:bg-indigo-50 flex items-center justify-center transition-colors">
+            <Bell className="w-5 h-5" style={{ stroke: '#374151', strokeWidth: 2 }} />
+          </button>
           
           {/* Messages */}
-          <Button variant="ghost" size="default" className="w-11 h-11 p-0 rounded-xl hover:bg-indigo-50 hover:scale-110">
-            <Mail className="w-6 h-6 text-gray-600 hover:text-indigo-600" />
-          </Button>
+          <button className="w-11 h-11 p-0 rounded-xl hover:bg-indigo-50 flex items-center justify-center transition-colors">
+            <Mail className="w-5 h-5" style={{ stroke: '#374151', strokeWidth: 2 }} />
+          </button>
           
-          {/* User Avatar */}
-          {user && (
-            <UserAvatar 
-              user={user} 
-              className="border-2 border-indigo-200 cursor-pointer hover:border-indigo-400 transition-all hover:scale-110 shadow-md" 
-              size="md"
-              onClick={() => navigate('/dashboard')}
-            />
-          )}
-          
-          {!user && (
+          {/* User Avatar with Dropdown */}
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className="cursor-pointer">
+                  <UserAvatar 
+                    user={user} 
+                    className="border-2 border-indigo-200 hover:border-indigo-400 transition-all shadow-md" 
+                    size="md"
+                  />
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{user.name}</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                  <LayoutDashboard className="mr-2 h-4 w-4" />
+                  <span>Dashboard</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/profile')}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/settings')}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => { logout(); navigate('/login') }}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
             <Avatar className="w-11 h-11 border-2 border-gray-200 shadow-md">
               <AvatarImage src="/avatars/user.jpg" />
               <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-semibold">?</AvatarFallback>
@@ -127,27 +154,16 @@ export const Navbar = () => {
           )}
           
           {/* Auth buttons - Modern Styling */}
-          <div className="hidden md:flex items-center gap-3 ml-2">
-            {!user ? (
-              <>
-                <Button variant="ghost" asChild className="font-semibold">
-                  <Link to="/login">Log in</Link>
-                </Button>
-                <Button variant="primary" asChild className="shadow-lg">
-                  <Link to="/signup">Sign up</Link>
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button variant="ghost" onClick={() => { logout(); navigate('/login') }} className="font-semibold">
-                  Logout
-                </Button>
-                <Button variant="outline" onClick={() => { navigate('/dashboard') }} className="font-semibold">
-                  {user.name}
-                </Button>
-              </>
-            )}
-          </div>
+          {!user && (
+            <div className="hidden md:flex items-center gap-3 ml-2">
+              <Button variant="ghost" asChild className="font-semibold">
+                <Link to="/login">Log in</Link>
+              </Button>
+              <Button variant="primary" asChild className="shadow-lg">
+                <Link to="/signup">Sign up</Link>
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </header>

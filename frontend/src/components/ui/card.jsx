@@ -4,7 +4,7 @@ export const Card = ({ children, className = '', hover = false }) => (
   <div className={`
     bg-white rounded-2xl shadow-lg border border-gray-100
     backdrop-blur-sm backdrop-filter
-    ${hover ? 'transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:border-indigo-200 hover:scale-[1.02]' : ''}
+    ${hover ? 'transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 hover:border-indigo-200' : ''}
     ${className}
   `}>
     {children}

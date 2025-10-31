@@ -12,7 +12,7 @@ export const Checkbox = ({ className = '', checked, onCheckedChange, id, ...prop
         w-5 h-5 rounded-lg border-2 border-gray-300
         text-indigo-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2
         transition-all duration-300 cursor-pointer
-        hover:border-indigo-400 hover:scale-110
+        hover:border-indigo-400 hover:scale-[1.05]
         checked:bg-gradient-to-br checked:from-indigo-600 checked:to-purple-600
         ${className}
       `}
