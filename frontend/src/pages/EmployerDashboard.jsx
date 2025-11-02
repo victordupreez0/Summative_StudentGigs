@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserAvatar } from "@/components/UserAvatar";
+import { useModal } from "@/components/ui/modal";
 import { 
   Briefcase, 
   Users, 
@@ -26,6 +27,7 @@ import API_BASE from '@/config/api';
 
 const EmployerDashboard = () => {
   const { user, token } = useContext(AuthContext);
+  const { showAlert, ModalComponent } = useModal();
   const [activeJobs, setActiveJobs] = useState([]);
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -453,8 +455,12 @@ const EmployerDashboard = () => {
                               {statusMap[applicant.status]}
                             </Badge>
                             <div className="flex gap-1 mt-2">
-                              <Button size="sm" variant="outline" onClick={() => {
-                                alert(`Reviewing application from ${applicant.name}\n\nCover Letter: ${applicant.cover_letter || 'No cover letter provided'}`);
+                              <Button size="sm" variant="outline" onClick={async () => {
+                                await showAlert({
+                                  title: `Application from ${applicant.name}`,
+                                  message: `Cover Letter:\n\n${applicant.cover_letter || 'No cover letter provided'}`,
+                                  type: 'info'
+                                });
                               }}>Review</Button>
                             </div>
                           </div>
@@ -592,6 +598,7 @@ const EmployerDashboard = () => {
       </div>
 
       <Footer />
+      {ModalComponent}
     </div>
   );
 };

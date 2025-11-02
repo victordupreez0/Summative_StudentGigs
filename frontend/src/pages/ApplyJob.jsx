@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useModal } from "@/components/ui/modal";
 import { 
   ArrowLeft, 
   MapPin, 
@@ -26,6 +27,7 @@ const ApplyJob = () => {
   const { jobId } = useParams();
   const navigate = useNavigate();
   const { user, token } = useContext(AuthContext);
+  const { showAlert, ModalComponent } = useModal();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState(false);
@@ -41,8 +43,14 @@ const ApplyJob = () => {
 
   useEffect(() => {
     if (!user || user.userType !== 'student') {
-      alert('Only students can apply for jobs');
-      navigate('/browse-jobs');
+      (async () => {
+        await showAlert({
+          title: 'Access Denied',
+          message: 'Only students can apply for jobs',
+          type: 'error'
+        });
+        navigate('/browse-jobs');
+      })();
       return;
     }
     fetchJob();
@@ -76,7 +84,11 @@ const ApplyJob = () => {
     e.preventDefault();
     
     if (!token) {
-      alert('Please log in to apply');
+      await showAlert({
+        title: 'Login Required',
+        message: 'Please log in to apply',
+        type: 'info'
+      });
       return;
     }
 
@@ -94,14 +106,26 @@ const ApplyJob = () => {
       const data = await res.json();
 
       if (res.ok) {
-        alert('Application submitted successfully!');
+        await showAlert({
+          title: 'Success',
+          message: 'Application submitted successfully!',
+          type: 'success'
+        });
         navigate('/applications');
       } else {
-        alert(data.error || 'Failed to submit application');
+        await showAlert({
+          title: 'Error',
+          message: data.error || 'Failed to submit application',
+          type: 'error'
+        });
       }
     } catch (err) {
       console.error('Application error:', err);
-      alert('Network error. Please try again.');
+      await showAlert({
+        title: 'Network Error',
+        message: 'Unable to connect to the server. Please try again.',
+        type: 'error'
+      });
     } finally {
       setApplying(false);
     }
@@ -443,6 +467,7 @@ const ApplyJob = () => {
       </div>
 
       <Footer />
+      {ModalComponent}
     </div>
   );
 };

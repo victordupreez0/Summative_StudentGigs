@@ -42,20 +42,36 @@ function applyToJob(req, res) {
             (job_id, user_id, cover_letter, resume_url, portfolio_url, availability, expected_rate) 
             VALUES (?, ?, ?, ?, ?, ?, ?)`;
         
+        console.log('Attempting to insert application:', {
+            jobId,
+            userId,
+            coverLetter: coverLetter ? 'provided' : 'null',
+            resumeUrl: resumeUrl ? 'provided' : 'null',
+            portfolioUrl: portfolioUrl ? 'provided' : 'null',
+            availability: availability ? 'provided' : 'null',
+            expectedRate: expectedRate ? 'provided' : 'null'
+        });
+        
         db.query(sql, [
             jobId, 
             userId, 
-            coverLetter, 
-            resumeUrl, 
-            portfolioUrl, 
-            availability, 
-            expectedRate
+            coverLetter || null, 
+            resumeUrl || null, 
+            portfolioUrl || null, 
+            availability || null, 
+            expectedRate || null
         ], (err, result) => {
             if (err) {
                 if (err.code === 'ER_DUP_ENTRY') {
                     return res.status(409).json({ error: 'you have already applied to this job' });
                 }
                 console.error('Error creating application:', err);
+                console.error('Error details:', {
+                    code: err.code,
+                    errno: err.errno,
+                    sqlMessage: err.sqlMessage,
+                    sql: err.sql
+                });
                 return res.status(500).json({ error: 'db insert error' });
             }
             res.status(201).json({ 

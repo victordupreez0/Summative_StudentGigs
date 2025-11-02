@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useModal } from "@/components/ui/modal";
 import { Search, Filter, MapPin, Clock, DollarSign, Users, Bookmark } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
@@ -15,6 +16,7 @@ import API_BASE from '@/config/api';
 const BrowseJobs = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { showAlert, ModalComponent } = useModal();
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("");
   const [jobs, setJobs] = useState([])
@@ -35,14 +37,22 @@ const BrowseJobs = () => {
     return () => { mounted = false }
   }, [])
 
-  const handleApplyClick = (e, jobId) => {
+  const handleApplyClick = async (e, jobId) => {
     e.stopPropagation();
     if (!user) {
-      alert('Please log in to apply for jobs');
+      await showAlert({
+        title: 'Login Required',
+        message: 'Please log in to apply for jobs',
+        type: 'info'
+      });
       return;
     }
     if (user.userType !== 'student') {
-      alert('Only students can apply for jobs');
+      await showAlert({
+        title: 'Access Denied',
+        message: 'Only students can apply for jobs',
+        type: 'error'
+      });
       return;
     }
     navigate(`/jobs/${jobId}/apply`);
@@ -398,6 +408,7 @@ const BrowseJobs = () => {
       </div>
 
       <Footer />
+      {ModalComponent}
     </div>
   );
 };

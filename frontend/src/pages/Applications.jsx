@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { useModal } from "@/components/ui/modal";
 import { 
   Search, 
   Filter, 
@@ -27,6 +28,7 @@ import API_BASE from '@/config/api';
 const Applications = () => {
   const { user, token } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { showAlert, showConfirm, ModalComponent } = useModal();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, pending, accepted, rejected
@@ -70,7 +72,13 @@ const Applications = () => {
   };
 
   const handleWithdrawApplication = async (applicationId) => {
-    if (!confirm('Are you sure you want to withdraw this application? This action cannot be undone.')) {
+    const confirmed = await showConfirm({
+      title: 'Withdraw Application',
+      message: 'Are you sure you want to withdraw this application? This action cannot be undone.',
+      type: 'error'
+    });
+
+    if (!confirmed) {
       return;
     }
 
@@ -83,16 +91,28 @@ const Applications = () => {
       });
 
       if (res.ok) {
-        alert('Application withdrawn successfully');
+        await showAlert({
+          title: 'Success',
+          message: 'Application withdrawn successfully',
+          type: 'success'
+        });
         // Refresh the applications list
         fetchApplications();
       } else {
         const data = await res.json();
-        alert(data.error || 'Failed to withdraw application');
+        await showAlert({
+          title: 'Error',
+          message: data.error || 'Failed to withdraw application',
+          type: 'error'
+        });
       }
     } catch (err) {
       console.error('Error withdrawing application:', err);
-      alert('Network error. Please try again.');
+      await showAlert({
+        title: 'Network Error',
+        message: 'Unable to connect to the server. Please try again.',
+        type: 'error'
+      });
     }
   };
 
@@ -431,6 +451,7 @@ const Applications = () => {
       </div>
 
       <Footer />
+      {ModalComponent}
     </div>
   );
 };

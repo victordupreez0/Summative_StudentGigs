@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
+import { useModal } from "@/components/ui/modal";
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -16,7 +17,8 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  const auth = useContext(AuthContext)
+  const auth = useContext(AuthContext);
+  const { showAlert, ModalComponent } = useModal();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -29,7 +31,11 @@ const Login = () => {
         });
         const data = await res.json();
         if (!res.ok) {
-          alert(data.error || data.message || 'Login failed');
+          await showAlert({
+            title: 'Login Failed',
+            message: data.error || data.message || 'Login failed',
+            type: 'error'
+          });
           return;
         }
         // use AuthContext to set token/user
@@ -39,7 +45,11 @@ const Login = () => {
         window.location.href = '/dashboard';
       } catch (err) {
         console.error(err);
-        alert('Network error');
+        await showAlert({
+          title: 'Network Error',
+          message: 'Unable to connect to the server. Please try again.',
+          type: 'error'
+        });
       }
     })();
   };
@@ -159,6 +169,7 @@ const Login = () => {
       </div>
 
       <Footer />
+      {ModalComponent}
     </div>
   );
 };

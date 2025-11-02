@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { UserAvatar } from "@/components/UserAvatar";
+import { useModal } from "@/components/ui/modal";
 import { 
   Eye, 
   Send, 
@@ -28,6 +29,7 @@ import API_BASE from '@/config/api';
 const StudentDashboard = () => {
   const { user, token } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { showAlert, ModalComponent } = useModal();
   const stats = [
     {
       title: "Profile Views",
@@ -78,9 +80,13 @@ const StudentDashboard = () => {
     return () => { mounted = false }
   }, [])
 
-  const handleApplyClick = (jobId) => {
+  const handleApplyClick = async (jobId) => {
     if (!user) {
-      alert('Please log in to apply for jobs');
+      await showAlert({
+        title: 'Login Required',
+        message: 'Please log in to apply for jobs',
+        type: 'info'
+      });
       return;
     }
     navigate(`/jobs/${jobId}/apply`);
@@ -354,6 +360,7 @@ const StudentDashboard = () => {
       </div>
 
       <Footer />
+      {ModalComponent}
     </div>
   );
 };

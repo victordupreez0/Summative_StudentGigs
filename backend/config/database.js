@@ -267,6 +267,60 @@ async function initDatabase() {
             });
         });
 
+        // Add missing columns to applications table if they don't exist
+        await new Promise((resolve, reject) => {
+            const columnsToAdd = [
+                { name: 'resume_url', definition: 'VARCHAR(500) NULL', after: 'cover_letter' },
+                { name: 'portfolio_url', definition: 'VARCHAR(500) NULL', after: 'resume_url' },
+                { name: 'availability', definition: 'VARCHAR(255) NULL', after: 'portfolio_url' },
+                { name: 'expected_rate', definition: 'VARCHAR(100) NULL', after: 'availability' },
+                { name: 'motivation', definition: 'TEXT NULL', after: 'expected_rate' }
+            ];
+
+            const tableName = process.env.JAWSDB_URL ? 'applications' : `\`${DB_NAME}\`.applications`;
+            
+            // Check which columns exist
+            const checkColumns = `SHOW COLUMNS FROM ${tableName}`;
+            tablePool.query(checkColumns, (err, columns) => {
+                if (err) {
+                    console.error('Error checking columns:', err);
+                    return reject(err);
+                }
+
+                const existingColumns = columns.map(col => col.Field);
+                const alterPromises = [];
+
+                columnsToAdd.forEach(col => {
+                    if (!existingColumns.includes(col.name)) {
+                        const alterQuery = `ALTER TABLE ${tableName} ADD COLUMN ${col.name} ${col.definition} AFTER ${col.after}`;
+                        alterPromises.push(
+                            new Promise((resolveAlter, rejectAlter) => {
+                                tablePool.query(alterQuery, (alterErr) => {
+                                    if (alterErr) {
+                                        console.error(`Warning: Could not add column ${col.name}:`, alterErr.message);
+                                        resolveAlter(); // Continue even if one fails
+                                    } else {
+                                        console.log(`Added column ${col.name} to applications table`);
+                                        resolveAlter();
+                                    }
+                                });
+                            })
+                        );
+                    }
+                });
+
+                if (alterPromises.length === 0) {
+                    console.log('All application columns exist');
+                    resolve();
+                } else {
+                    Promise.all(alterPromises).then(() => {
+                        console.log('Applications table columns verified/updated');
+                        resolve();
+                    });
+                }
+            });
+        });
+
         console.log('Database initialization complete');
         
         // Close the temporary pool for JawsDB

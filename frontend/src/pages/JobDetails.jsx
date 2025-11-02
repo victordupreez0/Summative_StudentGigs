@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useModal } from "@/components/ui/modal";
 import { 
   ArrowLeft, 
   MapPin, 
@@ -23,6 +24,7 @@ const JobDetails = () => {
   const { jobId } = useParams();
   const navigate = useNavigate();
   const { user, token } = useContext(AuthContext);
+  const { showAlert, showConfirm, ModalComponent } = useModal();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [applications, setApplications] = useState([]);
@@ -67,7 +69,13 @@ const JobDetails = () => {
   };
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
+    const confirmed = await showConfirm({
+      title: 'Delete Job',
+      message: 'Are you sure you want to delete this job? This action cannot be undone.',
+      type: 'error'
+    });
+
+    if (!confirmed) {
       return;
     }
 
@@ -80,25 +88,45 @@ const JobDetails = () => {
       });
 
       if (res.ok) {
-        alert('Job deleted successfully');
+        await showAlert({
+          title: 'Success',
+          message: 'Job deleted successfully',
+          type: 'success'
+        });
         navigate('/dashboard');
       } else {
         const data = await res.json();
-        alert(data.error || 'Failed to delete job');
+        await showAlert({
+          title: 'Error',
+          message: data.error || 'Failed to delete job',
+          type: 'error'
+        });
       }
     } catch (err) {
       console.error('Error deleting job:', err);
-      alert('Network error');
+      await showAlert({
+        title: 'Network Error',
+        message: 'Unable to connect to the server. Please try again.',
+        type: 'error'
+      });
     }
   };
 
-  const handleApply = () => {
+  const handleApply = async () => {
     if (!user) {
-      alert('Please log in to apply for jobs');
+      await showAlert({
+        title: 'Login Required',
+        message: 'Please log in to apply for jobs',
+        type: 'info'
+      });
       return;
     }
     if (user.userType !== 'student') {
-      alert('Only students can apply for jobs');
+      await showAlert({
+        title: 'Access Denied',
+        message: 'Only students can apply for jobs',
+        type: 'error'
+      });
       return;
     }
     navigate(`/jobs/${jobId}/apply`);
@@ -396,6 +424,7 @@ const JobDetails = () => {
       </div>
 
       <Footer />
+      {ModalComponent}
     </div>
   );
 };

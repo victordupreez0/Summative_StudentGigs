@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
+import { useModal } from "@/components/ui/modal";
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -23,7 +24,8 @@ const Signup = () => {
   const [profilePreview, setProfilePreview] = useState(null);
   const [avatarColor, setAvatarColor] = useState("");
   const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const auth = useContext(AuthContext)
+  const auth = useContext(AuthContext);
+  const { showAlert, ModalComponent } = useModal();
 
   // Generate random pastel color on mount
   useEffect(() => {
@@ -48,7 +50,13 @@ const Signup = () => {
     e.preventDefault();
     // Validate business name for employers
     if (userType === 'hire' && !businessName.trim()) {
-      alert('Business name is required for employer accounts');
+      (async () => {
+        await showAlert({
+          title: 'Required Field',
+          message: 'Business name is required for employer accounts',
+          type: 'error'
+        });
+      })();
       return;
     }
     // Call backend signup
@@ -70,7 +78,11 @@ const Signup = () => {
         });
         const data = await res.json();
         if (!res.ok) {
-          alert(data.error || data.message || 'Signup failed');
+          await showAlert({
+            title: 'Signup Failed',
+            message: data.error || data.message || 'Signup failed',
+            type: 'error'
+          });
           return;
         }
   await auth.login({ 
@@ -90,7 +102,11 @@ const Signup = () => {
         window.location.href = '/dashboard';
       } catch (err) {
         console.error(err);
-        alert('Network error');
+        await showAlert({
+          title: 'Network Error',
+          message: 'Unable to connect to the server. Please try again.',
+          type: 'error'
+        });
       }
     })();
   };
@@ -356,6 +372,7 @@ const Signup = () => {
       </div>
 
       <Footer />
+      {ModalComponent}
     </div>
   );
 };

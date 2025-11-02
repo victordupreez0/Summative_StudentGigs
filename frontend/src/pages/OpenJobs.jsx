@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useModal } from "@/components/ui/modal";
 import { 
   Briefcase, 
   Users, 
@@ -22,6 +23,7 @@ import API_BASE from '@/config/api';
 const OpenJobs = () => {
   const { user, token } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { showAlert, showConfirm, ModalComponent } = useModal();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [applications, setApplications] = useState([]);
@@ -100,7 +102,13 @@ const OpenJobs = () => {
   };
 
   const handleDeleteJob = async (jobId) => {
-    if (!confirm('Are you sure you want to delete this job posting?')) return;
+    const confirmed = await showConfirm({
+      title: 'Delete Job',
+      message: 'Are you sure you want to delete this job posting?',
+      type: 'error'
+    });
+
+    if (!confirmed) return;
     
     try {
       const res = await fetch(`${API_BASE}/api/jobs/${jobId}`, {
@@ -112,13 +120,25 @@ const OpenJobs = () => {
       
       if (res.ok) {
         setJobs(jobs.filter(job => job.id !== jobId));
-        alert('Job deleted successfully');
+        await showAlert({
+          title: 'Success',
+          message: 'Job deleted successfully',
+          type: 'success'
+        });
       } else {
-        alert('Failed to delete job');
+        await showAlert({
+          title: 'Error',
+          message: 'Failed to delete job',
+          type: 'error'
+        });
       }
     } catch (err) {
       console.error('Failed to delete job', err);
-      alert('Network error. Please try again.');
+      await showAlert({
+        title: 'Network Error',
+        message: 'Unable to connect to the server. Please try again.',
+        type: 'error'
+      });
     }
   };
 
@@ -362,6 +382,7 @@ const OpenJobs = () => {
       </div>
 
       <Footer />
+      {ModalComponent}
     </div>
   );
 };

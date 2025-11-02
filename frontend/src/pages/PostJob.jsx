@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { useModal } from "@/components/ui/modal";
 import { ArrowLeft, Users, Clock, DollarSign, Eye, Save, UserPlus, CheckCircle } from "lucide-react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
@@ -19,6 +20,7 @@ const PostJob = () => {
   const { jobId } = useParams(); // Check if we're editing
   const navigate = useNavigate();
   const { token } = useContext(AuthContext);
+  const { showAlert, ModalComponent } = useModal();
   const [loading, setLoading] = useState(!!jobId); // Loading state for fetching existing job
   const [currentStep, setCurrentStep] = useState(1);
   
@@ -97,12 +99,20 @@ const PostJob = () => {
             setFixedBudget(job.fixedBudget?.toString() || "");
             setPaymentSchedule(job.paymentSchedule || "");
           } else {
-            alert(data.error || 'Failed to load job data');
+            await showAlert({
+              title: 'Error',
+              message: data.error || 'Failed to load job data',
+              type: 'error'
+            });
             navigate('/dashboard');
           }
         } catch (error) {
           console.error('Error fetching job:', error);
-          alert('Error loading job data');
+          await showAlert({
+            title: 'Error',
+            message: 'Error loading job data',
+            type: 'error'
+          });
           navigate('/dashboard');
         } finally {
           setLoading(false);
@@ -222,6 +232,7 @@ const PostJob = () => {
             disabled={currentStep < 5}
             currentStep={currentStep}
             jobId={jobId}
+            showAlert={showAlert}
             job={{ 
               jobTitle, 
               jobDescription, 
@@ -1059,11 +1070,12 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
       </div>
 
       <Footer />
+      {ModalComponent}
     </div>
   );
 };
 
-function PostButton({ disabled, currentStep, job, jobId }){
+function PostButton({ disabled, currentStep, job, jobId, showAlert }){
   const { token } = useContext(AuthContext)
   const navigate = useNavigate()
   
@@ -1104,13 +1116,28 @@ function PostButton({ disabled, currentStep, job, jobId }){
         body: JSON.stringify(payload)
       })
       const data = await res.json()
-      if (!res.ok) return alert(data.error || `Could not ${jobId ? 'update' : 'post'} job`)
+      if (!res.ok) {
+        await showAlert({
+          title: 'Error',
+          message: data.error || `Could not ${jobId ? 'update' : 'post'} job`,
+          type: 'error'
+        });
+        return;
+      }
       
-      alert(jobId ? 'Job updated successfully!' : 'Job posted successfully! Job ID: ' + data.id)
+      await showAlert({
+        title: 'Success',
+        message: jobId ? 'Job updated successfully!' : `Job posted successfully! Job ID: ${data.id}`,
+        type: 'success'
+      });
       navigate('/dashboard')
     }catch(e){
       console.error(e)
-      alert('Network error')
+      await showAlert({
+        title: 'Network Error',
+        message: 'Unable to connect to the server. Please try again.',
+        type: 'error'
+      });
     }
   }
 
