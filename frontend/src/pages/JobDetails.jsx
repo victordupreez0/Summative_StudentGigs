@@ -3,7 +3,6 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
 import { 
   ArrowLeft, 
   MapPin, 
@@ -13,8 +12,7 @@ import {
   Calendar,
   Briefcase,
   Edit,
-  Trash2,
-  Send
+  Trash2
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -27,9 +25,6 @@ const JobDetails = () => {
   const { user, token } = useContext(AuthContext);
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showApplyModal, setShowApplyModal] = useState(false);
-  const [coverLetter, setCoverLetter] = useState("");
-  const [applying, setApplying] = useState(false);
   const [applications, setApplications] = useState([]);
 
   useEffect(() => {
@@ -97,38 +92,16 @@ const JobDetails = () => {
     }
   };
 
-  const handleApply = async () => {
+  const handleApply = () => {
     if (!user) {
       alert('Please log in to apply for jobs');
       return;
     }
-
-    setApplying(true);
-    try {
-      const res = await fetch(`${API_BASE}/api/applications/jobs/${jobId}/apply`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ coverLetter })
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        alert('Application submitted successfully!');
-        setShowApplyModal(false);
-        setCoverLetter('');
-      } else {
-        alert(data.error || 'Failed to submit application');
-      }
-    } catch (err) {
-      console.error('Application error:', err);
-      alert('Network error');
-    } finally {
-      setApplying(false);
+    if (user.userType !== 'student') {
+      alert('Only students can apply for jobs');
+      return;
     }
+    navigate(`/jobs/${jobId}/apply`);
   };
 
   if (loading) {
@@ -402,9 +375,8 @@ const JobDetails = () => {
                   <Button 
                     className="w-full" 
                     size="lg"
-                    onClick={() => setShowApplyModal(true)}
+                    onClick={handleApply}
                   >
-                    <Send className="w-4 h-4 mr-2" />
                     Apply Now
                   </Button>
                 </CardContent>
@@ -422,45 +394,6 @@ const JobDetails = () => {
           </div>
         </div>
       </div>
-
-      {/* Apply Modal */}
-      {showApplyModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <Card className="w-full max-w-2xl">
-            <CardHeader>
-              <CardTitle>Apply for {job.title}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Cover Letter
-                </label>
-                <Textarea
-                  placeholder="Tell the employer why you're a great fit for this job..."
-                  value={coverLetter}
-                  onChange={(e) => setCoverLetter(e.target.value)}
-                  rows={6}
-                />
-              </div>
-              <div className="flex gap-2 justify-end">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowApplyModal(false)}
-                  disabled={applying}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  onClick={handleApply}
-                  disabled={applying || !coverLetter.trim()}
-                >
-                  {applying ? 'Submitting...' : 'Submit Application'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
 
       <Footer />
     </div>

@@ -13,7 +13,13 @@ function applyToJob(req, res) {
     }
 
     const jobId = req.params.jobId;
-    const { coverLetter } = req.body || {};
+    const { 
+        coverLetter, 
+        resumeUrl, 
+        portfolioUrl, 
+        availability, 
+        expectedRate
+    } = req.body || {};
 
     // Check if job exists
     db.query('SELECT id, user_id FROM jobs WHERE id = ?', [jobId], (err, jobs) => {
@@ -31,9 +37,20 @@ function applyToJob(req, res) {
             return res.status(400).json({ error: 'cannot apply to your own job' });
         }
 
-        // Insert application
-        const sql = 'INSERT INTO applications (job_id, user_id, cover_letter) VALUES (?, ?, ?)';
-        db.query(sql, [jobId, userId, coverLetter], (err, result) => {
+        // Insert application with additional fields
+        const sql = `INSERT INTO applications 
+            (job_id, user_id, cover_letter, resume_url, portfolio_url, availability, expected_rate) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)`;
+        
+        db.query(sql, [
+            jobId, 
+            userId, 
+            coverLetter, 
+            resumeUrl, 
+            portfolioUrl, 
+            availability, 
+            expectedRate
+        ], (err, result) => {
             if (err) {
                 if (err.code === 'ER_DUP_ENTRY') {
                     return res.status(409).json({ error: 'you have already applied to this job' });

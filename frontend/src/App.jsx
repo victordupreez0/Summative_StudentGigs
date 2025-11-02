@@ -5,6 +5,7 @@ import Signup from './pages/Signup';
 import BrowseJobs from './pages/BrowseJobs';
 import PostJob from './pages/PostJob.jsx';
 import JobDetails from './pages/JobDetails';
+import ApplyJob from './pages/ApplyJob';
 import StudentDashboard from './pages/StudentDashboard';
 import StudentProfile from './pages/StudentProfile';
 import EmployerDashboard from './pages/EmployerDashboard.jsx';
@@ -29,6 +30,7 @@ const App = () => (
         <Route path="/open-jobs" element={<ProtectedRoute><OpenJobs /></ProtectedRoute>} />
         <Route path="/post-job" element={<ProtectedRoute><PostJob /></ProtectedRoute>} />
         <Route path="/jobs/:jobId" element={<ProtectedRoute><JobDetails /></ProtectedRoute>} />
+        <Route path="/jobs/:jobId/apply" element={<ProtectedRoute><ApplyJob /></ProtectedRoute>} />
         <Route path="/jobs/:jobId/edit" element={<ProtectedRoute><PostJob /></ProtectedRoute>} />
         <Route path="/applications" element={<ProtectedRoute><Applications /></ProtectedRoute>} />
         

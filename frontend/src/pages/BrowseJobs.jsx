@@ -5,23 +5,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Search, Filter, MapPin, Clock, DollarSign, Users, Bookmark, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Search, Filter, MapPin, Clock, DollarSign, Users, Bookmark } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import AuthContext from '@/context/AuthContext';
 import API_BASE from '@/config/api';
 
 const BrowseJobs = () => {
-  const { user, token } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("");
-  const [showApplyModal, setShowApplyModal] = useState(false);
-  const [selectedJob, setSelectedJob] = useState(null);
-  const [coverLetter, setCoverLetter] = useState("");
-  const [applying, setApplying] = useState(false);
-
   const [jobs, setJobs] = useState([])
 
   useEffect(() => {
@@ -40,46 +35,17 @@ const BrowseJobs = () => {
     return () => { mounted = false }
   }, [])
 
-  const handleApplyClick = (job) => {
+  const handleApplyClick = (e, jobId) => {
+    e.stopPropagation();
     if (!user) {
       alert('Please log in to apply for jobs');
       return;
     }
-    setSelectedJob(job);
-    setCoverLetter('');
-    setShowApplyModal(true);
-  };
-
-  const handleSubmitApplication = async () => {
-    if (!selectedJob || !token) return;
-    
-    setApplying(true);
-    try {
-      const res = await fetch(`${API_BASE}/api/applications/jobs/${selectedJob.id}/apply`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ coverLetter })
-      });
-      
-      const data = await res.json();
-      
-      if (res.ok) {
-        alert('Application submitted successfully!');
-        setShowApplyModal(false);
-        setSelectedJob(null);
-        setCoverLetter('');
-      } else {
-        alert(data.error || 'Failed to submit application');
-      }
-    } catch (err) {
-      console.error('Application error:', err);
-      alert('Network error. Please try again.');
-    } finally {
-      setApplying(false);
+    if (user.userType !== 'student') {
+      alert('Only students can apply for jobs');
+      return;
     }
+    navigate(`/jobs/${jobId}/apply`);
   };
 
   return (
@@ -393,8 +359,7 @@ const BrowseJobs = () => {
                             <Button 
                               size="sm" 
                               onClick={(e) => {
-                                e.stopPropagation();
-                                handleApplyClick(job);
+                                handleApplyClick(e, job.id);
                               }}
                             >
                               Apply Now
@@ -431,66 +396,6 @@ const BrowseJobs = () => {
           </div>
         </div>
       </div>
-
-      {/* Application Modal */}
-      {showApplyModal && selectedJob && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h2 className="text-2xl font-bold mb-2">Apply for {selectedJob.title}</h2>
-                  <p className="text-muted-foreground">{selectedJob.category}</p>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={() => setShowApplyModal(false)}
-                >
-                  <X className="w-5 h-5" />
-                </Button>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-semibold mb-2">Job Description</h3>
-                  <p className="text-sm text-muted-foreground">{selectedJob.description}</p>
-                </div>
-
-                <div>
-                  <label htmlFor="coverLetter" className="block text-sm font-medium mb-2">
-                    Cover Letter (Optional)
-                  </label>
-                  <Textarea
-                    id="coverLetter"
-                    placeholder="Tell the employer why you're a great fit for this position..."
-                    value={coverLetter}
-                    onChange={(e) => setCoverLetter(e.target.value)}
-                    rows={6}
-                    className="w-full"
-                  />
-                </div>
-
-                <div className="flex gap-3 justify-end">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setShowApplyModal(false)}
-                    disabled={applying}
-                  >
-                    Cancel
-                  </Button>
-                  <Button 
-                    onClick={handleSubmitApplication}
-                    disabled={applying}
-                  >
-                    {applying ? 'Submitting...' : 'Submit Application'}
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
 
       <Footer />
     </div>

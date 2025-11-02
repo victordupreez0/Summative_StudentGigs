@@ -570,12 +570,6 @@ const EmployerDashboard = () => {
                     </div>
                   ))}
                 </div>
-                <Button variant="link" size="sm" className="w-full mt-4">
-                  View details
-                </Button>
-                <Button variant="link" size="sm" className="w-full">
-                  Reschedule
-                </Button>
               </CardContent>
             </Card>
 

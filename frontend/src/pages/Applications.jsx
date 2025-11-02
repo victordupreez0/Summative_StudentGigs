@@ -69,6 +69,37 @@ const Applications = () => {
     }
   };
 
+  const handleWithdrawApplication = async (applicationId) => {
+    if (!confirm('Are you sure you want to withdraw this application? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/applications/${applicationId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (res.ok) {
+        alert('Application withdrawn successfully');
+        // Refresh the applications list
+        fetchApplications();
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to withdraw application');
+      }
+    } catch (err) {
+      console.error('Error withdrawing application:', err);
+      alert('Network error. Please try again.');
+    }
+  };
+
+  const handleViewJobDetails = (jobId) => {
+    navigate(`/jobs/${jobId}`);
+  };
+
   const filteredApplications = applications.filter(app => {
     if (filter === 'all') return true;
     return app.status === filter;
@@ -368,7 +399,12 @@ const Applications = () => {
 
                   {/* Actions */}
                   <div className="flex gap-2 pt-4 border-t border-gray-200">
-                    <Button variant="outline" size="sm" className="text-gray-700">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-gray-700"
+                      onClick={() => handleViewJobDetails(application.job_id)}
+                    >
                       View Job Details
                     </Button>
                     {application.status === 'accepted' && (
@@ -377,7 +413,12 @@ const Applications = () => {
                       </Button>
                     )}
                     {application.status === 'pending' && (
-                      <Button variant="outline" size="sm" className="text-red-600 border-red-300 hover:bg-red-50">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="text-red-600 border-red-300 hover:bg-red-50"
+                        onClick={() => handleWithdrawApplication(application.id)}
+                      >
                         Withdraw Application
                       </Button>
                     )}
