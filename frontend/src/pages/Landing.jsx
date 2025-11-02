@@ -11,38 +11,44 @@ import { Footer } from "@/components/Footer";
 import API_BASE from '@/config/api';
 
 const Landing = () => {
+  const [jobs, setJobs] = useState([]);
+  const [categoryCounts, setCategoryCounts] = useState({
+    "Web Development": 0,
+    "Content Writing": 0,
+    "Data Analysis": 0,
+    "Graphic Design": 0
+  });
+
   const categories = [
     {
       icon: Code,
       title: "Web Development",
       description: "Website creation, coding, debugging and maintenance",
-      jobs: "246 jobs available",
+      categoryKey: "Web Development",
       color: "text-gray-700"
     },
     {
       icon: PenTool,
       title: "Content Writing", 
       description: "Blog posts, articles, copywriting and proofreading",
-      jobs: "189 jobs available",
+      categoryKey: "Content Writing",
       color: "text-gray-700"
     },
     {
       icon: BarChart3,
       title: "Data Analysis",
       description: "Statistical analysis, data visualization and reporting", 
-      jobs: "156 jobs available",
-      color: "text-purple-600"
+      categoryKey: "Data Analysis",
+      color: "text-gray-700"
     },
     {
       icon: Palette,
       title: "Graphic Design",
       description: "Logos, illustrations, UI/UX design and branding",
-      jobs: "178 jobs available", 
+      categoryKey: "Graphic Design",
       color: "text-gray-700"
     }
   ];
-
-  const [jobs, setJobs] = useState([])
 
   useEffect(() => {
     let mounted = true
@@ -55,6 +61,24 @@ const Landing = () => {
         // sort newest first by created_at and keep as-is
         data.sort((a,b) => new Date(b.created_at) - new Date(a.created_at))
         setJobs(data)
+        
+        // Count jobs by category
+        const counts = {
+          "Web Development": 0,
+          "Content Writing": 0,
+          "Data Analysis": 0,
+          "Graphic Design": 0
+        };
+        
+        data.forEach(job => {
+          const category = job.category;
+          if (category === "web-development") counts["Web Development"]++;
+          else if (category === "content-writing") counts["Content Writing"]++;
+          else if (category === "data-analysis") counts["Data Analysis"]++;
+          else if (category === "graphic-design") counts["Graphic Design"]++;
+        });
+        
+        setCategoryCounts(counts);
       } catch (e) {
         console.error('Failed to load recent jobs', e)
       }
@@ -114,20 +138,20 @@ const Landing = () => {
   <Navbar />
       
       {/* Hero Section */}
-      <section className="">
+      <section className="bg-gray-50 border-b border-gray-200">
         <div className="container mx-auto px-4 py-20">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-5xl font-bold mb-6">
+            <h1 className="text-5xl font-bold mb-6 text-gray-900">
               Find the perfect student talent for your projects
             </h1>
-            <p className="text-xl mb-8 text-charcoal">
+            <p className="text-xl mb-8 text-gray-600">
               Connect with skilled students for your short-term projects, research assistance, or part-time roles.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="bg-purple-600 hover:bg-purple-700 text-white" size="lg" asChild>
+              <Button className="text-white shadow-lg font-semibold" size="lg" asChild>
                 <Link to="/post-job">Post a Job</Link>
               </Button>
-              <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-gray-900" asChild>
+              <Button variant="outline" size="lg" className="border-gray-300 text-gray-700 hover:bg-gray-50" asChild>
                 <Link to="/browse-jobs">Find Work</Link>
               </Button>
             </div>
@@ -150,7 +174,9 @@ const Landing = () => {
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">{category.title}</h3>
                   <p className="text-gray-600 text-sm mb-3">{category.description}</p>
-                  <p className="text-purple-600 text-sm font-medium">{category.jobs}</p>
+                  <p className="text-purple-600 text-sm font-medium">
+                    {categoryCounts[category.categoryKey] || 0} job{categoryCounts[category.categoryKey] !== 1 ? 's' : ''} available
+                  </p>
                   <Button variant="link" className="mt-2 text-gray-700 hover:text-purple-600">
                     View Jobs <ArrowRight className="w-4 h-4 ml-1" />
                   </Button>
@@ -160,6 +186,8 @@ const Landing = () => {
           </div>
         </div>
       </section>
+
+      {/* How It Works */}
 
       {/* How It Works */}
       <section className="py-16 bg-gray-50">

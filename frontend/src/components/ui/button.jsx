@@ -6,13 +6,13 @@ export const Button = ({ children, asChild, variant = 'default', size = 'default
   
   // Variant styles - vibrant modern colors with gradients
   const variants = {
-    default: 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg hover:shadow-xl focus:ring-indigo-500',
-    primary: 'bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white shadow-xl hover:shadow-2xl focus:ring-purple-500',
-    secondary: 'bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white shadow-lg hover:shadow-xl focus:ring-sky-500',
+    default: 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg hover:shadow-xl focus:ring-indigo-500 [&]:!text-white',
+    primary: 'bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white shadow-xl hover:shadow-2xl focus:ring-purple-500 [&]:!text-white',
+    secondary: 'bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white shadow-lg hover:shadow-xl focus:ring-sky-500 [&]:!text-white',
     outline: 'bg-white hover:bg-gray-50 text-gray-900 border-2 border-gray-300 hover:border-indigo-500 hover:text-indigo-600 shadow-md hover:shadow-lg focus:ring-indigo-500',
     ghost: 'bg-transparent hover:bg-gray-100 text-gray-700 hover:text-gray-900 focus:ring-gray-500',
-    danger: 'bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white shadow-lg hover:shadow-xl focus:ring-red-500',
-    success: 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl focus:ring-emerald-500',
+    danger: 'bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white shadow-lg hover:shadow-xl focus:ring-red-500 [&]:!text-white',
+    success: 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl focus:ring-emerald-500 [&]:!text-white',
   };
   
   // Size styles - modern and comfortable

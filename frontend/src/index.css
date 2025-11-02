@@ -72,14 +72,6 @@ a:hover {
   color: var(--color-primary-hover);
 }
 
-/* Professional button base */
-button {
-  font-family: 'Inter', sans-serif;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  transition: all 0.2s ease;
-}
-
 /* Smooth transitions for all interactive elements */
 * {
   transition-property: background-color, border-color, color, box-shadow;

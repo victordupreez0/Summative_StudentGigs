@@ -95,18 +95,23 @@ export const Navbar = () => {
         
         {/* Right side actions */}
         <div className="flex items-center gap-4">
-          {/* Notifications - Larger Modern Icon Buttons */}
-          <button className="w-10 h-10 p-0 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors">
-            <Bell className="w-5 h-5" style={{ stroke: '#374151', strokeWidth: 2 }} />
-          </button>
-          
-          {/* Messages */}
-          <button className="w-10 h-10 p-0 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors">
-            <Mail className="w-5 h-5" style={{ stroke: '#374151', strokeWidth: 2 }} />
-          </button>
+          {/* Show notifications and messages only when user is logged in */}
+          {user && (
+            <>
+              {/* Notifications - Larger Modern Icon Buttons */}
+              <button className="w-10 h-10 p-0 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors">
+                <Bell className="w-5 h-5" style={{ stroke: '#374151', strokeWidth: 2 }} />
+              </button>
+              
+              {/* Messages */}
+              <button className="w-10 h-10 p-0 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors">
+                <Mail className="w-5 h-5" style={{ stroke: '#374151', strokeWidth: 2 }} />
+              </button>
+            </>
+          )}
           
           {/* User Avatar with Dropdown */}
-          {user ? (
+          {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <div className="cursor-pointer">
@@ -146,11 +151,6 @@ export const Navbar = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          ) : (
-            <Avatar className="w-10 h-10 border-2 border-gray-200 shadow-sm">
-              <AvatarImage src="/avatars/user.jpg" />
-              <AvatarFallback className="bg-gray-700 text-white font-medium">?</AvatarFallback>
-            </Avatar>
           )}
           
           {/* Auth buttons - Modern Styling */}

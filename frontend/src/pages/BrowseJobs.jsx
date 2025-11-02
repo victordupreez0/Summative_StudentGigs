@@ -55,7 +55,7 @@ const BrowseJobs = () => {
     
     setApplying(true);
     try {
-      const res = await fetch(`${API_BASE}/api/jobs/${selectedJob.id}/apply`, {
+      const res = await fetch(`${API_BASE}/api/applications/jobs/${selectedJob.id}/apply`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -92,7 +92,7 @@ const BrowseJobs = () => {
           <nav className="flex items-center gap-8 h-16">
             <Link 
               to="/browse-jobs" 
-              className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-5"
+              className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2"
             >
               Browse Jobs
             </Link>

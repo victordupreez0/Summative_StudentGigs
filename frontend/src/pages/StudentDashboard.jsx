@@ -98,7 +98,7 @@ const StudentDashboard = () => {
     
     setApplying(true);
     try {
-      const res = await fetch(`${API_BASE}/api/jobs/${selectedJob.id}/apply`, {
+      const res = await fetch(`${API_BASE}/api/applications/jobs/${selectedJob.id}/apply`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -171,13 +171,13 @@ const StudentDashboard = () => {
             </Link>
             <Link 
               to="/student-dashboard" 
-              className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-5"
+              className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2"
             >
               Dashboard
             </Link>
             <Link 
               to="/my-jobs" 
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-2"
             >
               My Jobs
             </Link>
