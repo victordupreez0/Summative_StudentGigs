@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +28,7 @@ import API_BASE from '@/config/api';
 
 const EmployerDashboard = () => {
   const { user, token } = useContext(AuthContext);
+  const navigate = useNavigate();
   const { showAlert, ModalComponent } = useModal();
   const [activeJobs, setActiveJobs] = useState([]);
   const [applications, setApplications] = useState([]);
@@ -455,13 +457,13 @@ const EmployerDashboard = () => {
                               {statusMap[applicant.status]}
                             </Badge>
                             <div className="flex gap-1 mt-2">
-                              <Button size="sm" variant="outline" onClick={async () => {
-                                await showAlert({
-                                  title: `Application from ${applicant.name}`,
-                                  message: `Cover Letter:\n\n${applicant.cover_letter || 'No cover letter provided'}`,
-                                  type: 'info'
-                                });
-                              }}>Review</Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                onClick={() => navigate(`/applications/${applicant.id}`)}
+                              >
+                                Review
+                              </Button>
                             </div>
                           </div>
                         </div>

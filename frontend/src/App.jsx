@@ -11,6 +11,8 @@ import StudentProfile from './pages/StudentProfile';
 import EmployerDashboard from './pages/EmployerDashboard.jsx';
 import Dashboard from './pages/Dashboard';
 import Applications from './pages/Applications';
+import Applicants from './pages/Applicants';
+import ApplicationDetail from './pages/ApplicationDetail';
 import OpenJobs from './pages/OpenJobs';
 import NotFound from './pages/NotFound';
 import '@radix-ui/themes/styles.css';
@@ -33,6 +35,8 @@ const App = () => (
         <Route path="/jobs/:jobId/apply" element={<ProtectedRoute><ApplyJob /></ProtectedRoute>} />
         <Route path="/jobs/:jobId/edit" element={<ProtectedRoute><PostJob /></ProtectedRoute>} />
         <Route path="/applications" element={<ProtectedRoute><Applications /></ProtectedRoute>} />
+        <Route path="/applicants" element={<ProtectedRoute><Applicants /></ProtectedRoute>} />
+        <Route path="/applications/:applicationId" element={<ProtectedRoute><ApplicationDetail /></ProtectedRoute>} />
         
         {/* Dashboard routes - smart routing based on user type */}
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

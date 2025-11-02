@@ -290,11 +290,60 @@ function withdrawApplication(req, res) {
     });
 }
 
+// Get detailed application information (employer only)
+function getApplicationDetail(req, res) {
+    const db = getDb();
+    if (!db) {
+        return res.status(500).json({ error: 'db not initialized' });
+    }
+
+    const userId = req.user && req.user.id;
+    if (!userId) {
+        return res.status(401).json({ error: 'invalid token payload' });
+    }
+
+    const applicationId = req.params.applicationId;
+
+    // Verify the application's job belongs to this employer and get full details
+    const sql = `
+        SELECT 
+            a.id, a.job_id, a.user_id, a.status, a.cover_letter, 
+            a.resume_url, a.portfolio_url, a.availability, a.expected_rate, 
+            a.motivation, a.created_at,
+            u.name, u.email, u.profile_picture, u.avatar_color,
+            j.title AS job_title, j.description AS job_description, 
+            j.category, j.project_type, j.user_id AS job_owner_id
+        FROM applications a
+        JOIN users u ON a.user_id = u.id
+        JOIN jobs j ON a.job_id = j.id
+        WHERE a.id = ?
+    `;
+
+    db.query(sql, [applicationId], (err, results) => {
+        if (err) {
+            console.error('Error fetching application detail:', err);
+            return res.status(500).json({ error: 'db error' });
+        }
+
+        if (!results.length) {
+            return res.status(404).json({ error: 'application not found' });
+        }
+
+        // Verify job ownership
+        if (results[0].job_owner_id !== userId) {
+            return res.status(403).json({ error: 'unauthorized - not your job' });
+        }
+
+        res.json(results[0]);
+    });
+}
+
 module.exports = {
     applyToJob,
     getJobApplications,
     getMyJobsApplications,
     getMyApplications,
     updateApplicationStatus,
-    withdrawApplication
+    withdrawApplication,
+    getApplicationDetail
 };
