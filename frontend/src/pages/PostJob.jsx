@@ -1070,7 +1070,7 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
       </div>
 
       <Footer />
-      {ModalComponent}
+      <ModalComponent />
     </div>
   );
 };

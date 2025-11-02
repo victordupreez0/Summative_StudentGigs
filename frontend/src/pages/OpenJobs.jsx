@@ -382,7 +382,7 @@ const OpenJobs = () => {
       </div>
 
       <Footer />
-      {ModalComponent}
+      <ModalComponent />
     </div>
   );
 };

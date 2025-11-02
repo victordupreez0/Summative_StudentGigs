@@ -424,7 +424,7 @@ const JobDetails = () => {
       </div>
 
       <Footer />
-      {ModalComponent}
+      <ModalComponent />
     </div>
   );
 };

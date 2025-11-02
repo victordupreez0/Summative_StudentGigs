@@ -21,6 +21,33 @@ const BrowseJobs = () => {
   const [location, setLocation] = useState("");
   const [jobs, setJobs] = useState([])
 
+  // Helper function to format experience level
+  const formatExperienceLevel = (level) => {
+    const levels = {
+      'entry': 'Entry Level',
+      'intermediate': 'Intermediate',
+      'expert': 'Expert',
+      'beginner': 'Beginner',
+      'advanced': 'Advanced'
+    };
+    return levels[level?.toLowerCase()] || level;
+  };
+
+  // Helper function to format weekly hours
+  const formatWeeklyHours = (hours) => {
+    if (!hours) return '';
+    const hourMap = {
+      'less-10': 'Less than 10 hours/week',
+      '10-20': '10-20 hours/week',
+      '20-30': '20-30 hours/week',
+      '30-40': '30-40 hours/week',
+      '40+': '40+ hours/week',
+      'full-time': 'Full-time',
+      'part-time': 'Part-time'
+    };
+    return hourMap[hours] || hours;
+  };
+
   useEffect(() => {
     let mounted = true
     ;(async () => {
@@ -352,8 +379,8 @@ const BrowseJobs = () => {
 
                         <div className="flex justify-between items-center">
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            {job.experienceLevel && <span className="capitalize">{job.experienceLevel}</span>}
-                            {job.weeklyHours && <span>{job.weeklyHours}</span>}
+                            {job.experienceLevel && <span>{formatExperienceLevel(job.experienceLevel)}</span>}
+                            {job.weeklyHours && <span>{formatWeeklyHours(job.weeklyHours)}</span>}
                           </div>
                           <div className="flex gap-2">
                             <Button 
@@ -408,7 +435,7 @@ const BrowseJobs = () => {
       </div>
 
       <Footer />
-      {ModalComponent}
+      <ModalComponent />
     </div>
   );
 };

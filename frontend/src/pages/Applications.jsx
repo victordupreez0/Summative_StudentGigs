@@ -120,6 +120,39 @@ const Applications = () => {
     navigate(`/jobs/${jobId}`);
   };
 
+  const handleMessageEmployer = async (application) => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      // Create or get conversation with the employer
+      const res = await fetch(`${API_BASE}/api/messages/conversations`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          otherUserId: application.employer_id,
+          jobId: application.job_id
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to create conversation');
+      }
+
+      // Navigate to messages page
+      navigate('/messages');
+    } catch (error) {
+      console.error('Error creating conversation:', error);
+      await showAlert({
+        title: 'Error',
+        message: 'Failed to start conversation. Please try again.',
+        type: 'error'
+      });
+    }
+  };
+
   const filteredApplications = applications.filter(app => {
     if (filter === 'all') return true;
     return app.status === filter;
@@ -428,7 +461,11 @@ const Applications = () => {
                       View Job Details
                     </Button>
                     {application.status === 'accepted' && (
-                      <Button size="sm" className="bg-gray-900 hover:bg-gray-800">
+                      <Button 
+                        size="sm" 
+                        className="bg-gray-900 hover:bg-gray-800"
+                        onClick={() => handleMessageEmployer(application)}
+                      >
                         Message Employer
                       </Button>
                     )}
@@ -451,7 +488,7 @@ const Applications = () => {
       </div>
 
       <Footer />
-      {ModalComponent}
+      <ModalComponent />
     </div>
   );
 };

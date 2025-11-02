@@ -467,7 +467,7 @@ const ApplyJob = () => {
       </div>
 
       <Footer />
-      {ModalComponent}
+      <ModalComponent />
     </div>
   );
 };

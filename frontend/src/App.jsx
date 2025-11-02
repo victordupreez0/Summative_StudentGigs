@@ -14,6 +14,7 @@ import Applications from './pages/Applications';
 import Applicants from './pages/Applicants';
 import ApplicationDetail from './pages/ApplicationDetail';
 import OpenJobs from './pages/OpenJobs';
+import Messages from './pages/Messages';
 import NotFound from './pages/NotFound';
 import '@radix-ui/themes/styles.css';
 import { AuthProvider } from './context/AuthContext';
@@ -37,6 +38,7 @@ const App = () => (
         <Route path="/applications" element={<ProtectedRoute><Applications /></ProtectedRoute>} />
         <Route path="/applicants" element={<ProtectedRoute><Applicants /></ProtectedRoute>} />
         <Route path="/applications/:applicationId" element={<ProtectedRoute><ApplicationDetail /></ProtectedRoute>} />
+        <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
         
         {/* Dashboard routes - smart routing based on user type */}
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

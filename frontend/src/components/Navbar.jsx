@@ -104,7 +104,12 @@ export const Navbar = () => {
               </button>
               
               {/* Messages */}
-              <button className="w-10 h-10 p-0 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors">
+              <button 
+                onClick={() => navigate('/messages')}
+                className={`w-10 h-10 p-0 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors ${
+                  isActive('/messages') ? 'bg-gray-100' : ''
+                }`}
+              >
                 <Mail className="w-5 h-5" style={{ stroke: '#374151', strokeWidth: 2 }} />
               </button>
             </>

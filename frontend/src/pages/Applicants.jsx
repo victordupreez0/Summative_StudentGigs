@@ -98,6 +98,35 @@ const Applicants = () => {
     return `${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) > 1 ? 's' : ''} ago`;
   };
 
+  const handleMessageApplicant = async (application) => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      // Create or get conversation with the student
+      const res = await fetch(`${API_BASE}/api/messages/conversations`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          otherUserId: application.user_id,
+          jobId: application.job_id
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to create conversation');
+      }
+
+      // Navigate to messages page
+      navigate('/messages');
+    } catch (error) {
+      console.error('Error creating conversation:', error);
+      alert('Failed to start conversation. Please try again.');
+    }
+  };
+
   const statusMap = {
     'pending': { label: 'New', variant: 'default', color: 'bg-blue-100 text-blue-700', icon: Clock },
     'accepted': { label: 'Accepted', variant: 'success', color: 'bg-green-100 text-green-700', icon: CheckCircle },
@@ -396,14 +425,25 @@ const Applicants = () => {
                             <span className="text-sm font-medium">{statusInfo.label}</span>
                           </div>
 
-                          <Button
-                            onClick={() => navigate(`/applications/${application.id}`)}
-                            size="sm"
-                            className="bg-purple-600 hover:bg-purple-700 text-white"
-                          >
-                            <Eye className="w-4 h-4 mr-2" />
-                            Review Application
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() => handleMessageApplicant(application)}
+                              size="sm"
+                              variant="outline"
+                              className="text-gray-700"
+                            >
+                              <Mail className="w-4 h-4 mr-2" />
+                              Message
+                            </Button>
+                            <Button
+                              onClick={() => navigate(`/applications/${application.id}`)}
+                              size="sm"
+                              className="bg-purple-600 hover:bg-purple-700 text-white"
+                            >
+                              <Eye className="w-4 h-4 mr-2" />
+                              Review
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>

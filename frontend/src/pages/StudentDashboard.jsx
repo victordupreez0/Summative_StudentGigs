@@ -360,7 +360,7 @@ const StudentDashboard = () => {
       </div>
 
       <Footer />
-      {ModalComponent}
+      <ModalComponent />
     </div>
   );
 };

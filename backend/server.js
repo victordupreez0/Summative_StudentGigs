@@ -88,11 +88,13 @@ app.get('/api/debug/table-structure', (req, res) => {
 const authRoutes = require('./routes/authRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const applicationRoutes = require('./routes/applicationRoutes');
+const messageRoutes = require('./routes/messageRoutes');
 
 // Mount routes
 app.use('/api', authRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/applications', applicationRoutes);
+app.use('/api/messages', messageRoutes);
 
 // Catch-all handler for React Router (must be last)
 app.use((req, res) => {

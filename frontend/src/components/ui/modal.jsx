@@ -129,7 +129,7 @@ export const useModal = () => {
     setModalState(prev => ({ ...prev, isOpen: false }));
   }, [modalState]);
 
-  const ModalComponent = React.useMemo(() => (
+  const ModalComponent = () => (
     <Modal
       isOpen={modalState.isOpen}
       onClose={closeModal}
@@ -159,7 +159,7 @@ export const useModal = () => {
     >
       {modalState.message}
     </Modal>
-  ), [modalState, closeModal]);
+  );
 
   return {
     showAlert,

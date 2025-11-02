@@ -321,6 +321,86 @@ async function initDatabase() {
             });
         });
 
+        // Create conversations table
+        await new Promise((resolve, reject) => {
+            const createConversationsSql = process.env.JAWSDB_URL
+                ? `CREATE TABLE IF NOT EXISTS conversations (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    student_id INT NOT NULL,
+                    employer_id INT NOT NULL,
+                    job_id INT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (employer_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE SET NULL,
+                    UNIQUE KEY unique_conversation (student_id, employer_id),
+                    INDEX idx_student_id (student_id),
+                    INDEX idx_employer_id (employer_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
+                : `CREATE TABLE IF NOT EXISTS \`${DB_NAME}\`.conversations (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    student_id INT NOT NULL,
+                    employer_id INT NOT NULL,
+                    job_id INT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    FOREIGN KEY (student_id) REFERENCES \`${DB_NAME}\`.users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (employer_id) REFERENCES \`${DB_NAME}\`.users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (job_id) REFERENCES \`${DB_NAME}\`.jobs(id) ON DELETE SET NULL,
+                    UNIQUE KEY unique_conversation (student_id, employer_id),
+                    INDEX idx_student_id (student_id),
+                    INDEX idx_employer_id (employer_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`;
+            
+            tablePool.query(createConversationsSql, (err) => {
+                if (err) {
+                    console.error('Failed to create conversations table:', err.message, err.code);
+                    return reject(err);
+                }
+                console.log('Conversations table created/verified');
+                resolve();
+            });
+        });
+
+        // Create messages table
+        await new Promise((resolve, reject) => {
+            const createMessagesSql = process.env.JAWSDB_URL
+                ? `CREATE TABLE IF NOT EXISTS messages (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    conversation_id INT NOT NULL,
+                    sender_id INT NOT NULL,
+                    content TEXT NOT NULL,
+                    is_read BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+                    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+                    INDEX idx_conversation_id (conversation_id),
+                    INDEX idx_created_at (created_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
+                : `CREATE TABLE IF NOT EXISTS \`${DB_NAME}\`.messages (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    conversation_id INT NOT NULL,
+                    sender_id INT NOT NULL,
+                    content TEXT NOT NULL,
+                    is_read BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (conversation_id) REFERENCES \`${DB_NAME}\`.conversations(id) ON DELETE CASCADE,
+                    FOREIGN KEY (sender_id) REFERENCES \`${DB_NAME}\`.users(id) ON DELETE CASCADE,
+                    INDEX idx_conversation_id (conversation_id),
+                    INDEX idx_created_at (created_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`;
+            
+            tablePool.query(createMessagesSql, (err) => {
+                if (err) {
+                    console.error('Failed to create messages table:', err.message, err.code);
+                    return reject(err);
+                }
+                console.log('Messages table created/verified');
+                resolve();
+            });
+        });
+
         console.log('Database initialization complete');
         
         // Close the temporary pool for JawsDB

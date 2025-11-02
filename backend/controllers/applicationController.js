@@ -180,7 +180,7 @@ function getMyApplications(req, res) {
     const sql = `
         SELECT 
             a.id, a.job_id, a.user_id, a.status, a.cover_letter, a.created_at,
-            j.title AS job_title, j.description, j.category, j.project_type,
+            j.title AS job_title, j.description, j.category, j.project_type, j.user_id AS employer_id,
             u.name AS employer_name, u.business_name AS employer_business_name
         FROM applications a
         JOIN jobs j ON a.job_id = j.id

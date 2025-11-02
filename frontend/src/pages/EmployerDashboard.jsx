@@ -600,7 +600,7 @@ const EmployerDashboard = () => {
       </div>
 
       <Footer />
-      {ModalComponent}
+      <ModalComponent />
     </div>
   );
 };

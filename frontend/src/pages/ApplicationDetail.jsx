@@ -130,6 +130,39 @@ const ApplicationDetail = () => {
     }
   };
 
+  const handleMessageApplicant = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      // Create or get conversation with the student
+      const res = await fetch(`${API_BASE}/api/messages/conversations`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          otherUserId: application.user_id,
+          jobId: application.job_id
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to create conversation');
+      }
+
+      // Navigate to messages page
+      navigate('/messages');
+    } catch (error) {
+      console.error('Error creating conversation:', error);
+      await showAlert({
+        title: 'Error',
+        message: 'Failed to start conversation. Please try again.',
+        type: 'error'
+      });
+    }
+  };
+
   const getTimeAgo = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -481,6 +514,15 @@ const ApplicationDetail = () => {
                 <Button
                   variant="outline"
                   className="w-full justify-start"
+                  onClick={handleMessageApplicant}
+                >
+                  <Mail className="w-4 h-4 mr-2" />
+                  Message Applicant
+                </Button>
+
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
                   onClick={() => window.location.href = `mailto:${application.email}`}
                 >
                   <Mail className="w-4 h-4 mr-2" />
@@ -550,7 +592,7 @@ const ApplicationDetail = () => {
       </div>
 
       <Footer />
-      {ModalComponent}
+      <ModalComponent />
     </div>
   );
 };
