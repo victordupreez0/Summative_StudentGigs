@@ -223,16 +223,22 @@ const Applications = () => {
               Browse Jobs
             </Link>
             <Link 
+              to="/student-dashboard" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Dashboard
+            </Link>
+            <Link 
               to="/open-jobs" 
               className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
               Open Jobs
             </Link>
             <Link 
-              to="/student-dashboard" 
+              to="/applicants" 
               className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
-              Dashboard
+              Applicants
             </Link>
             <Link 
               to="/my-jobs" 
@@ -245,12 +251,6 @@ const Applications = () => {
               className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2"
             >
               Applications
-            </Link>
-            <Link 
-              to="/applicants" 
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
-            >
-              Applicants
             </Link>
             <Link 
               to="/messages" 

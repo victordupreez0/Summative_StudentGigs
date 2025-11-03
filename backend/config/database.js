@@ -506,6 +506,50 @@ async function initDatabase() {
             });
         });
 
+        // Create notifications table
+        await new Promise((resolve, reject) => {
+            const createNotificationsSql = process.env.JAWSDB_URL
+                ? `CREATE TABLE IF NOT EXISTS notifications (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    type ENUM('application_accepted', 'application_rejected', 'new_application', 'job_completed', 'job_status_changed', 'message', 'general') NOT NULL,
+                    title VARCHAR(255) NOT NULL,
+                    message TEXT NOT NULL,
+                    related_id INT NULL,
+                    related_type ENUM('job', 'application', 'message', 'user') NULL,
+                    is_read BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    INDEX idx_user_id (user_id),
+                    INDEX idx_is_read (is_read),
+                    INDEX idx_created_at (created_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
+                : `CREATE TABLE IF NOT EXISTS \`${DB_NAME}\`.notifications (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    type ENUM('application_accepted', 'application_rejected', 'new_application', 'job_completed', 'job_status_changed', 'message', 'general') NOT NULL,
+                    title VARCHAR(255) NOT NULL,
+                    message TEXT NOT NULL,
+                    related_id INT NULL,
+                    related_type ENUM('job', 'application', 'message', 'user') NULL,
+                    is_read BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES \`${DB_NAME}\`.users(id) ON DELETE CASCADE,
+                    INDEX idx_user_id (user_id),
+                    INDEX idx_is_read (is_read),
+                    INDEX idx_created_at (created_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`;
+            
+            tablePool.query(createNotificationsSql, (err) => {
+                if (err) {
+                    console.error('Failed to create notifications table:', err.message, err.code);
+                    return reject(err);
+                }
+                console.log('Notifications table created/verified');
+                resolve();
+            });
+        });
+
         console.log('Database initialization complete');
         
         // Close the temporary pool for JawsDB

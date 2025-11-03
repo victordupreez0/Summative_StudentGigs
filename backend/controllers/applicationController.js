@@ -1,4 +1,5 @@
 const { getDb } = require('../config/database');
+const { createNotification } = require('./notificationController');
 
 // Apply to a job
 function applyToJob(req, res) {
@@ -22,7 +23,7 @@ function applyToJob(req, res) {
     } = req.body || {};
 
     // Check if job exists
-    db.query('SELECT id, user_id FROM jobs WHERE id = ?', [jobId], (err, jobs) => {
+    db.query('SELECT id, user_id, title FROM jobs WHERE id = ?', [jobId], (err, jobs) => {
         if (err) {
             console.error('Error checking job:', err);
             return res.status(500).json({ error: 'db error' });
@@ -60,7 +61,7 @@ function applyToJob(req, res) {
             portfolioUrl || null, 
             availability || null, 
             expectedRate || null
-        ], (err, result) => {
+        ], async (err, result) => {
             if (err) {
                 if (err.code === 'ER_DUP_ENTRY') {
                     return res.status(409).json({ error: 'you have already applied to this job' });
@@ -74,6 +75,23 @@ function applyToJob(req, res) {
                 });
                 return res.status(500).json({ error: 'db insert error' });
             }
+
+            // Create notification for employer
+            try {
+                const jobOwnerId = jobs[0].user_id;
+                await createNotification(
+                    jobOwnerId,
+                    'new_application',
+                    'New Application Received',
+                    `Someone applied for your job: ${jobs[0].title || 'your job'}`,
+                    result.insertId,
+                    'application'
+                );
+            } catch (notifErr) {
+                console.error('Failed to create notification:', notifErr);
+                // Don't fail the application if notification fails
+            }
+
             res.status(201).json({ 
                 id: result.insertId, 
                 message: 'Application submitted successfully' 
@@ -283,13 +301,13 @@ function updateApplicationStatus(req, res) {
 
     // Verify the application's job belongs to this employer
     const sql = `
-        SELECT j.user_id 
+        SELECT a.user_id as applicant_id, j.user_id as job_owner_id, j.title as job_title, j.id as job_id
         FROM applications a
         JOIN jobs j ON a.job_id = j.id
         WHERE a.id = ?
     `;
 
-    db.query(sql, [applicationId], (err, results) => {
+    db.query(sql, [applicationId], async (err, results) => {
         if (err) {
             console.error('Error checking application ownership:', err);
             return res.status(500).json({ error: 'db error' });
@@ -299,16 +317,47 @@ function updateApplicationStatus(req, res) {
             return res.status(404).json({ error: 'application not found' });
         }
 
-        if (results[0].user_id !== userId) {
+        if (results[0].job_owner_id !== userId) {
             return res.status(403).json({ error: 'unauthorized - not your job' });
         }
 
+        const applicantId = results[0].applicant_id;
+        const jobTitle = results[0].job_title;
+        const jobId = results[0].job_id;
+
         // Update status
-        db.query('UPDATE applications SET status = ? WHERE id = ?', [status, applicationId], (err) => {
+        db.query('UPDATE applications SET status = ? WHERE id = ?', [status, applicationId], async (err) => {
             if (err) {
                 console.error('Error updating application status:', err);
                 return res.status(500).json({ error: 'db error' });
             }
+
+            // Create notification for applicant
+            try {
+                if (status === 'accepted') {
+                    await createNotification(
+                        applicantId,
+                        'application_accepted',
+                        'Application Accepted! 🎉',
+                        `Congratulations! Your application for "${jobTitle}" has been accepted.`,
+                        jobId,
+                        'job'
+                    );
+                } else if (status === 'rejected') {
+                    await createNotification(
+                        applicantId,
+                        'application_rejected',
+                        'Application Update',
+                        `Your application for "${jobTitle}" was not selected this time.`,
+                        jobId,
+                        'job'
+                    );
+                }
+            } catch (notifErr) {
+                console.error('Failed to create notification:', notifErr);
+                // Don't fail the status update if notification fails
+            }
+
             res.json({ success: true, message: 'Application status updated' });
         });
     });

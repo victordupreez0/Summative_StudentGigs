@@ -25,6 +25,10 @@ exports.getConversations = (req, res) => {
                 WHEN c.student_id = ? THEN c.employer_id
                 ELSE c.student_id
             END as other_user_id,
+            CASE 
+                WHEN c.student_id = ? THEN 'employer'
+                ELSE 'student'
+            END as other_user_type,
             jobs.title as job_title,
             (SELECT content FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as last_message,
             (SELECT created_at FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as last_message_time,
@@ -37,7 +41,7 @@ exports.getConversations = (req, res) => {
         ORDER BY last_message_time DESC, c.updated_at DESC
     `;
 
-    db.query(query, [userId, userId, userId, userId, userId, userId], (err, rows) => {
+    db.query(query, [userId, userId, userId, userId, userId, userId, userId], (err, rows) => {
         if (err) {
             console.error('Error fetching conversations:', err);
             return res.status(500).json({ error: 'Failed to fetch conversations' });

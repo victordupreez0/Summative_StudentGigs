@@ -1,4 +1,5 @@
 const { getDb } = require('../config/database');
+const { createNotification } = require('./notificationController');
 
 // Create a job post
 function createJob(req, res) {
@@ -431,10 +432,24 @@ function completeJob(req, res) {
         }
 
         // Update job status to pending_completion (awaiting student confirmation)
-        db.query('UPDATE jobs SET status = ? WHERE id = ?', ['pending_completion', jobId], (err) => {
+        db.query('UPDATE jobs SET status = ? WHERE id = ?', ['pending_completion', jobId], async (err) => {
             if (err) {
                 console.error('Error updating job status:', err);
                 return res.status(500).json({ error: 'db update error' });
+            }
+
+            // Create notification for student
+            try {
+                await createNotification(
+                    job.accepted_student_id,
+                    'job_status_changed',
+                    'Job Completion Request',
+                    `The employer has marked "${job.title}" as complete. Please confirm.`,
+                    jobId,
+                    'job'
+                );
+            } catch (notifErr) {
+                console.error('Failed to create notification:', notifErr);
             }
 
             // Find or create conversation with the accepted student
@@ -537,10 +552,44 @@ function acceptCompletion(req, res) {
         }
 
         // Update job status to completed
-        db.query('UPDATE jobs SET status = ? WHERE id = ?', ['completed', jobId], (err) => {
+        db.query('UPDATE jobs SET status = ? WHERE id = ?', ['completed', jobId], async (err) => {
             if (err) {
                 console.error('Error updating job status:', err);
                 return res.status(500).json({ error: 'db update error' });
+            }
+
+            // Create notification for employer
+            try {
+                await createNotification(
+                    job.employer_id,
+                    'job_completed',
+                    'Job Completed! 🎉',
+                    `"${job.title}" has been confirmed as completed by the student.`,
+                    jobId,
+                    'job'
+                );
+
+                // Notify all users who saved this job
+                db.query('SELECT user_id FROM saved_jobs WHERE job_id = ?', [jobId], async (err, savedUsers) => {
+                    if (!err && savedUsers.length > 0) {
+                        for (const savedUser of savedUsers) {
+                            try {
+                                await createNotification(
+                                    savedUser.user_id,
+                                    'job_completed',
+                                    'Saved Job Completed',
+                                    `A job you saved, "${job.title}", has been completed.`,
+                                    jobId,
+                                    'job'
+                                );
+                            } catch (notifErr) {
+                                console.error('Failed to create saved job notification:', notifErr);
+                            }
+                        }
+                    }
+                });
+            } catch (notifErr) {
+                console.error('Failed to create notification:', notifErr);
             }
 
             // Send confirmation message to employer

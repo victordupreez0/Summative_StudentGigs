@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext, useRef } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -312,12 +313,72 @@ const Messages = () => {
   }
 
   return (
-    <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
+    <div className="flex flex-col h-screen bg-gray-50">
       <ModalComponent />
       <Navbar />
       
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <Card className="flex-1 rounded-none border-0 overflow-hidden m-0">
+      {/* Secondary Navigation */}
+      <div className="border-b border-gray-200 bg-white flex-shrink-0">
+        <div className="container mx-auto px-4">
+          <nav className="flex items-center gap-8 h-16">
+            <Link 
+              to="/browse-jobs" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Browse Jobs
+            </Link>
+            <Link 
+              to={user?.userType === 'employer' ? '/employer-dashboard' : '/student-dashboard'} 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-2"
+            >
+              Dashboard
+            </Link>
+            <Link 
+              to="/open-jobs" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Open Jobs
+            </Link>
+            <Link 
+              to="/applicants" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Applicants
+            </Link>
+            {user?.userType === 'student' && (
+              <>
+                <Link 
+                  to="/my-jobs" 
+                  className="text-sm font-medium text-gray-600 hover:text-gray-900 py-2"
+                >
+                  My Jobs
+                </Link>
+                <Link 
+                  to="/applications" 
+                  className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+                >
+                  Applications
+                </Link>
+              </>
+            )}
+            <Link 
+              to="/messages" 
+              className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2"
+            >
+              Messages
+            </Link>
+            <Link 
+              to={user?.userType === 'employer' ? '/profile' : '/student-profile'} 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-2"
+            >
+              Profile
+            </Link>
+          </nav>
+        </div>
+      </div>
+      
+      <main className="flex-1 flex overflow-hidden">
+        <Card className="flex-1 rounded-none border-0 m-0">
           <div className="flex h-full">
               {/* Sidebar - Conversations List */}
               <div className="w-1/3 border-r border-gray-200 flex flex-col">

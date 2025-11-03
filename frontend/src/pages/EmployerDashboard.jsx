@@ -33,6 +33,8 @@ const EmployerDashboard = () => {
   const [activeJobs, setActiveJobs] = useState([]);
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [loadingActivity, setLoadingActivity] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -107,8 +109,82 @@ const EmployerDashboard = () => {
 
     fetchMyJobs();
     fetchApplications();
+    fetchRecentActivity();
     return () => { mounted = false };
   }, [token]);
+
+  const fetchRecentActivity = async () => {
+    setLoadingActivity(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/notifications?limit=5`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!res.ok) {
+        console.error('Failed to fetch notifications');
+        setLoadingActivity(false);
+        return;
+      }
+      
+      const data = await res.json();
+      
+      // Map notifications to activity format with proper icons
+      const activities = data.map(notif => {
+        let icon = UserPlus;
+        let color = 'text-gray-600';
+        
+        switch (notif.type) {
+          case 'new_application':
+            icon = UserPlus;
+            color = 'text-blue-600';
+            break;
+          case 'job_completed':
+            icon = Star;
+            color = 'text-green-600';
+            break;
+          case 'application_accepted':
+            icon = Star;
+            color = 'text-purple-600';
+            break;
+          default:
+            icon = UserPlus;
+            color = 'text-gray-600';
+        }
+        
+        // Calculate time ago
+        const date = new Date(notif.created_at);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / (1000 * 60));
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        
+        let timeAgo;
+        if (diffMins < 1) timeAgo = 'Just now';
+        else if (diffMins < 60) timeAgo = `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+        else if (diffHours < 24) timeAgo = `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+        else if (diffDays === 1) timeAgo = 'Yesterday';
+        else if (diffDays < 7) timeAgo = `${diffDays} days ago`;
+        else timeAgo = date.toLocaleDateString();
+        
+        return {
+          type: notif.type,
+          message: notif.message,
+          time: timeAgo,
+          icon: icon,
+          color: color
+        };
+      });
+      
+      setRecentActivity(activities);
+      setLoadingActivity(false);
+    } catch (error) {
+      console.error('Error fetching activity:', error);
+      setLoadingActivity(false);
+    }
+  };
 
   const getTimeAgo = (dateString) => {
     const date = new Date(dateString);
@@ -228,21 +304,21 @@ const EmployerDashboard = () => {
           <nav className="flex items-center gap-8 h-16">
             <Link 
               to="/browse-jobs" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
-            >
-              Browse Jobs
-            </Link>
-            <Link 
-              to="/open-jobs" 
               className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
-              Open Jobs
+              Browse Jobs
             </Link>
             <Link 
               to="/employer-dashboard" 
               className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2"
             >
               Dashboard
+            </Link>
+            <Link 
+              to="/open-jobs" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Open Jobs
             </Link>
             <Link 
               to="/applicants" 

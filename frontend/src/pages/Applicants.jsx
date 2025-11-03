@@ -151,9 +151,15 @@ const Applicants = () => {
           <nav className="flex items-center gap-8 h-16">
             <Link 
               to="/browse-jobs" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
               Browse Jobs
+            </Link>
+            <Link 
+              to={user?.userType === 'employer' ? '/employer-dashboard' : '/student-dashboard'} 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Dashboard
             </Link>
             <Link 
               to="/open-jobs" 
@@ -161,21 +167,14 @@ const Applicants = () => {
             >
               Open Jobs
             </Link>
-            {user?.userType === 'employer' ? (
-              <Link 
-                to="/employer-dashboard" 
-                className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
-              >
-                Dashboard
-              </Link>
-            ) : (
+            <Link 
+              to="/applicants" 
+              className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2"
+            >
+              Applicants
+            </Link>
+            {user?.userType === 'student' && (
               <>
-                <Link 
-                  to="/student-dashboard" 
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
-                >
-                  Dashboard
-                </Link>
                 <Link 
                   to="/my-jobs" 
                   className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
@@ -191,19 +190,13 @@ const Applicants = () => {
               </>
             )}
             <Link 
-              to="/applicants" 
-              className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2"
-            >
-              Applicants
-            </Link>
-            <Link 
               to="/messages" 
               className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
               Messages
             </Link>
             <Link 
-              to="/profile" 
+              to={user?.userType === 'employer' ? '/profile' : '/student-profile'} 
               className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
               Profile

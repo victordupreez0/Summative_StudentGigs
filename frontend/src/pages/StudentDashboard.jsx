@@ -91,6 +91,98 @@ const StudentDashboard = () => {
 
   const [recommendedJobs, setRecommendedJobs] = useState([])
   const [savedJobIds, setSavedJobIds] = useState(new Set())
+  const [recentActivity, setRecentActivity] = useState([])
+  const [loadingActivity, setLoadingActivity] = useState(false)
+
+  // Fetch recent notifications for activity feed
+  useEffect(() => {
+    if (!user || !token) return;
+    
+    let mounted = true;
+    setLoadingActivity(true);
+    
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/notifications?limit=5`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!res.ok) {
+          setLoadingActivity(false);
+          return;
+        }
+        
+        const data = await res.json();
+        if (!mounted) return;
+        
+        // Map notifications to activity format
+        const activities = data.map(notif => {
+          let icon = Send;
+          let color = 'text-gray-600';
+          
+          switch (notif.type) {
+            case 'application_accepted':
+              icon = CheckCircle;
+              color = 'text-purple-600';
+              break;
+            case 'application_rejected':
+              icon = Send;
+              color = 'text-gray-600';
+              break;
+            case 'new_application':
+              icon = Send;
+              color = 'text-blue-600';
+              break;
+            case 'job_completed':
+              icon = CheckCircle;
+              color = 'text-green-600';
+              break;
+            case 'job_status_changed':
+              icon = Clock;
+              color = 'text-amber-600';
+              break;
+            default:
+              icon = Send;
+              color = 'text-gray-600';
+          }
+          
+          // Calculate time ago
+          const date = new Date(notif.created_at);
+          const now = new Date();
+          const diffMs = now - date;
+          const diffMins = Math.floor(diffMs / (1000 * 60));
+          const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+          const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+          
+          let timeAgo;
+          if (diffMins < 1) timeAgo = 'Just now';
+          else if (diffMins < 60) timeAgo = `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+          else if (diffHours < 24) timeAgo = `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+          else if (diffDays === 1) timeAgo = 'Yesterday';
+          else if (diffDays < 7) timeAgo = `${diffDays} days ago`;
+          else timeAgo = date.toLocaleDateString();
+          
+          return {
+            type: notif.type,
+            message: notif.message,
+            time: timeAgo,
+            icon: icon,
+            color: color
+          };
+        });
+        
+        setRecentActivity(activities);
+        setLoadingActivity(false);
+      } catch (e) {
+        console.error('Failed to load recent activity', e);
+        setLoadingActivity(false);
+      }
+    })();
+    
+    return () => { mounted = false };
+  }, [user, token]);
 
   useEffect(() => {
     let mounted = true
@@ -196,30 +288,6 @@ const StudentDashboard = () => {
     navigate(`/jobs/${jobId}/apply`);
   };
 
-  const recentActivity = [
-    {
-      type: "application",
-      message: "You applied for Web Development for Student Club",
-      time: "1 hour ago",
-      icon: Send,
-      color: "text-gray-600"
-    },
-    {
-      type: "acceptance",
-      message: "Your application for Social Media Assistant was accepted",
-      time: "Yesterday", 
-      icon: CheckCircle,
-      color: "text-purple-600"
-    },
-    {
-      type: "review",
-      message: "You received a 5-star review from CompuTech",
-      time: "2 days ago",
-      icon: Star,
-      color: "text-amber-500"
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-gray-50">
   <Navbar />
@@ -235,16 +303,22 @@ const StudentDashboard = () => {
               Browse Jobs
             </Link>
             <Link 
+              to="/student-dashboard" 
+              className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2"
+            >
+              Dashboard
+            </Link>
+            <Link 
               to="/open-jobs" 
               className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
               Open Jobs
             </Link>
             <Link 
-              to="/student-dashboard" 
-              className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2"
+              to="/applicants" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
-              Dashboard
+              Applicants
             </Link>
             <Link 
               to="/my-jobs" 
@@ -257,12 +331,6 @@ const StudentDashboard = () => {
               className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
               Applications
-            </Link>
-            <Link 
-              to="/applicants" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
-            >
-              Applicants
             </Link>
             <Link 
               to="/messages" 
@@ -449,22 +517,36 @@ const StudentDashboard = () => {
                 <CardTitle className="text-gray-900">Recent Activity</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {recentActivity.map((activity, index) => (
-                    <div key={index} className="flex items-start gap-3">
-                      <div className={`w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0`}>
-                        <activity.icon className={`w-4 h-4 ${activity.color}`} />
+                {loadingActivity ? (
+                  <div className="py-8 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-2"></div>
+                    <p className="text-sm text-gray-500">Loading activity...</p>
+                  </div>
+                ) : recentActivity.length === 0 ? (
+                  <div className="py-8 text-center">
+                    <Clock className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                    <p className="text-sm text-gray-500">No recent activity</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {recentActivity.map((activity, index) => (
+                      <div key={index} className="flex items-start gap-3">
+                        <div className={`w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0`}>
+                          <activity.icon className={`w-4 h-4 ${activity.color}`} />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm text-gray-900">{activity.message}</p>
+                          <p className="text-xs text-gray-500">{activity.time}</p>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm text-gray-900">{activity.message}</p>
-                        <p className="text-xs text-gray-500">{activity.time}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="text-center mt-6">
-                  <Button variant="link">View all activity</Button>
-                </div>
+                    ))}
+                  </div>
+                )}
+                {recentActivity.length > 0 && (
+                  <div className="text-center mt-6">
+                    <Button variant="link">View all activity</Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

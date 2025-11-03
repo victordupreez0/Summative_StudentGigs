@@ -240,49 +240,49 @@ const MyJobs = () => {
           <nav className="flex items-center gap-8 h-16">
             <Link 
               to="/browse-jobs" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary py-2"
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-2"
             >
               Browse Jobs
             </Link>
             <Link 
-              to="/open-jobs" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary py-2"
-            >
-              Open Jobs
-            </Link>
-            <Link 
               to="/student-dashboard" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
               Dashboard
             </Link>
             <Link 
+              to="/open-jobs" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-2"
+            >
+              Open Jobs
+            </Link>
+            <Link 
+              to="/applicants" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Applicants
+            </Link>
+            <Link 
               to="/my-jobs" 
-              className="text-sm font-medium text-primary border-b-2 border-primary py-2"
+              className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2"
             >
               My Jobs
             </Link>
             <Link 
               to="/applications" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
               Applications
             </Link>
             <Link 
-              to="/applicants" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
-            >
-              Applicants
-            </Link>
-            <Link 
               to="/messages" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
               Messages
             </Link>
             <Link 
-              to="/profile" 
-              className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
+              to="/student-profile" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >
               Profile
             </Link>

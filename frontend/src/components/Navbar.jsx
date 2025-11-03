@@ -1,9 +1,10 @@
-import { Search, Bell, Mail, User, Settings, LogOut, LayoutDashboard } from "lucide-react";
+import { Search, Bell, Mail, User, Settings, LogOut, LayoutDashboard, MessageSquare } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserAvatar } from "@/components/UserAvatar";
+import { NotificationDropdown } from "@/components/NotificationDropdown";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,19 +13,83 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useContext } from 'react'
+import { useContext, useState, useEffect } from 'react'
 import AuthContext from '@/context/AuthContext'
+import API_BASE from '@/config/api'
 
 export const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate()
-  const { user, logout } = useContext(AuthContext)
+  const { user, logout, token } = useContext(AuthContext)
+  const [recentMessages, setRecentMessages] = useState([])
+  const [loadingMessages, setLoadingMessages] = useState(false)
+  
   const isActive = (path) => {
     try {
       return location?.pathname === path || location?.pathname?.startsWith(path + '/');
     } catch (e) {
       return false;
     }
+  };
+
+  // Fetch recent messages
+  useEffect(() => {
+    if (user) {
+      fetchRecentMessages();
+    }
+  }, [user]);
+
+  const fetchRecentMessages = async () => {
+    setLoadingMessages(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setLoadingMessages(false);
+        return;
+      }
+      
+      const res = await fetch(`${API_BASE}/api/messages/conversations`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!res.ok) {
+        console.error('Failed to fetch conversations');
+        setLoadingMessages(false);
+        return;
+      }
+      
+      const data = await res.json();
+      // Get only the 5 most recent conversations
+      setRecentMessages(data.slice(0, 5));
+      setLoadingMessages(false);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      setLoadingMessages(false);
+    }
+  };
+
+  const getMessagePreview = (message) => {
+    if (!message) return 'No messages yet';
+    // Backend returns last_message as a string, not an object
+    const preview = typeof message === 'string' ? message : (message.content || '');
+    return preview.length > 50 ? preview.substring(0, 50) + '...' : preview;
+  };
+
+  const getTimeAgo = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
   };
   
   return (
@@ -35,7 +100,7 @@ export const Navbar = () => {
           <img 
             src="/logo.png" 
             alt="StudentGigs Logo" 
-            className="h-12 w-auto transition-transform duration-200 group-hover:scale-105"
+            className="h-10 w-auto transition-transform duration-200 group-hover:scale-105"
           />
         </Link>
         
@@ -99,20 +164,76 @@ export const Navbar = () => {
           {/* Show notifications and messages only when user is logged in */}
           {user && (
             <>
-              {/* Notifications - Larger Modern Icon Buttons */}
-              <button className="w-10 h-10 p-0 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors">
-                <Bell className="w-5 h-5" style={{ stroke: '#374151', strokeWidth: 2 }} />
-              </button>
+              {/* Notifications Dropdown */}
+              <NotificationDropdown user={user} token={token} />
               
-              {/* Messages */}
-              <button 
-                onClick={() => navigate('/messages')}
-                className={`w-10 h-10 p-0 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors ${
-                  isActive('/messages') ? 'bg-gray-100' : ''
-                }`}
-              >
-                <Mail className="w-5 h-5" style={{ stroke: '#374151', strokeWidth: 2 }} />
-              </button>
+              {/* Messages Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button 
+                    className={`w-10 h-10 p-0 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors ${
+                      isActive('/messages') ? 'bg-gray-100' : ''
+                    }`}
+                  >
+                    <Mail className="w-5 h-5" style={{ stroke: '#374151', strokeWidth: 2 }} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-80">
+                  <DropdownMenuLabel>
+                    <div className="flex items-center justify-between">
+                      <span>Recent Messages</span>
+                      <button 
+                        onClick={() => navigate('/messages')}
+                        className="text-xs text-purple-600 hover:text-purple-700 font-normal"
+                      >
+                        View all
+                      </button>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {loadingMessages ? (
+                    <div className="p-4 text-center text-sm text-gray-500">
+                      Loading messages...
+                    </div>
+                  ) : recentMessages.length === 0 ? (
+                    <div className="p-4 text-center">
+                      <MessageSquare className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                      <p className="text-sm text-gray-500">No messages yet</p>
+                    </div>
+                  ) : (
+                    recentMessages.map((conversation) => (
+                      <DropdownMenuItem 
+                        key={conversation.id}
+                        onClick={() => navigate('/messages')}
+                        className="cursor-pointer p-3 hover:bg-gray-50"
+                      >
+                        <div className="flex items-start gap-3 w-full">
+                          <UserAvatar 
+                            user={{ 
+                              name: conversation.other_user_name,
+                              userType: conversation.other_user_type || 'student'
+                            }} 
+                            size="sm"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <p className="text-sm font-medium text-gray-900 truncate">
+                                {conversation.other_user_name}
+                              </p>
+                              <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
+                                {getTimeAgo(conversation.last_message_time || conversation.updated_at)}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-600 truncate">
+                              {getMessagePreview(conversation.last_message)}
+                            </p>
+                          </div>
+                        </div>
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </>
           )}
           

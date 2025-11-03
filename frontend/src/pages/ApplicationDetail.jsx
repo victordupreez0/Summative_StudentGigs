@@ -523,10 +523,17 @@ const ApplicationDetail = () => {
                 <Button
                   variant="outline"
                   className="w-full justify-start"
-                  onClick={() => window.location.href = `mailto:${application.email}`}
+                  onClick={() => {
+                    // TODO: Add schedule interview functionality
+                    showAlert({
+                      title: 'Coming Soon',
+                      message: 'Interview scheduling functionality will be added soon.',
+                      type: 'info'
+                    });
+                  }}
                 >
-                  <Mail className="w-4 h-4 mr-2" />
-                  Send Email
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Schedule Interview
                 </Button>
                 
                 <Button
