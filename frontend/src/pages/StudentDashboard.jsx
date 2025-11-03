@@ -92,6 +92,8 @@ const StudentDashboard = () => {
   const [loadingActivity, setLoadingActivity] = useState(false)
   const [profileData, setProfileData] = useState(null)
   const [loadingProfile, setLoadingProfile] = useState(false)
+  const [upcomingInterviews, setUpcomingInterviews] = useState([])
+  const [loadingInterviews, setLoadingInterviews] = useState(true)
   
   // Stats state
   const [stats, setStats] = useState([
@@ -435,6 +437,65 @@ const StudentDashboard = () => {
     
     return () => { mounted = false };
   }, [user, token]);
+
+  // Fetch upcoming interviews
+  useEffect(() => {
+    if (!user || !token) return;
+    
+    let mounted = true;
+    setLoadingInterviews(true);
+    
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/interviews/upcoming?userType=student`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!res.ok) {
+          setLoadingInterviews(false);
+          return;
+        }
+        
+        const data = await res.json();
+        if (!mounted) return;
+        
+        setUpcomingInterviews(data.interviews || []);
+        setLoadingInterviews(false);
+      } catch (e) {
+        console.error('Failed to load interviews', e);
+        setLoadingInterviews(false);
+      }
+    })();
+    
+    return () => { mounted = false };
+  }, [user, token]);
+
+  const getInterviewDate = (scheduledDate) => {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const interviewDate = new Date(scheduledDate);
+    
+    if (interviewDate.toDateString() === today.toDateString()) {
+      return 'Today';
+    } else if (interviewDate.toDateString() === tomorrow.toDateString()) {
+      return 'Tomorrow';
+    } else {
+      return interviewDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+  };
+
+  const formatInterviewTime = (scheduledTime) => {
+    // Convert 24hr time to 12hr format
+    const [hours, minutes] = scheduledTime.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour}:${minutes} ${ampm}`;
+  };
 
   useEffect(() => {
     let mounted = true
@@ -901,6 +962,64 @@ const StudentDashboard = () => {
                     View Schedule
                   </Link>
                 </Button>
+              </CardContent>
+            </Card>
+
+            {/* Upcoming Interviews */}
+            <Card hover={true} className="border-gray-200 bg-white">
+              <CardHeader>
+                <CardTitle className="text-gray-900">Upcoming Interviews</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {loadingInterviews ? (
+                  <div className="py-8 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-2"></div>
+                    <p className="text-sm text-gray-500">Loading...</p>
+                  </div>
+                ) : upcomingInterviews.length === 0 ? (
+                  <div className="py-8 text-center">
+                    <Calendar className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                    <p className="text-sm text-gray-500">No upcoming interviews</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {upcomingInterviews.map((interview) => (
+                      <div key={interview.id} className="border-l-4 border-purple-600 pl-3 py-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-gray-900 truncate">{interview.job_title}</p>
+                            <p className="text-xs text-gray-600 truncate">
+                              {interview.employer_business || interview.employer_name}
+                            </p>
+                            <div className="flex items-center gap-1 mt-1">
+                              <Clock className="w-3 h-3 text-gray-400" />
+                              <span className="text-xs text-gray-500">
+                                {getInterviewDate(interview.scheduled_date)} • {formatInterviewTime(interview.scheduled_time)}
+                              </span>
+                            </div>
+                          </div>
+                          <Badge 
+                            variant={getInterviewDate(interview.scheduled_date) === 'Today' ? 'default' : 'secondary'} 
+                            className="text-xs flex-shrink-0"
+                          >
+                            {getInterviewDate(interview.scheduled_date)}
+                          </Badge>
+                        </div>
+                        <div className="flex gap-2 mt-2">
+                          {interview.meeting_link && (
+                            <Button 
+                              size="sm" 
+                              className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                              onClick={() => window.open(interview.meeting_link, '_blank')}
+                            >
+                              Join
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

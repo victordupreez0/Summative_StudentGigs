@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Star, Code, PenTool, BarChart3, Palette, Search, Users, DollarSign, ArrowRight } from "lucide-react";
+import { Star, Code, PenTool, BarChart3, Palette, Search, Users, DollarSign, ArrowRight, MapPin, Clock, Bookmark } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -18,6 +18,33 @@ const Landing = () => {
     "Data Analysis": 0,
     "Graphic Design": 0
   });
+
+  // Helper function to format experience level
+  const formatExperienceLevel = (level) => {
+    const levels = {
+      'entry': 'Entry Level',
+      'intermediate': 'Intermediate',
+      'expert': 'Expert',
+      'beginner': 'Beginner',
+      'advanced': 'Advanced'
+    };
+    return levels[level?.toLowerCase()] || level;
+  };
+
+  // Helper function to format weekly hours
+  const formatWeeklyHours = (hours) => {
+    if (!hours) return '';
+    const hourMap = {
+      'less-10': 'Less than 10 hours/week',
+      '10-20': '10-20 hours/week',
+      '20-30': '20-30 hours/week',
+      '30-40': '30-40 hours/week',
+      '40+': '40+ hours/week',
+      'full-time': 'Full-time',
+      'part-time': 'Part-time'
+    };
+    return hourMap[hours] || hours;
+  };
 
   const categories = [
     {
@@ -237,42 +264,122 @@ const Landing = () => {
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900">Recent Jobs</h2>
-            <div className="flex items-center gap-4">
-              <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">
-                Filter <ArrowRight className="w-4 h-4 ml-1" />
-              </Button>
-              <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">Most Recent</Button>
-            </div>
+            <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50" asChild>
+              <Link to="/browse-jobs">View All Jobs</Link>
+            </Button>
           </div>
           <div className="space-y-6">
-            {jobs.slice(0,5).map((job) => (
-              <Card key={job.id} className="hover:shadow-md transition-shadow border-gray-200 bg-white">
+            {jobs.slice(0, 5).map((job) => (
+              <Card 
+                key={job.id} 
+                className="hover:shadow-md transition-shadow cursor-pointer border-gray-200 bg-white"
+                onClick={() => window.location.href = `/jobs/${job.id}`}
+              >
                 <CardContent className="p-6">
-                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900 hover:text-purple-600 cursor-pointer">
-                          {job.title}
-                        </h3>
-                        <Button variant="outline" size="sm" className="border-gray-300">Save</Button>
-                      </div>
-                      <p className="text-gray-600 mb-2">{job.user_id ? `Posted by user ${job.user_id}` : ''} • {job.projectType || 'Remote'}</p>
-                      <p className="text-sm text-gray-600 mb-3">{job.description}</p>
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {(job.tags || []).map((tag, tagIndex) => (
-                          <Badge key={tagIndex} variant="secondary" className="bg-gray-100 text-gray-700 border-gray-200">{tag}</Badge>
-                        ))}
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <span>{job.budget || ''}</span>
-                        <span>{(job.education_levels && job.education_levels[0]) || ''}</span>
-                        <span>{job.projectLength || ''}</span>
-                        <span>{job.applicants || 0} applicants</span>
+                  <div className="flex items-start gap-4">
+                    {/* Company Icon/Avatar */}
+                    <div className="flex-shrink-0">
+                      <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                        job.poster_type === 'employer' ? 'bg-primary/10' : 'bg-green-100'
+                      }`}>
+                        <span className={`font-semibold text-lg ${
+                          job.poster_type === 'employer' ? 'text-primary' : 'text-green-700'
+                        }`}>
+                          {(job.poster_business_name || job.poster_name || job.category || 'U').charAt(0)}
+                        </span>
                       </div>
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <Button size="sm" className="bg-gray-900 hover:bg-gray-800">Apply Now</Button>
-                      <p className="text-xs text-gray-500 text-center">{job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}</p>
+
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h3 className="text-lg font-semibold text-foreground hover:text-primary">
+                            {job.title}
+                          </h3>
+                          <p className="text-muted-foreground">
+                            {job.poster_business_name || job.poster_name || `User ${job.user_id}`}
+                          </p>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Bookmark className="w-5 h-5" />
+                        </Button>
+                      </div>
+
+                      {/* Student vs Business Badge */}
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        <Badge variant={job.poster_type === 'employer' ? 'default' : 'secondary'}>
+                          {job.poster_type === 'employer' ? '🏢 Business' : '🎓 Student'} Job
+                        </Badge>
+                        {job.category && <Badge variant="outline">{job.category}</Badge>}
+                        {job.projectType && <Badge variant="outline">{job.projectType}</Badge>}
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-3">
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-4 h-4" />
+                          {job.workLocation || 'Remote'}
+                        </div>
+                        {job.budgetType === 'hourly' && job.hourlyRateMin && (
+                          <div className="flex items-center gap-1">
+                            <DollarSign className="w-4 h-4" />
+                            ${job.hourlyRateMin}-${job.hourlyRateMax}/hr
+                          </div>
+                        )}
+                        {job.budgetType === 'fixed' && job.fixedBudget && (
+                          <div className="flex items-center gap-1">
+                            <DollarSign className="w-4 h-4" />
+                            ${job.fixedBudget}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          {job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}
+                        </div>
+                      </div>
+
+                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                        {job.description}
+                      </p>
+
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {(job.requiredSkills || job.tags || []).slice(0, 5).map((tag, index) => (
+                          <Badge key={index} variant="secondary">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          {job.experienceLevel && <span>{formatExperienceLevel(job.experienceLevel)}</span>}
+                          {job.weeklyHours && <span>{formatWeeklyHours(job.weeklyHours)}</span>}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.location.href = `/jobs/${job.id}`;
+                            }}
+                          >
+                            View Details
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.location.href = `/jobs/${job.id}/apply`;
+                            }}
+                          >
+                            Apply Now
+                          </Button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </CardContent>

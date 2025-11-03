@@ -57,8 +57,6 @@ function getProfile(req, res) {
                 const profile = profiles.length ? profiles[0] : null;
                 const userStats = stats[0] || { totalCompletedJobs: 0 };
 
-                console.log('Fetched profile for user', userId, '- bio from DB:', profile ? profile.bio : 'no profile');
-
                 // Parse JSON fields
                 if (profile) {
                     try {

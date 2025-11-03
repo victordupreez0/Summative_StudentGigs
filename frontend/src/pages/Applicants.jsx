@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { UserAvatar } from "@/components/UserAvatar";
+import { Modal } from "@/components/ui/modal";
 import { 
   Users, 
   Search, 
@@ -17,7 +18,8 @@ import {
   XCircle,
   Clock,
   TrendingUp,
-  BarChart3
+  BarChart3,
+  Video
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -32,6 +34,17 @@ const Applicants = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  
+  // Interview scheduling modal state
+  const [showInterviewModal, setShowInterviewModal] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState(null);
+  const [interviewData, setInterviewData] = useState({
+    scheduledDate: '',
+    scheduledTime: '',
+    meetingLink: '',
+    notes: ''
+  });
+  const [schedulingInterview, setSchedulingInterview] = useState(false);
 
   useEffect(() => {
     fetchApplications();
@@ -125,6 +138,59 @@ const Applicants = () => {
     } catch (error) {
       console.error('Error creating conversation:', error);
       alert('Failed to start conversation. Please try again.');
+    }
+  };
+
+  const handleScheduleInterview = (application) => {
+    setSelectedApplication(application);
+    setShowInterviewModal(true);
+    // Reset form
+    setInterviewData({
+      scheduledDate: '',
+      scheduledTime: '',
+      meetingLink: '',
+      notes: ''
+    });
+  };
+
+  const handleInterviewSubmit = async () => {
+    if (!interviewData.scheduledDate || !interviewData.scheduledTime) {
+      alert('Please provide date and time for the interview');
+      return;
+    }
+
+    try {
+      setSchedulingInterview(true);
+      
+      const res = await fetch(`${API_BASE}/api/interviews/schedule`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          applicationId: selectedApplication.id,
+          scheduledDate: interviewData.scheduledDate,
+          scheduledTime: interviewData.scheduledTime,
+          meetingLink: interviewData.meetingLink,
+          notes: interviewData.notes
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to schedule interview');
+      }
+
+      alert('Interview scheduled successfully!');
+      setShowInterviewModal(false);
+      setSelectedApplication(null);
+    } catch (error) {
+      console.error('Error scheduling interview:', error);
+      alert(error.message || 'Failed to schedule interview. Please try again.');
+    } finally {
+      setSchedulingInterview(false);
     }
   };
 
@@ -434,6 +500,17 @@ const Applicants = () => {
                           </div>
 
                           <div className="flex gap-2">
+                            {application.status === 'accepted' && (
+                              <Button
+                                onClick={() => handleScheduleInterview(application)}
+                                size="sm"
+                                variant="outline"
+                                className="text-purple-700 border-purple-300 hover:bg-purple-50"
+                              >
+                                <Video className="w-4 h-4 mr-2" />
+                                Schedule
+                              </Button>
+                            )}
                             <Button
                               onClick={() => handleMessageApplicant(application)}
                               size="sm"
@@ -462,6 +539,91 @@ const Applicants = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Schedule Interview Modal */}
+      <Modal
+        isOpen={showInterviewModal}
+        onClose={() => setShowInterviewModal(false)}
+        title="Schedule Interview"
+      >
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm text-gray-600 mb-4">
+              Schedule an interview with <span className="font-semibold">{selectedApplication?.name}</span> for the position: <span className="font-semibold">{selectedApplication?.job_title}</span>
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Date <span className="text-red-500">*</span>
+            </label>
+            <Input
+              type="date"
+              value={interviewData.scheduledDate}
+              onChange={(e) => setInterviewData({ ...interviewData, scheduledDate: e.target.value })}
+              min={new Date().toISOString().split('T')[0]}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Time <span className="text-red-500">*</span>
+            </label>
+            <Input
+              type="time"
+              value={interviewData.scheduledTime}
+              onChange={(e) => setInterviewData({ ...interviewData, scheduledTime: e.target.value })}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Google Meet Link
+            </label>
+            <Input
+              type="url"
+              placeholder="https://meet.google.com/xxx-xxxx-xxx"
+              value={interviewData.meetingLink}
+              onChange={(e) => setInterviewData({ ...interviewData, meetingLink: e.target.value })}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Enter your Google Meet link or any other video conferencing link
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Notes (Optional)
+            </label>
+            <textarea
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              rows={3}
+              placeholder="Add any additional notes or instructions for the interview..."
+              value={interviewData.notes}
+              onChange={(e) => setInterviewData({ ...interviewData, notes: e.target.value })}
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowInterviewModal(false)}
+              disabled={schedulingInterview}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleInterviewSubmit}
+              disabled={schedulingInterview || !interviewData.scheduledDate || !interviewData.scheduledTime}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              {schedulingInterview ? 'Scheduling...' : 'Schedule Interview'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
       <Footer />
     </div>

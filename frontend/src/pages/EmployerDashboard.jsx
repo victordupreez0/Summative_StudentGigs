@@ -35,6 +35,8 @@ const EmployerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [recentActivity, setRecentActivity] = useState([]);
   const [loadingActivity, setLoadingActivity] = useState(false);
+  const [upcomingInterviews, setUpcomingInterviews] = useState([]);
+  const [loadingInterviews, setLoadingInterviews] = useState(true);
 
   useEffect(() => {
     let mounted = true;
@@ -110,6 +112,7 @@ const EmployerDashboard = () => {
     fetchMyJobs();
     fetchApplications();
     fetchRecentActivity();
+    fetchUpcomingInterviews();
     return () => { mounted = false };
   }, [token]);
 
@@ -277,22 +280,55 @@ const EmployerDashboard = () => {
     }
   ];
 
-  const upcomingInterviews = [
-    {
-      name: "Interview with Sophia",
-      position: "Content Writer position",
-      time: "3:00 PM - 4:00 PM",
-      type: "Today",
-      avatar: "/avatars/sophia.jpg"
-    },
-    {
-      name: "Interview with Jason",
-      position: "UI/UX Designer position", 
-      time: "1:00 AM - 12:00 PM",
-      type: "Tomorrow",
-      avatar: "/avatars/jason.jpg"
+  const fetchUpcomingInterviews = async () => {
+    setLoadingInterviews(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/interviews/upcoming?userType=employer`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!res.ok) {
+        console.error('Failed to fetch interviews');
+        setUpcomingInterviews([]);
+        return;
+      }
+      
+      const data = await res.json();
+      setUpcomingInterviews(data.interviews || []);
+    } catch (err) {
+      console.error('Failed to load interviews', err);
+      setUpcomingInterviews([]);
+    } finally {
+      setLoadingInterviews(false);
     }
-  ];
+  };
+
+  const getInterviewDate = (scheduledDate) => {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const interviewDate = new Date(scheduledDate);
+    
+    if (interviewDate.toDateString() === today.toDateString()) {
+      return 'Today';
+    } else if (interviewDate.toDateString() === tomorrow.toDateString()) {
+      return 'Tomorrow';
+    } else {
+      return interviewDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+  };
+
+  const formatInterviewTime = (scheduledTime) => {
+    // Convert 24hr time to 12hr format
+    const [hours, minutes] = scheduledTime.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour}:${minutes} ${ampm}`;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -628,32 +664,64 @@ const EmployerDashboard = () => {
                 <CardTitle>Upcoming interviews</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {upcomingInterviews.map((interview, index) => (
-                    <div key={index} className="border-l-4 border-primary pl-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                          <Calendar className="w-4 h-4 text-primary-foreground" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-foreground">{interview.name}</p>
-                          <p className="text-xs text-muted-foreground">{interview.position}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Clock className="w-3 h-3 text-muted-foreground" />
-                            <span className="text-xs text-muted-foreground">{interview.time}</span>
+                {loadingInterviews ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-2"></div>
+                    <p className="text-sm text-muted-foreground">Loading interviews...</p>
+                  </div>
+                ) : upcomingInterviews.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Calendar className="w-12 h-12 mx-auto mb-2 text-gray-400" />
+                    <p className="text-sm text-muted-foreground">No upcoming interviews scheduled</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {upcomingInterviews.map((interview) => (
+                      <div key={interview.id} className="border-l-4 border-primary pl-4">
+                        <div className="flex items-center gap-3">
+                          <UserAvatar 
+                            user={{
+                              name: interview.student_name,
+                              avatarColor: interview.student_avatar_color
+                            }}
+                            userId={interview.student_id}
+                            size="sm"
+                          />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-foreground">{interview.student_name}</p>
+                            <p className="text-xs text-muted-foreground">{interview.job_title}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Clock className="w-3 h-3 text-muted-foreground" />
+                              <span className="text-xs text-muted-foreground">
+                                {formatInterviewTime(interview.scheduled_time)}
+                              </span>
+                            </div>
                           </div>
+                          <Badge variant={getInterviewDate(interview.scheduled_date) === 'Today' ? 'default' : 'secondary'} className="text-xs">
+                            {getInterviewDate(interview.scheduled_date)}
+                          </Badge>
                         </div>
-                        <Badge variant={interview.type === 'Today' ? 'default' : 'secondary'} className="text-xs">
-                          {interview.type}
-                        </Badge>
+                        <div className="flex gap-2 mt-3">
+                          {interview.meeting_link && (
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => window.open(interview.meeting_link, '_blank')}
+                            >
+                              Join call
+                            </Button>
+                          )}
+                          <Button 
+                            size="sm"
+                            onClick={() => navigate(`/applicants`)}
+                          >
+                            View Details
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex gap-2 mt-3">
-                        <Button size="sm" variant="outline">Join call</Button>
-                        <Button size="sm">Reschedule</Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
 

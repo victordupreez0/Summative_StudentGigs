@@ -604,6 +604,66 @@ async function initDatabase() {
             });
         });
 
+        // Create interviews table
+        await new Promise((resolve, reject) => {
+            const createInterviewsSql = process.env.JAWSDB_URL
+                ? `CREATE TABLE IF NOT EXISTS interviews (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    application_id INT NOT NULL,
+                    job_id INT NOT NULL,
+                    employer_id INT NOT NULL,
+                    student_id INT NOT NULL,
+                    scheduled_date DATE NOT NULL,
+                    scheduled_time TIME NOT NULL,
+                    meeting_link VARCHAR(500) NULL,
+                    status ENUM('scheduled', 'completed', 'cancelled', 'rescheduled') NOT NULL DEFAULT 'scheduled',
+                    notes TEXT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE CASCADE,
+                    FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
+                    FOREIGN KEY (employer_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+                    INDEX idx_application_id (application_id),
+                    INDEX idx_employer_id (employer_id),
+                    INDEX idx_student_id (student_id),
+                    INDEX idx_scheduled_date (scheduled_date),
+                    INDEX idx_status (status)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
+                : `CREATE TABLE IF NOT EXISTS \`${DB_NAME}\`.interviews (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    application_id INT NOT NULL,
+                    job_id INT NOT NULL,
+                    employer_id INT NOT NULL,
+                    student_id INT NOT NULL,
+                    scheduled_date DATE NOT NULL,
+                    scheduled_time TIME NOT NULL,
+                    meeting_link VARCHAR(500) NULL,
+                    status ENUM('scheduled', 'completed', 'cancelled', 'rescheduled') NOT NULL DEFAULT 'scheduled',
+                    notes TEXT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    FOREIGN KEY (application_id) REFERENCES \`${DB_NAME}\`.applications(id) ON DELETE CASCADE,
+                    FOREIGN KEY (job_id) REFERENCES \`${DB_NAME}\`.jobs(id) ON DELETE CASCADE,
+                    FOREIGN KEY (employer_id) REFERENCES \`${DB_NAME}\`.users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (student_id) REFERENCES \`${DB_NAME}\`.users(id) ON DELETE CASCADE,
+                    INDEX idx_application_id (application_id),
+                    INDEX idx_employer_id (employer_id),
+                    INDEX idx_student_id (student_id),
+                    INDEX idx_scheduled_date (scheduled_date),
+                    INDEX idx_status (status)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`;
+            
+            tablePool.query(createInterviewsSql, (err) => {
+                if (err) {
+                    console.error('Failed to create interviews table:', err.message, err.code);
+                    return reject(err);
+                }
+                console.log('Interviews table created/verified');
+                resolve();
+            });
+        });
+
         console.log('Database initialization complete');
         
         // Close the temporary pool for JawsDB
