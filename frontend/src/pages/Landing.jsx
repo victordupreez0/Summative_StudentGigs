@@ -1,17 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserAvatar } from "@/components/UserAvatar";
+import { Modal } from "@/components/ui/modal";
 import { Star, Code, PenTool, BarChart3, Palette, Search, Users, DollarSign, ArrowRight, MapPin, Clock, Bookmark } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import AuthContext from '@/context/AuthContext';
 import API_BASE from '@/config/api';
 
 const Landing = () => {
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [categoryCounts, setCategoryCounts] = useState({
     "Web Development": 0,
@@ -114,6 +118,23 @@ const Landing = () => {
     return () => { mounted = false }
   }, [])
 
+  // Fetch reviews on page load
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/reviews`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!mounted) return;
+        setTestimonials(data);
+      } catch (e) {
+        console.error('Failed to load reviews', e);
+      }
+    })();
+    return () => { mounted = false };
+  }, []);
+
   const students = [
     {
       name: "Sarah Johnson",
@@ -144,22 +165,82 @@ const Landing = () => {
     }
   ];
 
-  const testimonials = [
-    {
-      name: "David Wilson",
-      title: "Startup Founder",
-      content: "StudentGigs helped me find amazing student talent that bring fresh perspectives and skills to our projects. The platform is easy to use and the quality of applicants is consistently high.",
-      avatar: "/avatars/david.jpg",
-      rating: 5
-    },
-    {
-      name: "Jessica Taylor",
-      title: "Marketing Manager, Student", 
-      content: "As a student, finding flexible work was challenging until I discovered StudentGigs. I've completed multiple projects that have enhanced my portfolio and helped me apply classroom knowledge to real-world situations.",
-      avatar: "/avatars/jessica.jpg",
-      rating: 5
+  const [testimonials, setTestimonials] = useState([]);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [reviewForm, setReviewForm] = useState({
+    name: '',
+    title: '',
+    content: '',
+    rating: 5
+  });
+
+  const handleLeaveReviewClick = () => {
+    if (!user) {
+      navigate('/login');
+      return;
     }
-  ];
+    
+    // Auto-fill name and title from user data
+    setReviewForm({
+      name: user.name || user.username || '',
+      title: user.role || 'User',
+      content: '',
+      rating: 5
+    });
+    setShowReviewModal(true);
+  };
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        alert('Please log in to submit a review.');
+        navigate('/login');
+        return;
+      }
+
+      const response = await fetch(`${API_BASE}/api/reviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(reviewForm)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Server error:', errorData);
+        throw new Error(errorData.error || `Server error: ${response.status}`);
+      }
+
+      const newReview = await response.json();
+      setTestimonials([newReview, ...testimonials]);
+      setShowReviewModal(false);
+      setReviewForm({
+        name: '',
+        title: '',
+        content: '',
+        rating: 5
+      });
+      setShowSuccessModal(true);
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      alert(`Failed to submit review: ${error.message}`);
+    }
+  };
+
+  const handleReviewFormChange = (e) => {
+    const { name, value } = e.target;
+    setReviewForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -442,34 +523,155 @@ const Landing = () => {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">What People Are Saying</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              {testimonials.length === 0 ? "No reviews yet, be the first!" : "What People Are Saying"}
+            </h2>
+            <Button 
+              onClick={handleLeaveReviewClick}
+              className="mt-4"
+            >
+              Leave a Review
+            </Button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="border-gray-200 bg-white">
-                <CardContent className="p-6">
-                  <div className="flex items-center mb-4">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                    ))}
-                  </div>
-                  <p className="text-gray-600 mb-4">"{testimonial.content}"</p>
-                  <div className="flex items-center">
-                    <Avatar className="w-10 h-10 mr-3 border border-gray-200">
-                      <AvatarImage src={testimonial.avatar} />
-                      <AvatarFallback className="bg-gray-100 text-gray-700">{testimonial.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-semibold text-gray-900">{testimonial.name}</p>
-                      <p className="text-sm text-gray-600">{testimonial.title}</p>
+          {testimonials.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {testimonials.map((testimonial, index) => (
+                <Card key={index} className="border-gray-200 bg-white">
+                  <CardContent className="p-6">
+                    <div className="flex items-center mb-4">
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                      ))}
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                    <p className="text-gray-600 mb-4">"{testimonial.content}"</p>
+                    <div className="flex items-center">
+                      <Avatar className="w-10 h-10 mr-3 border border-gray-200">
+                        <AvatarImage src={testimonial.avatar} />
+                        <AvatarFallback className="bg-gray-100 text-gray-700">{testimonial.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-semibold text-gray-900">{testimonial.name}</p>
+                        <p className="text-sm text-gray-600">{testimonial.title}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </section>
+
+      {/* Review Modal */}
+      <Modal
+        isOpen={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        title="Leave a Review"
+        footer={
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowReviewModal(false)}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleReviewSubmit}
+              className="flex-1"
+              disabled={!reviewForm.name || !reviewForm.title || !reviewForm.content}
+            >
+              Submit Review
+            </Button>
+          </div>
+        }
+      >
+        <form onSubmit={handleReviewSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+              Your Name
+            </label>
+            <Input
+              id="name"
+              name="name"
+              value={reviewForm.name}
+              onChange={handleReviewFormChange}
+              placeholder="John Doe"
+              required
+              readOnly={!!user}
+              className={user ? "bg-gray-50" : ""}
+            />
+          </div>
+          <div>
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+              Your Title/Role
+            </label>
+            <Input
+              id="title"
+              name="title"
+              value={reviewForm.title}
+              onChange={handleReviewFormChange}
+              placeholder="e.g., Student, Employer, Freelancer"
+              required
+              readOnly={!!user}
+              className={user ? "bg-gray-50" : ""}
+            />
+          </div>
+          <div>
+            <label htmlFor="rating" className="block text-sm font-medium text-gray-700 mb-1">
+              Rating
+            </label>
+            <select
+              id="rating"
+              name="rating"
+              value={reviewForm.rating}
+              onChange={handleReviewFormChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value={5}>5 Stars - Excellent</option>
+              <option value={4}>4 Stars - Very Good</option>
+              <option value={3}>3 Stars - Good</option>
+              <option value={2}>2 Stars - Fair</option>
+              <option value={1}>1 Star - Poor</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
+              Your Review
+            </label>
+            <textarea
+              id="content"
+              name="content"
+              value={reviewForm.content}
+              onChange={handleReviewFormChange}
+              placeholder="Share your experience with StudentGigs..."
+              rows={4}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+        </form>
+      </Modal>
+
+      {/* Success Modal */}
+      <Modal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title="Thank You!"
+        type="success"
+        footer={
+          <Button
+            onClick={() => setShowSuccessModal(false)}
+            className="w-full"
+          >
+            Close
+          </Button>
+        }
+      >
+        <p className="text-gray-700">
+          Thank you for your review! Your feedback helps make StudentGigs better for everyone.
+        </p>
+      </Modal>
 
       <Footer />
     </div>

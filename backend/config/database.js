@@ -780,6 +780,48 @@ async function initDatabase() {
             });
         });
 
+        // Create reviews table
+        await new Promise((resolve, reject) => {
+            const createReviewsSql = process.env.JAWSDB_URL
+                ? `CREATE TABLE IF NOT EXISTS reviews (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    name VARCHAR(255) NOT NULL,
+                    title VARCHAR(255) NOT NULL,
+                    content TEXT NOT NULL,
+                    rating INT NOT NULL DEFAULT 5,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    INDEX idx_user_id (user_id),
+                    INDEX idx_rating (rating),
+                    INDEX idx_created_at (created_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
+                : `CREATE TABLE IF NOT EXISTS \`${DB_NAME}\`.reviews (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    name VARCHAR(255) NOT NULL,
+                    title VARCHAR(255) NOT NULL,
+                    content TEXT NOT NULL,
+                    rating INT NOT NULL DEFAULT 5,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES \`${DB_NAME}\`.users(id) ON DELETE CASCADE,
+                    INDEX idx_user_id (user_id),
+                    INDEX idx_rating (rating),
+                    INDEX idx_created_at (created_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`;
+            
+            tablePool.query(createReviewsSql, (err) => {
+                if (err) {
+                    console.error('Failed to create reviews table:', err.message, err.code);
+                    return reject(err);
+                }
+                console.log('Reviews table created/verified');
+                resolve();
+            });
+        });
+
         // Create error_reports table
         await new Promise((resolve, reject) => {
             const createErrorReportsSql = process.env.JAWSDB_URL

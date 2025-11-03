@@ -94,6 +94,7 @@ const profileRoutes = require('./routes/profileRoutes');
 const interviewRoutes = require('./routes/interviewRoutes');
 const feedbackRoutes = require('./routes/feedbackRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 // Mount routes
 app.use('/api', authRoutes);
@@ -105,6 +106,7 @@ app.use('/api/profiles', profileRoutes);
 app.use('/api/interviews', interviewRoutes);
 app.use('/api', feedbackRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // Catch-all handler for React Router (must be last)
 app.use((req, res) => {
