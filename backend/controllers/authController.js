@@ -53,7 +53,7 @@ async function register(req, res) {
                 }
                 
                 const createdId = result.insertId;
-                const token = jwt.sign({ id: createdId, email, name, userType }, JWT_SECRET, { expiresIn: '24h' });
+                const token = jwt.sign({ id: createdId, email, name, userType, isAdmin: false }, JWT_SECRET, { expiresIn: '24h' });
                 
                 console.log('User created successfully (id:', createdId, ', type:', userType, ')');
                 res.status(201).json({ 
@@ -63,7 +63,8 @@ async function register(req, res) {
                     userType, 
                     businessName, 
                     profilePicture, 
-                    avatarColor, 
+                    avatarColor,
+                    isAdmin: false,
                     token 
                 });
             });
@@ -86,7 +87,7 @@ function login(req, res) {
         return res.status(400).json({ error: 'email and password required' });
     }
 
-    db.query('SELECT id, name, email, password, user_type, business_name, profile_picture, avatar_color FROM users WHERE email = ?', [email], async (err, results) => {
+    db.query('SELECT id, name, email, password, user_type, business_name, profile_picture, avatar_color, is_admin FROM users WHERE email = ?', [email], async (err, results) => {
         if (err) {
             console.error('Database error in login:', err.message, err.code, err.sqlMessage);
             return res.status(500).json({ 
@@ -106,7 +107,13 @@ function login(req, res) {
             return res.status(401).json({ error: 'invalid credentials' });
         }
 
-        const token = jwt.sign({ id: user.id, email: user.email, name: user.name, userType: user.user_type }, JWT_SECRET, { expiresIn: '24h' });
+        const token = jwt.sign({ 
+            id: user.id, 
+            email: user.email, 
+            name: user.name, 
+            userType: user.user_type,
+            isAdmin: user.is_admin || false
+        }, JWT_SECRET, { expiresIn: '24h' });
         
         res.json({ 
             id: user.id, 
@@ -116,6 +123,7 @@ function login(req, res) {
             businessName: user.business_name,
             profilePicture: user.profile_picture,
             avatarColor: user.avatar_color,
+            isAdmin: user.is_admin || false,
             token 
         });
     });
@@ -133,7 +141,7 @@ function getProfile(req, res) {
         return res.status(400).json({ error: 'invalid token payload' });
     }
     
-    db.query('SELECT id, name, email, user_type, business_name, profile_picture, avatar_color FROM users WHERE id = ?', [userId], (err, results) => {
+    db.query('SELECT id, name, email, user_type, business_name, profile_picture, avatar_color, is_admin FROM users WHERE id = ?', [userId], (err, results) => {
         if (err) {
             console.error('Database error in profile:', err.message, err.code, err.sqlMessage);
             return res.status(500).json({ error: 'db error: ' + (err.code || 'unknown') });
@@ -151,7 +159,8 @@ function getProfile(req, res) {
             userType: user.user_type,
             businessName: user.business_name,
             profilePicture: user.profile_picture,
-            avatarColor: user.avatar_color
+            avatarColor: user.avatar_color,
+            isAdmin: user.is_admin || false
         });
     });
 }

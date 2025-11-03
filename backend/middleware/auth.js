@@ -37,6 +37,14 @@ function requireStudent(req, res, next) {
     next();
 }
 
+// Middleware: check if user is an admin
+function requireAdmin(req, res, next) {
+    if (!req.user || !req.user.isAdmin) {
+        return res.status(403).json({ error: 'admin access required' });
+    }
+    next();
+}
+
 // Middleware: optionally authenticate JWT token (doesn't require token, but decodes if present)
 function optionalAuth(req, res, next) {
     const auth = req.headers['authorization'] || '';
@@ -62,5 +70,6 @@ module.exports = {
     optionalAuth,
     requireEmployer,
     requireStudent,
+    requireAdmin,
     JWT_SECRET
 };

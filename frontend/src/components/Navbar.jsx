@@ -1,4 +1,4 @@
-import { Search, Bell, Mail, User, Settings, LogOut, LayoutDashboard, MessageSquare } from "lucide-react";
+import { Search, Bell, Mail, User, Settings, LogOut, LayoutDashboard, MessageSquare, AlertCircle } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -280,9 +280,24 @@ export const Navbar = () => {
                   <User className="mr-2 h-4 w-4" />
                   <span>Profile</span>
                 </DropdownMenuItem>
+                {user.isAdmin && (
+                  <DropdownMenuItem onClick={() => navigate('/admin')}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Admin Panel</span>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={() => navigate('/settings')}>
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/feedback')}>
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  <span>Send Feedback</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/report-error')}>
+                  <AlertCircle className="mr-2 h-4 w-4" />
+                  <span>Report an Error</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => { logout(); navigate('/login') }}>

@@ -119,6 +119,7 @@ async function initDatabase() {
                     business_name VARCHAR(255) NULL,
                     profile_picture TEXT NULL,
                     avatar_color VARCHAR(7) NULL,
+                    is_admin BOOLEAN DEFAULT FALSE,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
                 : `CREATE TABLE IF NOT EXISTS \`${DB_NAME}\`.users (
@@ -130,6 +131,7 @@ async function initDatabase() {
                     business_name VARCHAR(255) NULL,
                     profile_picture TEXT NULL,
                     avatar_color VARCHAR(7) NULL,
+                    is_admin BOOLEAN DEFAULT FALSE,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`;
             
@@ -140,6 +142,37 @@ async function initDatabase() {
                 }
                 console.log('Users table created/verified');
                 resolve();
+            });
+        });
+
+        // Add is_admin column to users table if it doesn't exist
+        await new Promise((resolve, reject) => {
+            const tableName = process.env.JAWSDB_URL ? 'users' : `\`${DB_NAME}\`.users`;
+            
+            const checkColumns = `SHOW COLUMNS FROM ${tableName}`;
+            tablePool.query(checkColumns, (err, columns) => {
+                if (err) {
+                    console.error('Error checking users columns:', err);
+                    return reject(err);
+                }
+
+                const existingColumns = columns.map(col => col.Field);
+                
+                if (!existingColumns.includes('is_admin')) {
+                    const alterQuery = `ALTER TABLE ${tableName} ADD COLUMN is_admin BOOLEAN DEFAULT FALSE AFTER avatar_color`;
+                    tablePool.query(alterQuery, (alterErr) => {
+                        if (alterErr) {
+                            console.error('Warning: Could not add is_admin column to users:', alterErr.message);
+                            resolve();
+                        } else {
+                            console.log('Added is_admin column to users table');
+                            resolve();
+                        }
+                    });
+                } else {
+                    console.log('Users is_admin column already exists');
+                    resolve();
+                }
             });
         });
 
@@ -660,6 +693,124 @@ async function initDatabase() {
                     return reject(err);
                 }
                 console.log('Interviews table created/verified');
+                resolve();
+            });
+        });
+
+        // Create feedback table
+        await new Promise((resolve, reject) => {
+            const createFeedbackSql = process.env.JAWSDB_URL
+                ? `CREATE TABLE IF NOT EXISTS feedback (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NULL,
+                    email VARCHAR(255) NULL,
+                    name VARCHAR(255) NULL,
+                    category ENUM('feature_request', 'improvement', 'compliment', 'other') NOT NULL DEFAULT 'other',
+                    subject VARCHAR(500) NOT NULL,
+                    message TEXT NOT NULL,
+                    rating INT NULL,
+                    status ENUM('new', 'reviewed', 'in_progress', 'resolved') NOT NULL DEFAULT 'new',
+                    admin_notes TEXT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+                    INDEX idx_user_id (user_id),
+                    INDEX idx_status (status),
+                    INDEX idx_category (category),
+                    INDEX idx_created_at (created_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
+                : `CREATE TABLE IF NOT EXISTS \`${DB_NAME}\`.feedback (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NULL,
+                    email VARCHAR(255) NULL,
+                    name VARCHAR(255) NULL,
+                    category ENUM('feature_request', 'improvement', 'compliment', 'other') NOT NULL DEFAULT 'other',
+                    subject VARCHAR(500) NOT NULL,
+                    message TEXT NOT NULL,
+                    rating INT NULL,
+                    status ENUM('new', 'reviewed', 'in_progress', 'resolved') NOT NULL DEFAULT 'new',
+                    admin_notes TEXT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES \`${DB_NAME}\`.users(id) ON DELETE SET NULL,
+                    INDEX idx_user_id (user_id),
+                    INDEX idx_status (status),
+                    INDEX idx_category (category),
+                    INDEX idx_created_at (created_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`;
+            
+            tablePool.query(createFeedbackSql, (err) => {
+                if (err) {
+                    console.error('Failed to create feedback table:', err.message, err.code);
+                    return reject(err);
+                }
+                console.log('Feedback table created/verified');
+                resolve();
+            });
+        });
+
+        // Create error_reports table
+        await new Promise((resolve, reject) => {
+            const createErrorReportsSql = process.env.JAWSDB_URL
+                ? `CREATE TABLE IF NOT EXISTS error_reports (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NULL,
+                    email VARCHAR(255) NULL,
+                    name VARCHAR(255) NULL,
+                    error_type ENUM('bug', 'crash', 'performance', 'ui_issue', 'other') NOT NULL DEFAULT 'bug',
+                    page_url VARCHAR(500) NULL,
+                    browser_info VARCHAR(500) NULL,
+                    subject VARCHAR(500) NOT NULL,
+                    description TEXT NOT NULL,
+                    steps_to_reproduce TEXT NULL,
+                    expected_behavior TEXT NULL,
+                    actual_behavior TEXT NULL,
+                    screenshot_url VARCHAR(500) NULL,
+                    severity ENUM('low', 'medium', 'high', 'critical') NOT NULL DEFAULT 'medium',
+                    status ENUM('new', 'investigating', 'in_progress', 'resolved', 'wont_fix') NOT NULL DEFAULT 'new',
+                    admin_notes TEXT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+                    INDEX idx_user_id (user_id),
+                    INDEX idx_status (status),
+                    INDEX idx_error_type (error_type),
+                    INDEX idx_severity (severity),
+                    INDEX idx_created_at (created_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
+                : `CREATE TABLE IF NOT EXISTS \`${DB_NAME}\`.error_reports (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NULL,
+                    email VARCHAR(255) NULL,
+                    name VARCHAR(255) NULL,
+                    error_type ENUM('bug', 'crash', 'performance', 'ui_issue', 'other') NOT NULL DEFAULT 'bug',
+                    page_url VARCHAR(500) NULL,
+                    browser_info VARCHAR(500) NULL,
+                    subject VARCHAR(500) NOT NULL,
+                    description TEXT NOT NULL,
+                    steps_to_reproduce TEXT NULL,
+                    expected_behavior TEXT NULL,
+                    actual_behavior TEXT NULL,
+                    screenshot_url VARCHAR(500) NULL,
+                    severity ENUM('low', 'medium', 'high', 'critical') NOT NULL DEFAULT 'medium',
+                    status ENUM('new', 'investigating', 'in_progress', 'resolved', 'wont_fix') NOT NULL DEFAULT 'new',
+                    admin_notes TEXT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES \`${DB_NAME}\`.users(id) ON DELETE SET NULL,
+                    INDEX idx_user_id (user_id),
+                    INDEX idx_status (status),
+                    INDEX idx_error_type (error_type),
+                    INDEX idx_severity (severity),
+                    INDEX idx_created_at (created_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`;
+            
+            tablePool.query(createErrorReportsSql, (err) => {
+                if (err) {
+                    console.error('Failed to create error_reports table:', err.message, err.code);
+                    return reject(err);
+                }
+                console.log('Error_reports table created/verified');
                 resolve();
             });
         });
