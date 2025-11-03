@@ -140,6 +140,12 @@ const BrowseJobs = () => {
                 >
                   Applications
                 </Link>
+                <Link 
+                  to="/applicants" 
+                  className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
+                >
+                  Applicants
+                </Link>
               </>
             )}
             <Link 

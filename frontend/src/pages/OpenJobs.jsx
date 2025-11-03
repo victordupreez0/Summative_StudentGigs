@@ -12,7 +12,8 @@ import {
   Eye,
   Edit,
   Trash2,
-  Plus
+  Plus,
+  CheckCircle
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
@@ -99,6 +100,56 @@ const OpenJobs = () => {
 
   const getApplicantCount = (jobId) => {
     return applications.filter(app => app.job_id === jobId).length;
+  };
+
+  const hasAcceptedApplicant = (jobId) => {
+    return applications.some(app => app.job_id === jobId && app.status === 'accepted');
+  };
+
+  const handleCompleteJob = async (jobId, jobTitle) => {
+    const confirmed = await showConfirm({
+      title: 'Complete Job',
+      message: `Are you sure you want to mark "${jobTitle}" as completed? This will send a completion request to the student.`,
+      type: 'success'
+    });
+
+    if (!confirmed) return;
+    
+    try {
+      const res = await fetch(`${API_BASE}/api/jobs/${jobId}/complete`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok) {
+        // Update job status locally to pending_completion
+        setJobs(jobs.map(job => 
+          job.id === jobId ? { ...job, status: 'pending_completion' } : job
+        ));
+        await showAlert({
+          title: 'Success',
+          message: 'Completion request sent to the student',
+          type: 'success'
+        });
+      } else {
+        await showAlert({
+          title: 'Error',
+          message: data.error || 'Failed to complete job',
+          type: 'error'
+        });
+      }
+    } catch (err) {
+      console.error('Failed to complete job', err);
+      await showAlert({
+        title: 'Network Error',
+        message: 'Unable to connect to the server. Please try again.',
+        type: 'error'
+      });
+    }
   };
 
   const handleDeleteJob = async (jobId) => {
@@ -196,6 +247,12 @@ const OpenJobs = () => {
                   className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
                 >
                   Applications
+                </Link>
+                <Link 
+                  to="/applicants" 
+                  className="text-sm font-medium text-muted-foreground hover:text-primary py-5"
+                >
+                  Applicants
                 </Link>
               </>
             )}
@@ -354,24 +411,48 @@ const OpenJobs = () => {
                         <Eye className="w-4 h-4" />
                         View
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-2"
-                        onClick={() => navigate(`/jobs/${job.id}/edit`)}
-                      >
-                        <Edit className="w-4 h-4" />
-                        Edit
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="gap-2"
-                        onClick={() => handleDeleteJob(job.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        Delete
-                      </Button>
+                      {job.status !== 'completed' && job.status !== 'pending_completion' && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-2"
+                          onClick={() => navigate(`/jobs/${job.id}/edit`)}
+                        >
+                          <Edit className="w-4 h-4" />
+                          Edit
+                        </Button>
+                      )}
+                      {hasAcceptedApplicant(job.id) && job.status !== 'completed' && job.status !== 'pending_completion' ? (
+                        <Button
+                          variant="default"
+                          size="sm"
+                          className="gap-2 bg-green-600 hover:bg-green-700"
+                          onClick={() => handleCompleteJob(job.id, job.title)}
+                        >
+                          <CheckCircle className="w-4 h-4" />
+                          Complete
+                        </Button>
+                      ) : job.status !== 'completed' && job.status !== 'pending_completion' && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="gap-2"
+                          onClick={() => handleDeleteJob(job.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Delete
+                        </Button>
+                      )}
+                      {job.status === 'pending_completion' && (
+                        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-300">
+                          Completion Request Sent
+                        </Badge>
+                      )}
+                      {job.status === 'completed' && (
+                        <Badge variant="success" className="bg-green-100 text-green-800">
+                          Completed
+                        </Badge>
+                      )}
                     </div>
                   </div>
                 </CardContent>

@@ -4,7 +4,6 @@ const { getDb } = require('../config/database');
 exports.getConversations = (req, res) => {
     const db = getDb();
     const userId = req.user.id;
-    const userType = req.user.userType; // Changed from user_type to userType
 
     let query = `
         SELECT 
@@ -15,15 +14,15 @@ exports.getConversations = (req, res) => {
             c.created_at,
             c.updated_at,
             CASE 
-                WHEN ? = 'student' THEN employer.name
+                WHEN c.student_id = ? THEN employer.name
                 ELSE student.name
             END as other_user_name,
             CASE 
-                WHEN ? = 'student' THEN employer.email
+                WHEN c.student_id = ? THEN employer.email
                 ELSE student.email
             END as other_user_email,
             CASE 
-                WHEN ? = 'student' THEN c.employer_id
+                WHEN c.student_id = ? THEN c.employer_id
                 ELSE c.student_id
             END as other_user_id,
             jobs.title as job_title,
@@ -38,7 +37,7 @@ exports.getConversations = (req, res) => {
         ORDER BY last_message_time DESC, c.updated_at DESC
     `;
 
-    db.query(query, [userType, userType, userType, userId, userId, userId], (err, rows) => {
+    db.query(query, [userId, userId, userId, userId, userId, userId], (err, rows) => {
         if (err) {
             console.error('Error fetching conversations:', err);
             return res.status(500).json({ error: 'Failed to fetch conversations' });
@@ -198,26 +197,49 @@ exports.createConversation = (req, res) => {
 
         const otherUser = users[0];
 
-        // Determine student and employer IDs
+        // Determine student and employer IDs based on user types
         let studentId, employerId;
-        if (userType === 'student') {
+        
+        // Handle student-to-student conversations (when students post jobs)
+        if (userType === 'student' && otherUser.user_type === 'student') {
+            // For student-to-student, use arbitrary assignment
+            // The one with lower ID becomes "student", higher ID becomes "employer" in the conversation table
+            if (userId < otherUserId) {
+                studentId = userId;
+                employerId = otherUserId;
+            } else {
+                studentId = otherUserId;
+                employerId = userId;
+            }
+        } else if (userType === 'student') {
+            // Student messaging an employer
             studentId = userId;
             employerId = otherUserId;
-            if (otherUser.user_type !== 'employer') {
-                return res.status(400).json({ error: 'Can only message employers' });
-            }
-        } else {
+        } else if (userType === 'employer') {
+            // Employer messaging a student
             studentId = otherUserId;
             employerId = userId;
-            if (otherUser.user_type !== 'student') {
-                return res.status(400).json({ error: 'Can only message students' });
+        } else {
+            // Employer-to-employer (not typically needed but handle it)
+            if (userId < otherUserId) {
+                studentId = userId;
+                employerId = otherUserId;
+            } else {
+                studentId = otherUserId;
+                employerId = userId;
             }
         }
 
-        // Check if conversation already exists
+        // Check if conversation already exists (check both directions for student-to-student)
+        const checkQuery = `
+            SELECT * FROM conversations 
+            WHERE (student_id = ? AND employer_id = ?) 
+               OR (student_id = ? AND employer_id = ?)
+        `;
+        
         db.query(
-            'SELECT * FROM conversations WHERE student_id = ? AND employer_id = ?',
-            [studentId, employerId],
+            checkQuery,
+            [studentId, employerId, employerId, studentId],
             (err, conversations) => {
                 if (err) {
                     console.error('Error checking for existing conversation:', err);

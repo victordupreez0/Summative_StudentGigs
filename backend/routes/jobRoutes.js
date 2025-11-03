@@ -6,7 +6,10 @@ const {
     getJobById, 
     getMyJobs, 
     updateJob, 
-    deleteJob 
+    deleteJob,
+    completeJob,
+    acceptCompletion,
+    denyCompletion
 } = require('../controllers/jobController');
 const { authenticateToken } = require('../middleware/auth');
 
@@ -21,6 +24,9 @@ router.post('/', authenticateToken, createJob);
 router.get('/:jobId', getJobById);
 router.put('/:jobId', authenticateToken, updateJob);
 router.patch('/:jobId', authenticateToken, updateJob);
+router.post('/:jobId/complete', authenticateToken, completeJob);
+router.post('/:jobId/accept-completion', authenticateToken, acceptCompletion);
+router.post('/:jobId/deny-completion', authenticateToken, denyCompletion);
 router.delete('/:jobId', authenticateToken, deleteJob);
 
 module.exports = router;

@@ -4,7 +4,8 @@ const {
     applyToJob, 
     getJobApplications, 
     getMyJobsApplications, 
-    getMyApplications, 
+    getMyApplications,
+    getMyAcceptedJobs,
     updateApplicationStatus,
     withdrawApplication,
     getApplicationDetail
@@ -15,6 +16,7 @@ const { authenticateToken } = require('../middleware/auth');
 // Specific routes must come before parameterized routes
 router.get('/my-jobs', authenticateToken, getMyJobsApplications);
 router.get('/my-applications', authenticateToken, getMyApplications);
+router.get('/my-accepted-jobs', authenticateToken, getMyAcceptedJobs);
 router.get('/:applicationId', authenticateToken, getApplicationDetail);
 router.post('/jobs/:jobId/apply', authenticateToken, applyToJob);
 router.get('/jobs/:jobId/applications', authenticateToken, getJobApplications);

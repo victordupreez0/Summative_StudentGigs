@@ -14,6 +14,7 @@ import Applications from './pages/Applications';
 import Applicants from './pages/Applicants';
 import ApplicationDetail from './pages/ApplicationDetail';
 import OpenJobs from './pages/OpenJobs';
+import MyJobs from './pages/MyJobs';
 import Messages from './pages/Messages';
 import NotFound from './pages/NotFound';
 import '@radix-ui/themes/styles.css';
@@ -31,6 +32,7 @@ const App = () => (
         {/* Protected routes: require login */}
         <Route path="/browse-jobs" element={<ProtectedRoute><BrowseJobs /></ProtectedRoute>} />
         <Route path="/open-jobs" element={<ProtectedRoute><OpenJobs /></ProtectedRoute>} />
+        <Route path="/my-jobs" element={<ProtectedRoute><MyJobs /></ProtectedRoute>} />
         <Route path="/post-job" element={<ProtectedRoute><PostJob /></ProtectedRoute>} />
         <Route path="/jobs/:jobId" element={<ProtectedRoute><JobDetails /></ProtectedRoute>} />
         <Route path="/jobs/:jobId/apply" element={<ProtectedRoute><ApplyJob /></ProtectedRoute>} />

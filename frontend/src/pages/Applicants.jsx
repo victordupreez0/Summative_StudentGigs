@@ -161,12 +161,35 @@ const Applicants = () => {
             >
               Open Jobs
             </Link>
-            <Link 
-              to="/employer-dashboard" 
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
-            >
-              Dashboard
-            </Link>
+            {user?.userType === 'employer' ? (
+              <Link 
+                to="/employer-dashboard" 
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link 
+                  to="/student-dashboard" 
+                  className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+                >
+                  Dashboard
+                </Link>
+                <Link 
+                  to="/my-jobs" 
+                  className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+                >
+                  My Jobs
+                </Link>
+                <Link 
+                  to="/applications" 
+                  className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+                >
+                  Applications
+                </Link>
+              </>
+            )}
             <Link 
               to="/applicants" 
               className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2"

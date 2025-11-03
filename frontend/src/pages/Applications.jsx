@@ -247,6 +247,12 @@ const Applications = () => {
               Applications
             </Link>
             <Link 
+              to="/applicants" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Applicants
+            </Link>
+            <Link 
               to="/messages" 
               className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
             >

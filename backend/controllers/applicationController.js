@@ -198,6 +198,70 @@ function getMyApplications(req, res) {
     });
 }
 
+// Get student's accepted jobs (jobs where their application was accepted)
+function getMyAcceptedJobs(req, res) {
+    const db = getDb();
+    if (!db) {
+        return res.status(500).json({ error: 'db not initialized' });
+    }
+
+    const userId = req.user && req.user.id;
+    if (!userId) {
+        return res.status(401).json({ error: 'invalid token payload' });
+    }
+
+    const sql = `
+        SELECT 
+            a.id AS application_id, 
+            a.job_id, 
+            a.user_id, 
+            a.status AS application_status, 
+            a.cover_letter, 
+            a.created_at AS applied_at,
+            j.id, 
+            j.title, 
+            j.description, 
+            j.category, 
+            j.project_type AS projectType,
+            j.project_length AS projectLength,
+            j.work_location AS workLocation,
+            j.weekly_hours AS weeklyHours,
+            j.start_date AS startDate,
+            j.budget_type AS budgetType,
+            j.hourly_rate_min AS hourlyRateMin,
+            j.hourly_rate_max AS hourlyRateMax,
+            j.fixed_budget AS fixedBudget,
+            j.payment_schedule AS paymentSchedule,
+            j.status AS job_status,
+            j.created_at AS job_created_at,
+            j.user_id AS employer_id,
+            u.name AS employer_name, 
+            u.business_name AS employer_business_name,
+            u.email AS employer_email,
+            u.avatar_color AS employer_avatar_color,
+            (SELECT COUNT(*) FROM messages m 
+             JOIN conversations c ON m.conversation_id = c.id 
+             WHERE c.job_id = j.id 
+             AND c.student_id = a.user_id 
+             AND m.sender_id = j.user_id 
+             AND m.content LIKE '%marked the job%completed%'
+             AND m.is_read = 0) AS has_completion_request
+        FROM applications a
+        JOIN jobs j ON a.job_id = j.id
+        LEFT JOIN users u ON j.user_id = u.id
+        WHERE a.user_id = ? AND a.status = 'accepted'
+        ORDER BY j.status ASC, j.created_at DESC
+    `;
+
+    db.query(sql, [userId], (err, jobs) => {
+        if (err) {
+            console.error('Error fetching accepted jobs:', err);
+            return res.status(500).json({ error: 'db error' });
+        }
+        res.json(jobs);
+    });
+}
+
 // Update application status (employer only)
 function updateApplicationStatus(req, res) {
     const db = getDb();
@@ -343,6 +407,7 @@ module.exports = {
     getJobApplications,
     getMyJobsApplications,
     getMyApplications,
+    getMyAcceptedJobs,
     updateApplicationStatus,
     withdrawApplication,
     getApplicationDetail

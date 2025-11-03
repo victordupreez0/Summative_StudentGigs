@@ -5,20 +5,21 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { Send, MessageSquare, User, Building2 } from "lucide-react";
+import { Send, MessageSquare, User, Building2, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import AuthContext from '@/context/AuthContext';
 import API_BASE from '@/config/api';
 import { useModal } from "@/components/ui/modal";
 
 const Messages = () => {
   const { user } = useContext(AuthContext);
-  const { showAlert, ModalComponent } = useModal();
+  const { showAlert, showConfirm, ModalComponent } = useModal();
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [processingCompletion, setProcessingCompletion] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -28,6 +29,136 @@ const Messages = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Check if message is a completion request
+  const isCompletionRequest = (message) => {
+    return (message.content.includes('requested to mark the job') || message.content.includes('marked the job')) && 
+           message.content.includes('completed') &&
+           message.content.includes('🎉');
+  };
+
+  // Extract job title and ID from completion request message
+  const extractJobInfo = (message) => {
+    const match = message.content.match(/job "([^"]+)"/);
+    const title = match ? match[1] : 'this job';
+    
+    // Try to get job ID from conversation
+    const jobId = selectedConversation?.job_id;
+    
+    return { title, jobId };
+  };
+
+  // Handle accepting completion
+  const handleAcceptCompletion = async (message) => {
+    const { title, jobId } = extractJobInfo(message);
+    
+    if (!jobId) {
+      await showAlert({
+        title: 'Error',
+        message: 'Could not determine job ID',
+        type: 'error'
+      });
+      return;
+    }
+
+    const confirmed = await showConfirm({
+      title: 'Confirm Job Completion',
+      message: `Are you sure you want to confirm that "${title}" has been completed?`,
+      type: 'success'
+    });
+
+    if (!confirmed) return;
+
+    setProcessingCompletion(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_BASE}/api/jobs/${jobId}/accept-completion`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to accept completion');
+      }
+
+      await showAlert({
+        title: 'Success',
+        message: 'Job completion confirmed! The job is now complete.',
+        type: 'success'
+      });
+
+      // Refresh messages to show the confirmation message
+      fetchMessages(selectedConversation.id);
+      fetchConversations();
+    } catch (error) {
+      console.error('Error accepting completion:', error);
+      await showAlert({
+        title: 'Error',
+        message: error.message || 'Failed to confirm completion',
+        type: 'error'
+      });
+    } finally {
+      setProcessingCompletion(false);
+    }
+  };
+
+  // Handle denying completion
+  const handleDenyCompletion = async (message) => {
+    const { title, jobId } = extractJobInfo(message);
+    
+    if (!jobId) {
+      await showAlert({
+        title: 'Error',
+        message: 'Could not determine job ID',
+        type: 'error'
+      });
+      return;
+    }
+
+    // Prompt for reason (optional)
+    const reason = prompt('Please provide a reason for denying completion (optional):');
+    
+    setProcessingCompletion(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_BASE}/api/jobs/${jobId}/deny-completion`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ reason: reason || '' })
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to deny completion');
+      }
+
+      await showAlert({
+        title: 'Success',
+        message: 'Completion request has been denied and sent to the employer.',
+        type: 'success'
+      });
+
+      // Refresh messages
+      fetchMessages(selectedConversation.id);
+      fetchConversations();
+    } catch (error) {
+      console.error('Error denying completion:', error);
+      await showAlert({
+        title: 'Error',
+        message: error.message || 'Failed to deny completion',
+        type: 'error'
+      });
+    } finally {
+      setProcessingCompletion(false);
+    }
+  };
 
   // Fetch conversations
   useEffect(() => {
@@ -207,7 +338,7 @@ const Messages = () => {
                       <MessageSquare className="w-16 h-16 mx-auto text-gray-300 mb-4" />
                       <p className="text-gray-500 mb-2">No conversations yet</p>
                       <p className="text-sm text-gray-400">
-                        {user?.user_type === 'student' 
+                        {user?.userType === 'student' 
                           ? 'Apply to jobs to start messaging with employers'
                           : 'Wait for students to apply to your jobs'}
                       </p>
@@ -237,7 +368,7 @@ const Messages = () => {
                             <div className="flex items-center justify-between mb-1">
                               <h3 className="font-semibold text-gray-900 truncate flex items-center">
                                 {conversation.other_user_name}
-                                {user?.user_type === 'student' ? (
+                                {user?.userType === 'student' ? (
                                   <Building2 className="w-3 h-3 ml-1 text-gray-500" />
                                 ) : (
                                   <User className="w-3 h-3 ml-1 text-gray-500" />
@@ -315,6 +446,24 @@ const Messages = () => {
                         messages.map((message) => {
                           // Convert both to numbers for comparison
                           const isOwnMessage = Number(message.sender_id) === Number(user?.id);
+                          const isCompletion = isCompletionRequest(message);
+                          const isStudentReceiving = !isOwnMessage && user?.userType === 'student';
+                          const showCompletionCard = isCompletion && isStudentReceiving;
+                          
+                          // Debug logging for completion detection
+                          if (message.content.includes('🎉')) {
+                            console.log('🔍 Completion message debug:', {
+                              messageId: message.id,
+                              senderId: message.sender_id,
+                              userId: user?.id,
+                              userType: user?.userType,
+                              isOwnMessage,
+                              isCompletion,
+                              isStudentReceiving,
+                              showCompletionCard,
+                              content: message.content.substring(0, 50)
+                            });
+                          }
                           
                           return (
                             <div
@@ -322,17 +471,60 @@ const Messages = () => {
                               className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
                             >
                               <div className={`max-w-[70%] ${isOwnMessage ? 'order-2' : 'order-1'}`}>
-                                <div
-                                  className={`rounded-lg px-4 py-2 ${
-                                    isOwnMessage
-                                      ? 'bg-indigo-600 text-white'
-                                      : 'bg-gray-200 text-gray-900'
-                                  }`}
-                                >
-                                  <p className="text-sm whitespace-pre-wrap break-words">
-                                    {message.content}
-                                  </p>
-                                </div>
+                                {showCompletionCard ? (
+                                  // Completion Request Card
+                                  <Card className="border-2 border-yellow-400 bg-yellow-50">
+                                    <CardContent className="p-4">
+                                      <div className="flex items-start gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
+                                          <AlertCircle className="w-6 h-6 text-yellow-600" />
+                                        </div>
+                                        <div className="flex-1">
+                                          <h4 className="font-semibold text-yellow-900 mb-1 flex items-center gap-2">
+                                            🎉 Job Completion Request
+                                          </h4>
+                                          <p className="text-sm text-yellow-800 mb-3">
+                                            {message.content}
+                                          </p>
+                                          <div className="flex gap-2">
+                                            <Button
+                                              size="sm"
+                                              className="bg-green-600 hover:bg-green-700 text-white gap-2"
+                                              onClick={() => handleAcceptCompletion(message)}
+                                              disabled={processingCompletion}
+                                            >
+                                              <CheckCircle className="w-4 h-4" />
+                                              Accept & Complete
+                                            </Button>
+                                            <Button
+                                              size="sm"
+                                              variant="outline"
+                                              className="border-red-300 text-red-700 hover:bg-red-50 gap-2"
+                                              onClick={() => handleDenyCompletion(message)}
+                                              disabled={processingCompletion}
+                                            >
+                                              <XCircle className="w-4 h-4" />
+                                              Deny
+                                            </Button>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                ) : (
+                                  // Regular Message
+                                  <div
+                                    className={`rounded-lg px-4 py-2 ${
+                                      isOwnMessage
+                                        ? 'bg-indigo-600 text-white'
+                                        : 'bg-gray-200 text-gray-900'
+                                    }`}
+                                  >
+                                    <p className="text-sm whitespace-pre-wrap break-words">
+                                      {message.content}
+                                    </p>
+                                  </div>
+                                )}
                                 <p className={`text-xs text-gray-500 mt-1 ${isOwnMessage ? 'text-right' : 'text-left'}`}>
                                   {formatTime(message.created_at)}
                                 </p>
