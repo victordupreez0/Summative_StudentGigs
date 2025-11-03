@@ -258,7 +258,7 @@ const MyJobs = () => {
             </Link>
             <Link 
               to="/my-jobs" 
-              className="text-sm font-medium text-primary border-b-2 border-primary py-5"
+              className="text-sm font-medium text-primary border-b-2 border-primary py-2"
             >
               My Jobs
             </Link>

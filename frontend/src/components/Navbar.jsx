@@ -35,7 +35,7 @@ export const Navbar = () => {
           <img 
             src="/logo.png" 
             alt="StudentGigs Logo" 
-            className="h-48 w-auto transition-transform duration-200 group-hover:scale-105"
+            className="h-12 w-auto transition-transform duration-200 group-hover:scale-105"
           />
         </Link>
         

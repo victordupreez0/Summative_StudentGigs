@@ -169,7 +169,7 @@ async function initDatabase() {
                     hourly_rate_max DECIMAL(10,2),
                     fixed_budget DECIMAL(10,2),
                     payment_schedule VARCHAR(100),
-                    status ENUM('open', 'in_progress', 'pending_completion', 'completed') NOT NULL DEFAULT 'open',
+                    status ENUM('draft', 'open', 'in_progress', 'pending_completion', 'completed') NOT NULL DEFAULT 'open',
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
                     INDEX idx_user_id (user_id),
@@ -199,7 +199,7 @@ async function initDatabase() {
                     hourly_rate_max DECIMAL(10,2),
                     fixed_budget DECIMAL(10,2),
                     payment_schedule VARCHAR(100),
-                    status ENUM('open', 'in_progress', 'pending_completion', 'completed') NOT NULL DEFAULT 'open',
+                    status ENUM('draft', 'open', 'in_progress', 'pending_completion', 'completed') NOT NULL DEFAULT 'open',
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES \`${DB_NAME}\`.users(id) ON DELETE CASCADE,
                     INDEX idx_user_id (user_id),
@@ -338,7 +338,7 @@ async function initDatabase() {
                 const existingColumns = columns.map(col => col.Field);
                 
                 if (!existingColumns.includes('status')) {
-                    const alterQuery = `ALTER TABLE ${tableName} ADD COLUMN status ENUM('open', 'in_progress', 'pending_completion', 'completed') NOT NULL DEFAULT 'open' AFTER payment_schedule`;
+                    const alterQuery = `ALTER TABLE ${tableName} ADD COLUMN status ENUM('draft', 'open', 'in_progress', 'pending_completion', 'completed') NOT NULL DEFAULT 'open' AFTER payment_schedule`;
                     tablePool.query(alterQuery, (alterErr) => {
                         if (alterErr) {
                             console.error('Warning: Could not add status column to jobs:', alterErr.message);
@@ -349,7 +349,7 @@ async function initDatabase() {
                         }
                     });
                 } else {
-                    // Check if status column needs to be updated to include 'pending_completion'
+                    // Check if status column needs to be updated to include 'draft' and 'pending_completion'
                     const checkEnumSql = `SHOW COLUMNS FROM ${tableName} WHERE Field = 'status'`;
                     tablePool.query(checkEnumSql, (enumErr, enumResults) => {
                         if (enumErr || !enumResults.length) {
@@ -358,19 +358,19 @@ async function initDatabase() {
                         }
                         
                         const enumType = enumResults[0].Type;
-                        // Check if 'pending_completion' is already in the ENUM
-                        if (!enumType.includes('pending_completion')) {
-                            const modifyEnumSql = `ALTER TABLE ${tableName} MODIFY COLUMN status ENUM('open', 'in_progress', 'pending_completion', 'completed') NOT NULL DEFAULT 'open'`;
+                        // Check if 'draft' is already in the ENUM
+                        if (!enumType.includes('draft')) {
+                            const modifyEnumSql = `ALTER TABLE ${tableName} MODIFY COLUMN status ENUM('draft', 'open', 'in_progress', 'pending_completion', 'completed') NOT NULL DEFAULT 'open'`;
                             tablePool.query(modifyEnumSql, (modifyErr) => {
                                 if (modifyErr) {
                                     console.error('Warning: Could not update status ENUM:', modifyErr.message);
                                 } else {
-                                    console.log('Updated status column ENUM to include pending_completion');
+                                    console.log('Updated status column ENUM to include draft');
                                 }
                                 resolve();
                             });
                         } else {
-                            console.log('Jobs status column already includes pending_completion');
+                            console.log('Jobs status column already includes draft');
                             resolve();
                         }
                     });

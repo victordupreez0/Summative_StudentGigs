@@ -23,6 +23,7 @@ const PostJob = () => {
   const { showAlert, ModalComponent } = useModal();
   const [loading, setLoading] = useState(!!jobId); // Loading state for fetching existing job
   const [currentStep, setCurrentStep] = useState(1);
+  const [isDraft, setIsDraft] = useState(false); // Track if editing a draft job
   
   // Step 1: Basics
   const [jobTitle, setJobTitle] = useState("");
@@ -68,6 +69,9 @@ const PostJob = () => {
           if (res.ok) {
             // The API returns the job data directly, not wrapped in a 'job' property
             const job = data;
+            
+            // Check if this is a draft job
+            setIsDraft(job.status === 'draft');
             
             // Populate all form fields with existing data
             setJobTitle(job.title || "");
@@ -185,6 +189,72 @@ const PostJob = () => {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
+  const handleSaveDraft = async () => {
+    const payload = {
+      title: jobTitle,
+      description: jobDescription,
+      projectType,
+      projectLength,
+      category: jobCategory,
+      tags,
+      educationLevels,
+      workLocation,
+      studentCount,
+      weeklyHours,
+      startDate,
+      experienceLevel,
+      requiredSkills,
+      preferredMajors,
+      languages,
+      budgetType,
+      hourlyRateMin,
+      hourlyRateMax,
+      fixedBudget,
+      paymentSchedule,
+      status: 'draft'
+    };
+
+    try {
+      const url = jobId ? `${API_BASE}/api/jobs/${jobId}` : `${API_BASE}/api/jobs`;
+      const method = jobId ? 'PUT' : 'POST';
+      
+      const res = await fetch(url, {
+        method: method,
+        headers: { 
+          'Content-Type': 'application/json', 
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      
+      if (!res.ok) {
+        await showAlert({
+          title: 'Error',
+          message: data.error || 'Could not save draft',
+          type: 'error'
+        });
+        return;
+      }
+
+      await showAlert({
+        title: 'Success',
+        message: 'Job saved as draft!',
+        type: 'success'
+      });
+      
+      navigate('/open-jobs');
+    } catch (e) {
+      console.error(e);
+      await showAlert({
+        title: 'Network Error',
+        message: 'Unable to save draft. Please try again.',
+        type: 'error'
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -211,19 +281,18 @@ const PostJob = () => {
               </Link>
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{jobId ? 'Edit Job' : 'Post a Job'}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {jobId && !isDraft ? 'Edit Job' : 'Post a Job'}
+              </h1>
               <div className="flex items-center gap-4 mt-2">
-                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-gray-600 hover:text-gray-900"
+                  onClick={handleSaveDraft}
+                >
                   <Save className="w-4 h-4 mr-2" />
                   Save as Draft
-                </Button>
-                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Invite collaborators
-                </Button>
-                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
-                  <Eye className="w-4 h-4 mr-2" />
-                  Preview
                 </Button>
               </div>
             </div>
@@ -232,6 +301,7 @@ const PostJob = () => {
             disabled={currentStep < 5}
             currentStep={currentStep}
             jobId={jobId}
+            isDraft={isDraft}
             showAlert={showAlert}
             job={{ 
               jobTitle, 
@@ -557,23 +627,25 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                             key={level.value}
                             className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
                               experienceLevel === level.value 
-                                ? 'border-primary bg-primary/5' 
-                                : 'border-border hover:border-primary/50'
+                                ? 'border-primary bg-primary/10 shadow-sm' 
+                                : 'border-border hover:border-primary/50 hover:bg-gray-50'
                             }`}
                             onClick={() => setExperienceLevel(level.value)}
                           >
                             <div className="flex items-start gap-3">
-                              <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center ${
+                              <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center transition-all ${
                                 experienceLevel === level.value 
                                   ? 'border-primary bg-primary' 
-                                  : 'border-border'
+                                  : 'border-gray-300'
                               }`}>
                                 {experienceLevel === level.value && (
-                                  <div className="w-2 h-2 bg-white rounded-full" />
+                                  <div className="w-2.5 h-2.5 bg-white rounded-full" />
                                 )}
                               </div>
-                              <div>
-                                <p className="font-medium text-foreground">{level.label}</p>
+                              <div className="flex-1">
+                                <p className={`font-medium ${experienceLevel === level.value ? 'text-primary' : 'text-foreground'}`}>
+                                  {level.label}
+                                </p>
                                 <p className="text-sm text-muted-foreground">{level.desc}</p>
                               </div>
                             </div>
@@ -669,15 +741,28 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                         <div
                           className={`border-2 rounded-lg p-6 cursor-pointer transition-all ${
                             budgetType === 'hourly' 
-                              ? 'border-primary bg-primary/5' 
-                              : 'border-border hover:border-primary/50'
+                              ? 'border-primary bg-primary/10 shadow-md' 
+                              : 'border-border hover:border-primary/50 hover:bg-gray-50'
                           }`}
                           onClick={() => setBudgetType('hourly')}
                         >
                           <div className="flex items-start gap-3">
-                            <Clock className="w-5 h-5 text-primary mt-1" />
-                            <div>
-                              <p className="font-semibold text-foreground mb-1">Hourly Rate</p>
+                            <div className={`w-5 h-5 rounded-full border-2 mt-1 flex items-center justify-center transition-all ${
+                              budgetType === 'hourly' 
+                                ? 'border-primary bg-primary' 
+                                : 'border-gray-300'
+                            }`}>
+                              {budgetType === 'hourly' && (
+                                <div className="w-2.5 h-2.5 bg-white rounded-full" />
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Clock className={`w-5 h-5 ${budgetType === 'hourly' ? 'text-primary' : 'text-gray-500'}`} />
+                                <p className={`font-semibold ${budgetType === 'hourly' ? 'text-primary' : 'text-foreground'}`}>
+                                  Hourly Rate
+                                </p>
+                              </div>
                               <p className="text-sm text-muted-foreground">
                                 Best for ongoing work with flexible hours
                               </p>
@@ -688,15 +773,28 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                         <div
                           className={`border-2 rounded-lg p-6 cursor-pointer transition-all ${
                             budgetType === 'fixed' 
-                              ? 'border-primary bg-primary/5' 
-                              : 'border-border hover:border-primary/50'
+                              ? 'border-primary bg-primary/10 shadow-md' 
+                              : 'border-border hover:border-primary/50 hover:bg-gray-50'
                           }`}
                           onClick={() => setBudgetType('fixed')}
                         >
                           <div className="flex items-start gap-3">
-                            <DollarSign className="w-5 h-5 text-primary mt-1" />
-                            <div>
-                              <p className="font-semibold text-foreground mb-1">Fixed Price</p>
+                            <div className={`w-5 h-5 rounded-full border-2 mt-1 flex items-center justify-center transition-all ${
+                              budgetType === 'fixed' 
+                                ? 'border-primary bg-primary' 
+                                : 'border-gray-300'
+                            }`}>
+                              {budgetType === 'fixed' && (
+                                <div className="w-2.5 h-2.5 bg-white rounded-full" />
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <DollarSign className={`w-5 h-5 ${budgetType === 'fixed' ? 'text-primary' : 'text-gray-500'}`} />
+                                <p className={`font-semibold ${budgetType === 'fixed' ? 'text-primary' : 'text-foreground'}`}>
+                                  Fixed Price
+                                </p>
+                              </div>
                               <p className="text-sm text-muted-foreground">
                                 Best for one-time projects with clear deliverables
                               </p>
@@ -969,18 +1067,6 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                       <h4 className="font-semibold text-foreground mb-4">Job Visibility</h4>
                       <div className="space-y-3">
                         <div className="flex items-center space-x-2">
-                          <Checkbox id="public" defaultChecked />
-                          <label htmlFor="public" className="text-sm">
-                            Make this job public (visible to all students)
-                          </label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox id="featured" />
-                          <label htmlFor="featured" className="text-sm">
-                            Feature this job (appears at the top of search results)
-                          </label>
-                        </div>
-                        <div className="flex items-center space-x-2">
                           <Checkbox id="notifications" defaultChecked />
                           <label htmlFor="notifications" className="text-sm">
                             Send me email notifications for applications
@@ -1008,7 +1094,7 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                     {currentStep === 2 && 'Next: Expertise'}
                     {currentStep === 3 && 'Next: Budget'}
                     {currentStep === 4 && 'Next: Review'}
-                    {currentStep === 5 && 'Reviewed'}
+                    {currentStep === 5 && 'Continue to Post'}
                   </Button>
                 </div>
               </CardContent>
@@ -1075,7 +1161,7 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
   );
 };
 
-function PostButton({ disabled, currentStep, job, jobId, showAlert }){
+function PostButton({ disabled, currentStep, job, jobId, isDraft, showAlert }){
   const { token } = useContext(AuthContext)
   const navigate = useNavigate()
   
@@ -1102,7 +1188,8 @@ function PostButton({ disabled, currentStep, job, jobId, showAlert }){
       hourlyRateMin: job.hourlyRateMin,
       hourlyRateMax: job.hourlyRateMax,
       fixedBudget: job.fixedBudget,
-      paymentSchedule: job.paymentSchedule
+      paymentSchedule: job.paymentSchedule,
+      status: 'open'
     }
     
     try{
@@ -1143,7 +1230,7 @@ function PostButton({ disabled, currentStep, job, jobId, showAlert }){
 
   return (
     <Button size="lg" disabled={disabled} onClick={handlePost}>
-      {jobId ? 'Save Changes' : (currentStep < 5 ? 'Review and Post' : 'Post Job')}
+      {jobId && !isDraft ? 'Save Changes' : (currentStep < 5 ? 'Review and Post' : 'Post Job')}
     </Button>
   )
 }

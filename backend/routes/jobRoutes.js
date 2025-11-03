@@ -14,7 +14,7 @@ const {
     unsaveJob,
     getSavedJobs
 } = require('../controllers/jobController');
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken, optionalAuth } = require('../middleware/auth');
 
 // Public routes
 router.get('/', getAllJobs);
@@ -25,7 +25,7 @@ router.get('/saved', authenticateToken, getSavedJobs);
 router.post('/', authenticateToken, createJob);
 
 // Parameterized routes (must come after specific routes)
-router.get('/:jobId', getJobById);
+router.get('/:jobId', optionalAuth, getJobById);
 router.put('/:jobId', authenticateToken, updateJob);
 router.patch('/:jobId', authenticateToken, updateJob);
 router.post('/:jobId/complete', authenticateToken, completeJob);

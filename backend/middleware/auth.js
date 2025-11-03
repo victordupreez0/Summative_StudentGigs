@@ -37,8 +37,29 @@ function requireStudent(req, res, next) {
     next();
 }
 
+// Middleware: optionally authenticate JWT token (doesn't require token, but decodes if present)
+function optionalAuth(req, res, next) {
+    const auth = req.headers['authorization'] || '';
+    const parts = auth.split(' ');
+    const token = parts.length === 2 && parts[0] === 'Bearer' ? parts[1] : null;
+    
+    if (token) {
+        jwt.verify(token, JWT_SECRET, (err, payload) => {
+            if (!err) {
+                req.user = payload;
+            }
+            // Continue regardless of token validity
+            next();
+        });
+    } else {
+        // No token provided, continue without user
+        next();
+    }
+}
+
 module.exports = {
     authenticateToken,
+    optionalAuth,
     requireEmployer,
     requireStudent,
     JWT_SECRET

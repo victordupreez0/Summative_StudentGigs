@@ -16,12 +16,15 @@ function createJob(req, res) {
         title, description, projectType, projectLength, category, tags, educationLevels,
         workLocation, studentCount, weeklyHours, startDate, experienceLevel,
         requiredSkills, preferredMajors, languages, budgetType, hourlyRateMin,
-        hourlyRateMax, fixedBudget, paymentSchedule
+        hourlyRateMax, fixedBudget, paymentSchedule, status
     } = req.body || {};
 
     if (!title) {
         return res.status(400).json({ error: 'title required' });
     }
+
+    // Default status to 'open' if not provided
+    const jobStatus = status || 'open';
 
     // Convert arrays to JSON
     const tagsJson = Array.isArray(tags) ? JSON.stringify(tags) : null;
@@ -47,14 +50,14 @@ function createJob(req, res) {
                 user_id, title, description, project_type, project_length, category, tags, education_levels,
                 work_location, student_count, weekly_hours, start_date, experience_level,
                 required_skills, preferred_majors, languages, budget_type, hourly_rate_min,
-                hourly_rate_max, fixed_budget, payment_schedule
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                hourly_rate_max, fixed_budget, payment_schedule, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
             values = [
                 userId, title, description, projectType, projectLength, category, tagsJson, eduJson,
                 workLocation, studentCount, weeklyHours, startDate, experienceLevel,
                 skillsJson, majorsJson, langsJson, budgetType, hourlyRateMin,
-                hourlyRateMax, fixedBudget, paymentSchedule
+                hourlyRateMax, fixedBudget, paymentSchedule, jobStatus
             ];
         } else {
             // Use legacy schema with basic columns only
@@ -121,6 +124,7 @@ function getAllJobs(req, res) {
             u.avatar_color AS poster_avatar_color
         FROM jobs j
         LEFT JOIN users u ON j.user_id = u.id
+        WHERE j.status != 'draft'
         ORDER BY j.created_at DESC 
         LIMIT 100
     `;
@@ -194,13 +198,23 @@ function getJobById(req, res) {
             return res.status(404).json({ error: 'job not found' });
         }
 
+        const jobData = rows[0];
+        
+        // Check if job is a draft and user is not the owner
+        if (jobData.status === 'draft') {
+            const userId = req.user && req.user.id;
+            if (!userId || jobData.user_id !== userId) {
+                return res.status(404).json({ error: 'job not found' });
+            }
+        }
+
         const job = {
-            ...rows[0],
-            tags: rows[0].tags ? JSON.parse(rows[0].tags) : [],
-            educationLevels: rows[0].educationLevels ? JSON.parse(rows[0].educationLevels) : [],
-            requiredSkills: rows[0].requiredSkills ? JSON.parse(rows[0].requiredSkills) : [],
-            preferredMajors: rows[0].preferredMajors ? JSON.parse(rows[0].preferredMajors) : [],
-            languages: rows[0].languages ? JSON.parse(rows[0].languages) : []
+            ...jobData,
+            tags: jobData.tags ? JSON.parse(jobData.tags) : [],
+            educationLevels: jobData.educationLevels ? JSON.parse(jobData.educationLevels) : [],
+            requiredSkills: jobData.requiredSkills ? JSON.parse(jobData.requiredSkills) : [],
+            preferredMajors: jobData.preferredMajors ? JSON.parse(jobData.preferredMajors) : [],
+            languages: jobData.languages ? JSON.parse(jobData.languages) : []
         };
 
         res.json(job);
@@ -299,7 +313,7 @@ function updateJob(req, res) {
             title, description, projectType, projectLength, category, tags, educationLevels,
             workLocation, studentCount, weeklyHours, startDate, experienceLevel,
             requiredSkills, preferredMajors, languages, budgetType, hourlyRateMin,
-            hourlyRateMax, fixedBudget, paymentSchedule
+            hourlyRateMax, fixedBudget, paymentSchedule, status
         } = req.body || {};
 
         // Convert arrays to JSON
@@ -314,14 +328,14 @@ function updateJob(req, res) {
             tags = ?, education_levels = ?, work_location = ?, student_count = ?, 
             weekly_hours = ?, start_date = ?, experience_level = ?, required_skills = ?,
             preferred_majors = ?, languages = ?, budget_type = ?, hourly_rate_min = ?,
-            hourly_rate_max = ?, fixed_budget = ?, payment_schedule = ?
+            hourly_rate_max = ?, fixed_budget = ?, payment_schedule = ?, status = ?
             WHERE id = ?`;
 
         const values = [
             title, description, projectType, projectLength, category, tagsJson, eduJson,
             workLocation, studentCount, weeklyHours, startDate, experienceLevel,
             skillsJson, majorsJson, langsJson, budgetType, hourlyRateMin,
-            hourlyRateMax, fixedBudget, paymentSchedule, jobId
+            hourlyRateMax, fixedBudget, paymentSchedule, status || 'open', jobId
         ];
 
         db.query(sql, values, (err) => {
@@ -759,7 +773,7 @@ function getSavedJobs(req, res) {
         FROM saved_jobs sj
         INNER JOIN jobs j ON sj.job_id = j.id
         LEFT JOIN users u ON j.user_id = u.id
-        WHERE sj.user_id = ?
+        WHERE sj.user_id = ? AND j.status != 'draft'
         ORDER BY sj.created_at DESC
     `;
 

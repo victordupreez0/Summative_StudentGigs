@@ -28,6 +28,7 @@ const OpenJobs = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [applications, setApplications] = useState([]);
+  const [filter, setFilter] = useState('open'); // 'open', 'draft', 'all'
 
   useEffect(() => {
     let mounted = true;
@@ -334,19 +335,48 @@ const OpenJobs = () => {
           </Card>
         </div>
 
+        {/* Filter Tabs */}
+        <div className="flex gap-2 mb-6">
+          <Button
+            variant={filter === 'open' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFilter('open')}
+          >
+            Published ({jobs.filter(j => j.status === 'open').length})
+          </Button>
+          <Button
+            variant={filter === 'draft' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFilter('draft')}
+          >
+            Drafts ({jobs.filter(j => j.status === 'draft').length})
+          </Button>
+          <Button
+            variant={filter === 'all' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFilter('all')}
+          >
+            All ({jobs.length})
+          </Button>
+        </div>
+
         {/* Jobs List */}
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-muted-foreground">Loading your jobs...</p>
           </div>
-        ) : jobs.length === 0 ? (
+        ) : jobs.filter(job => filter === 'all' || job.status === filter).length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
               <Briefcase className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No jobs posted yet</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                {filter === 'draft' ? 'No draft jobs' : filter === 'open' ? 'No published jobs' : 'No jobs posted yet'}
+              </h3>
               <p className="text-muted-foreground mb-6">
-                Start by posting your first job to attract talented students
+                {filter === 'draft' 
+                  ? 'Drafts are automatically saved when you click "Save as Draft"'
+                  : 'Start by posting your first job to attract talented students'}
               </p>
               <Button asChild>
                 <Link to="/post-job">Post Your First Job</Link>
@@ -355,7 +385,7 @@ const OpenJobs = () => {
           </Card>
         ) : (
           <div className="space-y-4">
-            {jobs.map((job) => (
+            {jobs.filter(job => filter === 'all' || job.status === filter).map((job) => (
               <Card key={job.id} className="hover:shadow-lg transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between">
@@ -365,6 +395,11 @@ const OpenJobs = () => {
                         <Badge variant="secondary">
                           {job.projectType || 'Remote'}
                         </Badge>
+                        {job.status === 'draft' && (
+                          <Badge variant="outline" className="border-yellow-500 text-yellow-600 bg-yellow-50">
+                            Draft
+                          </Badge>
+                        )}
                       </div>
                       
                       <div className="flex items-center gap-6 text-sm text-muted-foreground mb-4">
@@ -419,7 +454,7 @@ const OpenJobs = () => {
                           onClick={() => navigate(`/jobs/${job.id}/edit`)}
                         >
                           <Edit className="w-4 h-4" />
-                          Edit
+                          {job.status === 'draft' ? 'Complete Post' : 'Edit'}
                         </Button>
                       )}
                       {hasAcceptedApplicant(job.id) && job.status !== 'completed' && job.status !== 'pending_completion' ? (
