@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserAvatar } from "@/components/UserAvatar";
 import { useModal } from "@/components/ui/modal";
 import { 
@@ -14,10 +13,7 @@ import {
   Clock,
   MapPin,
   Star,
-  MessageSquare,
-  UserPlus,
   BarChart3,
-  Settings,
   Eye
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -37,6 +33,19 @@ const EmployerDashboard = () => {
   const [loadingActivity, setLoadingActivity] = useState(false);
   const [upcomingInterviews, setUpcomingInterviews] = useState([]);
   const [loadingInterviews, setLoadingInterviews] = useState(true);
+  const [stats, setStats] = useState({
+    applications: 0,
+    activeJobs: 0,
+    interviews: 0,
+    hires: 0
+  });
+  const [monthlyStats, setMonthlyStats] = useState({
+    applications: 0,
+    activeJobs: 0,
+    interviews: 0,
+    hires: 0
+  });
+  const [loadingStats, setLoadingStats] = useState(true);
 
   useEffect(() => {
     let mounted = true;
@@ -113,6 +122,7 @@ const EmployerDashboard = () => {
     fetchApplications();
     fetchRecentActivity();
     fetchUpcomingInterviews();
+    fetchEmployerStats();
     return () => { mounted = false };
   }, [token]);
 
@@ -202,81 +212,63 @@ const EmployerDashboard = () => {
     return `${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) > 1 ? 's' : ''} ago`;
   };
 
-  const stats = [
+  const fetchEmployerStats = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/profile/employer/stats`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!res.ok) {
+        console.error('Failed to fetch employer stats');
+        return;
+      }
+      
+      const data = await res.json();
+      setStats({
+        applications: data.overall.applications,
+        activeJobs: data.overall.activeJobs,
+        interviews: data.overall.interviews,
+        hires: data.overall.hires
+      });
+      setMonthlyStats({
+        applications: data.monthly.applications,
+        activeJobs: data.monthly.activeJobs,
+        interviews: data.monthly.interviews,
+        hires: data.monthly.hires
+      });
+      setLoadingStats(false);
+    } catch (err) {
+      console.error('Failed to load employer stats', err);
+      setLoadingStats(false);
+    }
+  };
+
+  const statsDisplay = [
     {
       title: "Applications",
-      value: "32",
+      value: stats.applications.toString(),
       icon: Users,
       color: "text-gray-600"
     },
     {
       title: "Active jobs",
-      value: activeJobs.length.toString(),
+      value: stats.activeJobs.toString(),
       icon: Briefcase,
       color: "text-gray-600"
     },
     {
       title: "Interviews",
-      value: "18",
+      value: stats.interviews.toString(),
       icon: Calendar,
       color: "text-purple-600"
     },
     {
       title: "Hires",
-      value: "5",
+      value: stats.hires.toString(),
       icon: Star,
       color: "text-amber-500"
-    }
-  ];
-
-  const recentApplicants = [
-    {
-      name: "Emma Wilson",
-      position: "Frontend Developer",
-      university: "Computer Science, Stanford",
-      skills: ["React", "JS"],
-      appliedTime: "2 hours ago",
-      status: "New",
-      avatar: "/avatars/emma.jpg"
-    },
-    {
-      name: "Jason Park", 
-      position: "UI/UX Designer",
-      university: "Design, RSD",
-      skills: ["Figma", "UI"],
-      appliedTime: "1 day ago", 
-      status: "Shortlisted",
-      avatar: "/avatars/jason.jpg"
-    },
-    {
-      name: "Sophia Rodriguez",
-      position: "Content Writer",
-      university: "Journalism, NYU",
-      skills: ["SEO", "Copy"],
-      appliedTime: "3 days ago",
-      status: "Interview",
-      avatar: "/avatars/sophia.jpg"
-    }
-  ];
-
-  const teamMembers = [
-    {
-      name: "Michael Johnson",
-      role: "Admin",
-      status: "online",
-      avatar: "/avatars/michael.jpg"
-    },
-    {
-      name: "Sarah Williams", 
-      role: "Recruiter",
-      status: "online",
-      avatar: "/avatars/sarah.jpg"
-    },
-    {
-      name: "David Chen",
-      role: "Hiring Manager",
-      status: "online", 
-      avatar: "/avatars/david.jpg"
     }
   ];
 
@@ -416,7 +408,7 @@ const EmployerDashboard = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => (
+          {statsDisplay.map((stat, index) => (
             <Card key={index} hover={true} className="border-gray-200 bg-white">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -597,23 +589,28 @@ const EmployerDashboard = () => {
               <CardContent>
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
-                    <p className="text-2xl font-bold text-primary">32</p>
+                    <p className="text-2xl font-bold text-primary">{monthlyStats.applications}</p>
                     <p className="text-sm text-muted-foreground">Applications</p>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-primary">3</p>
+                    <p className="text-2xl font-bold text-primary">{monthlyStats.activeJobs}</p>
                     <p className="text-sm text-muted-foreground">Active jobs</p>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-primary">18</p>
+                    <p className="text-2xl font-bold text-primary">{monthlyStats.interviews}</p>
                     <p className="text-sm text-muted-foreground">Interviews</p>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-primary">5</p>
+                    <p className="text-2xl font-bold text-primary">{monthlyStats.hires}</p>
                     <p className="text-sm text-muted-foreground">Hires</p>
                   </div>
                 </div>
-                <Button variant="link" size="sm" className="w-full mt-4">
+                <Button 
+                  variant="link" 
+                  size="sm" 
+                  className="w-full mt-4"
+                  onClick={() => showAlert('Coming Soon', 'Detailed analytics will be available soon!')}
+                >
                   <BarChart3 className="w-4 h-4 mr-2" />
                   View detailed analytics
                 </Button>
@@ -624,37 +621,15 @@ const EmployerDashboard = () => {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Team members</CardTitle>
-                <Button size="icon" variant="ghost">
-                  <UserPlus className="w-4 h-4" />
-                </Button>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {teamMembers.map((member, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="relative">
-                          <Avatar className="w-8 h-8">
-                            <AvatarImage src={member.avatar} />
-                            <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                          </Avatar>
-                          <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-background"></div>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{member.name}</p>
-                          <p className="text-xs text-muted-foreground">{member.role}</p>
-                        </div>
-                      </div>
-                      <Button size="icon" variant="ghost">
-                        <Settings className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
+                <div className="text-center py-8">
+                  <Users className="w-12 h-12 mx-auto mb-3 text-gray-400 opacity-50" />
+                  <p className="text-sm text-muted-foreground font-medium">Coming Soon</p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Team member management will be available soon
+                  </p>
                 </div>
-                <Button variant="outline" size="sm" className="w-full mt-4">
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Invite team member
-                </Button>
               </CardContent>
             </Card>
 

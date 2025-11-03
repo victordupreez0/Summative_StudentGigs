@@ -5,12 +5,16 @@ const {
     getMyProfile, 
     updateProfile,
     incrementProfileViews,
-    checkBioInDatabase
+    checkBioInDatabase,
+    getEmployerStats
 } = require('../controllers/profileController');
 const { authenticateToken, optionalAuth } = require('../middleware/auth');
 
 // Debug route - check bio in database
 router.get('/debug/check-bio', authenticateToken, checkBioInDatabase);
+
+// Protected route - get employer dashboard stats
+router.get('/employer/stats', authenticateToken, getEmployerStats);
 
 // Public route - get any user's profile (with optional auth for view tracking)
 router.get('/:userId', optionalAuth, getProfile);

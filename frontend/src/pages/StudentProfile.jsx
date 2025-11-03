@@ -52,6 +52,7 @@ const StudentProfile = () => {
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [activeSection, setActiveSection] = useState(null);
+  const [userType, setUserType] = useState(null);
   
   // Modal states
   const [showWorkModal, setShowWorkModal] = useState(false);
@@ -151,7 +152,20 @@ const StudentProfile = () => {
   const isOwnProfile = !userId || (user && parseInt(userId) === parseInt(user.id));
   const targetUserId = userId || user?.id;
 
+  // Check if the logged-in user is an employer viewing their own profile
   useEffect(() => {
+    if (isOwnProfile && user?.userType === 'employer') {
+      setUserType('employer');
+      setLoading(false);
+    }
+  }, [isOwnProfile, user]);
+
+  useEffect(() => {
+    // Skip fetching if already determined to be employer viewing own profile
+    if (isOwnProfile && user?.userType === 'employer') {
+      return;
+    }
+
     const fetchProfile = async () => {
       if (!targetUserId) {
         setError("User ID not found");
@@ -173,6 +187,15 @@ const StudentProfile = () => {
         }
 
         const data = await response.json();
+        
+        // Check if this is an employer account
+        if (data.user.userType === 'employer') {
+          setUserType('employer');
+          setLoading(false);
+          return;
+        }
+        
+        setUserType('student');
         
         // Parse name from the user data
         const nameParts = data.user.name.split(' ');
@@ -756,6 +779,96 @@ const StudentProfile = () => {
             <Button onClick={() => window.location.reload()}>Try Again</Button>
           </div>
         </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Show coming soon message for employer accounts
+  if (userType === 'employer') {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        
+        {/* Secondary Navigation */}
+        <div className="border-b border-gray-200">
+          <div className="container mx-auto px-4">
+            <nav className="flex items-center gap-8 h-16">
+              <Link 
+                to="/browse-jobs" 
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+              >
+                Browse Jobs
+              </Link>
+              <Link 
+                to="/employer-dashboard" 
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+              >
+                Dashboard
+              </Link>
+              <Link 
+                to="/open-jobs" 
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+              >
+                Open Jobs
+              </Link>
+              <Link 
+                to="/applicants" 
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+              >
+                Applicants
+              </Link>
+              <Link 
+                to="/messages" 
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+              >
+                Messages
+              </Link>
+              <Link 
+                to="/profile" 
+                className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2"
+              >
+                Profile
+              </Link>
+            </nav>
+          </div>
+        </div>
+
+        <div className="max-w-4xl mx-auto px-4 py-16">
+          <Card className="border-gray-200 bg-white">
+            <CardContent className="p-12 text-center">
+              <div className="mb-6">
+                <User className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Employer Profile</h1>
+                <p className="text-xl text-gray-600 mb-8">Employer account editing coming soon</p>
+              </div>
+              <div className="max-w-md mx-auto text-left space-y-4">
+                <p className="text-gray-600">
+                  We're currently working on employer profile features. Soon you'll be able to:
+                </p>
+                <ul className="list-disc list-inside space-y-2 text-gray-600">
+                  <li>Edit your company information</li>
+                  <li>Upload company logo and branding</li>
+                  <li>Add company description and culture details</li>
+                  <li>Showcase your team and office locations</li>
+                  <li>Highlight your company values and benefits</li>
+                </ul>
+              </div>
+              <div className="mt-8 flex gap-4 justify-center">
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/employer-dashboard')}
+                >
+                  Go to Dashboard
+                </Button>
+                <Button onClick={() => navigate('/post-job')}>
+                  Post a Job
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         <Footer />
       </div>
     );

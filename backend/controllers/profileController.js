@@ -296,10 +296,87 @@ function checkBioInDatabase(req, res) {
     });
 }
 
+// Get employer dashboard stats
+function getEmployerStats(req, res) {
+    const db = getDb();
+    if (!db) {
+        return res.status(500).json({ error: 'db not initialized' });
+    }
+
+    const userId = req.user && req.user.id;
+    if (!userId) {
+        return res.status(401).json({ error: 'invalid token payload' });
+    }
+
+    // Get date for monthly stats (first day of current month)
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const firstDayString = firstDayOfMonth.toISOString().split('T')[0];
+
+    // Query for all stats
+    const statsSql = `
+        SELECT 
+            (SELECT COUNT(*) FROM applications a
+             JOIN jobs j ON a.job_id = j.id
+             WHERE j.employer_id = ?) as totalApplications,
+            (SELECT COUNT(*) FROM applications a
+             JOIN jobs j ON a.job_id = j.id
+             WHERE j.employer_id = ? AND a.created_at >= ?) as monthlyApplications,
+            (SELECT COUNT(*) FROM jobs WHERE employer_id = ? AND status = 'open') as activeJobs,
+            (SELECT COUNT(*) FROM jobs WHERE employer_id = ? AND status = 'open' AND created_at >= ?) as monthlyActiveJobs,
+            (SELECT COUNT(*) FROM interviews i
+             JOIN jobs j ON i.job_id = j.id
+             WHERE j.employer_id = ?) as totalInterviews,
+            (SELECT COUNT(*) FROM interviews i
+             JOIN jobs j ON i.job_id = j.id
+             WHERE j.employer_id = ? AND i.created_at >= ?) as monthlyInterviews,
+            (SELECT COUNT(*) FROM applications a
+             JOIN jobs j ON a.job_id = j.id
+             WHERE j.employer_id = ? AND a.status = 'accepted') as totalHires,
+            (SELECT COUNT(*) FROM applications a
+             JOIN jobs j ON a.job_id = j.id
+             WHERE j.employer_id = ? AND a.status = 'accepted' AND a.updated_at >= ?) as monthlyHires
+    `;
+
+    db.query(statsSql, [
+        userId, // totalApplications
+        userId, firstDayString, // monthlyApplications
+        userId, // activeJobs
+        userId, firstDayString, // monthlyActiveJobs
+        userId, // totalInterviews
+        userId, firstDayString, // monthlyInterviews
+        userId, // totalHires
+        userId, firstDayString // monthlyHires
+    ], (err, results) => {
+        if (err) {
+            console.error('Error fetching employer stats:', err);
+            return res.status(500).json({ error: 'db error' });
+        }
+
+        const stats = results[0] || {};
+        
+        res.json({
+            overall: {
+                applications: stats.totalApplications || 0,
+                activeJobs: stats.activeJobs || 0,
+                interviews: stats.totalInterviews || 0,
+                hires: stats.totalHires || 0
+            },
+            monthly: {
+                applications: stats.monthlyApplications || 0,
+                activeJobs: stats.monthlyActiveJobs || 0,
+                interviews: stats.monthlyInterviews || 0,
+                hires: stats.monthlyHires || 0
+            }
+        });
+    });
+}
+
 module.exports = {
     getProfile,
     getMyProfile,
     updateProfile,
     incrementProfileViews,
-    checkBioInDatabase
+    checkBioInDatabase,
+    getEmployerStats
 };
