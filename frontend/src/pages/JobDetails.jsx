@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { UserAvatar } from "@/components/UserAvatar";
 import AuthContext from '@/context/AuthContext';
 import API_BASE from '@/config/api';
 
@@ -233,9 +234,17 @@ const JobDetails = () => {
                       <Badge variant="outline">{job.category || 'General'}</Badge>
                       {job.projectType && <Badge variant="outline">{job.projectType}</Badge>}
                     </div>
-                    <p className="text-muted-foreground">
-                      Posted by {job.poster_business_name || job.poster_name}
-                    </p>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <UserAvatar
+                        user={{
+                          name: job.poster_business_name || job.poster_name,
+                          profilePicture: job.poster_profile_picture,
+                          avatarColor: job.poster_avatar_color
+                        }}
+                        size="sm"
+                      />
+                      <span>Posted by {job.poster_business_name || job.poster_name}</span>
+                    </div>
                   </div>
                 </div>
               </CardHeader>

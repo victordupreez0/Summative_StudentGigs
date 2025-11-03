@@ -255,6 +255,72 @@ const PostJob = () => {
     }
   };
 
+  const handlePost = async () => {
+    const payload = {
+      title: jobTitle,
+      description: jobDescription,
+      projectType,
+      projectLength,
+      category: jobCategory,
+      tags,
+      educationLevels,
+      workLocation,
+      studentCount,
+      weeklyHours,
+      startDate,
+      experienceLevel,
+      requiredSkills,
+      preferredMajors,
+      languages,
+      budgetType,
+      hourlyRateMin,
+      hourlyRateMax,
+      fixedBudget,
+      paymentSchedule,
+      status: 'open'
+    };
+
+    try {
+      const url = jobId ? `${API_BASE}/api/jobs/${jobId}` : `${API_BASE}/api/jobs`;
+      const method = jobId ? 'PUT' : 'POST';
+      
+      const res = await fetch(url, {
+        method: method,
+        headers: { 
+          'Content-Type': 'application/json', 
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      
+      if (!res.ok) {
+        await showAlert({
+          title: 'Error',
+          message: data.error || 'Could not post job',
+          type: 'error'
+        });
+        return;
+      }
+
+      await showAlert({
+        title: 'Success',
+        message: jobId ? 'Job updated successfully!' : 'Job posted successfully!',
+        type: 'success'
+      });
+      
+      navigate('/dashboard');
+    } catch (e) {
+      console.error(e);
+      await showAlert({
+        title: 'Network Error',
+        message: 'Unable to post job. Please try again.',
+        type: 'error'
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -1087,14 +1153,14 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                     Back
                   </Button>
                   <Button 
-                    onClick={nextStep}
-                    disabled={currentStep === 5}
+                    onClick={currentStep === 5 ? handlePost : nextStep}
+                    disabled={false}
                   >
                     {currentStep === 1 && 'Next: Details'}
                     {currentStep === 2 && 'Next: Expertise'}
                     {currentStep === 3 && 'Next: Budget'}
                     {currentStep === 4 && 'Next: Review'}
-                    {currentStep === 5 && 'Continue to Post'}
+                    {currentStep === 5 && 'Post Job'}
                   </Button>
                 </div>
               </CardContent>

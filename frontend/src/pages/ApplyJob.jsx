@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { UserAvatar } from "@/components/UserAvatar";
 import AuthContext from '@/context/AuthContext';
 import API_BASE from '@/config/api';
 
@@ -336,15 +337,14 @@ const ApplyJob = () => {
               <CardHeader>
                 <CardTitle className="text-xl">{job.title}</CardTitle>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className={`w-8 h-8 rounded flex items-center justify-center ${
-                    job.poster_type === 'employer' ? 'bg-primary/10' : 'bg-green-100'
-                  }`}>
-                    <span className={`font-semibold ${
-                      job.poster_type === 'employer' ? 'text-primary' : 'text-green-700'
-                    }`}>
-                      {(job.poster_business_name || job.poster_name || 'U').charAt(0)}
-                    </span>
-                  </div>
+                  <UserAvatar
+                    user={{
+                      name: job.poster_business_name || job.poster_name || 'User',
+                      profilePicture: job.poster_profile_picture,
+                      avatarColor: job.poster_avatar_color
+                    }}
+                    size="sm"
+                  />
                   <div>
                     <p className="font-medium text-foreground">
                       {job.poster_business_name || job.poster_name || `User ${job.user_id}`}

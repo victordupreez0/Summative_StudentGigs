@@ -713,15 +713,14 @@ const StudentDashboard = () => {
                         <div className="flex items-start gap-4">
                           {/* Company Icon/Avatar */}
                           <div className="flex-shrink-0">
-                            <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                              job.poster_type === 'employer' ? 'bg-primary/10' : 'bg-green-100'
-                            }`}>
-                              <span className={`font-semibold text-lg ${
-                                job.poster_type === 'employer' ? 'text-primary' : 'text-green-700'
-                              }`}>
-                                {(job.poster_business_name || job.poster_name || job.category || 'U').charAt(0)}
-                              </span>
-                            </div>
+                            <UserAvatar
+                              user={{
+                                name: job.poster_business_name || job.poster_name || 'User',
+                                profilePicture: job.poster_profile_picture,
+                                avatarColor: job.poster_avatar_color
+                              }}
+                              size="lg"
+                            />
                           </div>
 
                           <div className="flex-1">

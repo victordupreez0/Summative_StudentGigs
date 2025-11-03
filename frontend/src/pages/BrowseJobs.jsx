@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useModal } from "@/components/ui/modal";
 import { Search, Filter, MapPin, Clock, DollarSign, Users, Bookmark } from "lucide-react";
@@ -373,15 +374,16 @@ const BrowseJobs = () => {
                     <div className="flex items-start gap-4">
                       {/* Company Icon/Avatar */}
                       <div className="flex-shrink-0">
-                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                          job.poster_type === 'employer' ? 'bg-primary/10' : 'bg-green-100'
-                        }`}>
-                          <span className={`font-semibold text-lg ${
-                            job.poster_type === 'employer' ? 'text-primary' : 'text-green-700'
-                          }`}>
-                            {(job.poster_business_name || job.poster_name || job.category || 'U').charAt(0)}
-                          </span>
-                        </div>
+                        <UserAvatar
+                          user={{
+                            name: job.poster_business_name || job.poster_name || 'User',
+                            profilePicture: job.poster_profile_picture,
+                            avatarColor: job.poster_avatar_color || '#1e40af',
+                            userType: job.poster_type
+                          }}
+                          userId={job.user_id}
+                          size="lg"
+                        />
                       </div>
 
                       <div className="flex-1">

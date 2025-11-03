@@ -122,6 +122,7 @@ function getAllJobs(req, res) {
             u.name AS poster_name,
             u.user_type AS poster_type,
             u.business_name AS poster_business_name,
+            u.profile_picture AS poster_profile_picture,
             u.avatar_color AS poster_avatar_color
         FROM jobs j
         LEFT JOIN users u ON j.user_id = u.id
@@ -183,6 +184,7 @@ function getJobById(req, res) {
             u.name AS poster_name,
             u.user_type AS poster_type,
             u.business_name AS poster_business_name,
+            u.profile_picture AS poster_profile_picture,
             u.avatar_color AS poster_avatar_color
         FROM jobs j
         LEFT JOIN users u ON j.user_id = u.id
@@ -818,6 +820,8 @@ function getSavedJobs(req, res) {
             u.name AS poster_name,
             u.business_name AS poster_business_name,
             u.user_type AS poster_type,
+            u.profile_picture AS poster_profile_picture,
+            u.avatar_color AS poster_avatar_color,
             sj.created_at AS saved_at
         FROM saved_jobs sj
         INNER JOIN jobs j ON sj.job_id = j.id
