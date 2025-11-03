@@ -6,6 +6,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { UserAvatar } from "@/components/UserAvatar";
 import { useModal } from "@/components/ui/modal";
+import Modal from "@/components/ui/modal";
+import { Input } from "@/components/ui/input";
 import { 
   Eye, 
   Send, 
@@ -19,7 +21,8 @@ import {
   TrendingUp,
   Calendar,
   CheckCircle,
-  Upload
+  Upload,
+  RotateCcw
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
@@ -94,6 +97,14 @@ const StudentDashboard = () => {
   const [loadingProfile, setLoadingProfile] = useState(false)
   const [upcomingInterviews, setUpcomingInterviews] = useState([])
   const [loadingInterviews, setLoadingInterviews] = useState(true)
+  const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+  const [selectedInterview, setSelectedInterview] = useState(null);
+  const [rescheduleData, setRescheduleData] = useState({
+    scheduledDate: '',
+    scheduledTime: '',
+    meetingLink: '',
+    notes: ''
+  });
   
   // Stats state
   const [stats, setStats] = useState([
@@ -493,8 +504,72 @@ const StudentDashboard = () => {
     const [hours, minutes] = scheduledTime.split(':');
     const hour = parseInt(hours);
     const ampm = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour % 12 || 12;
-    return `${displayHour}:${minutes} ${ampm}`;
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:${minutes} ${ampm}`;
+  };
+
+  const isInterviewPast = (scheduledDate, scheduledTime) => {
+    const now = new Date();
+    // Parse the date properly - it comes as ISO string from backend
+    const dateOnly = scheduledDate.split('T')[0]; // Get YYYY-MM-DD
+    const interviewDateTime = new Date(`${dateOnly}T${scheduledTime}`);
+    return interviewDateTime < now;
+  };
+
+  const handleReschedule = (interview) => {
+    setSelectedInterview(interview);
+    setRescheduleData({
+      scheduledDate: interview.scheduled_date?.split('T')[0] || '',
+      scheduledTime: interview.scheduled_time || '',
+      meetingLink: interview.meeting_link || '',
+      notes: interview.notes || ''
+    });
+    setShowRescheduleModal(true);
+  };
+
+  const handleRescheduleSubmit = async () => {
+    if (!selectedInterview || !rescheduleData.scheduledDate || !rescheduleData.scheduledTime) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/interviews/${selectedInterview.id}/reschedule`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(rescheduleData)
+      });
+
+      if (!res.ok) throw new Error('Failed to reschedule');
+
+      setShowRescheduleModal(false);
+      // Refresh interviews
+      window.location.reload();
+    } catch (error) {
+      console.error('Error rescheduling interview:', error);
+    }
+  };
+
+  const handleCompleteInterview = async (interviewId) => {
+    if (!confirm('Mark this interview as completed?')) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/interviews/${interviewId}/complete`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!res.ok) throw new Error('Failed to complete interview');
+
+      // Refresh interviews
+      window.location.reload();
+    } catch (error) {
+      console.error('Error completing interview:', error);
+    }
   };
 
   useEffect(() => {
@@ -955,12 +1030,6 @@ const StudentDashboard = () => {
                     Check Messages
                   </Link>
                 </Button>
-                <Button variant="outline" className="w-full justify-start" asChild>
-                  <Link to="/calendar">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    View Schedule
-                  </Link>
-                </Button>
               </CardContent>
             </Card>
 
@@ -982,8 +1051,13 @@ const StudentDashboard = () => {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {upcomingInterviews.map((interview) => (
-                      <div key={interview.id} className="border-l-4 border-purple-600 pl-3 py-2">
+                    {upcomingInterviews.map((interview) => {
+                      const isPast = isInterviewPast(interview.scheduled_date, interview.scheduled_time);
+                      const dateLabel = getInterviewDate(interview.scheduled_date);
+                      const isJobOwner = user && interview.employer_id == user.id;
+                      
+                      return (
+                      <div key={interview.id} className={`border-l-4 ${isPast ? 'border-gray-400' : 'border-purple-600'} pl-3 py-2`}>
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-semibold text-gray-900 truncate">{interview.job_title}</p>
@@ -993,30 +1067,58 @@ const StudentDashboard = () => {
                             <div className="flex items-center gap-1 mt-1">
                               <Clock className="w-3 h-3 text-gray-400" />
                               <span className="text-xs text-gray-500">
-                                {getInterviewDate(interview.scheduled_date)} • {formatInterviewTime(interview.scheduled_time)}
+                                {dateLabel} • {formatInterviewTime(interview.scheduled_time)}
                               </span>
                             </div>
                           </div>
                           <Badge 
-                            variant={getInterviewDate(interview.scheduled_date) === 'Today' ? 'default' : 'secondary'} 
+                            variant={isPast ? 'destructive' : (dateLabel === 'Today' ? 'default' : 'secondary')} 
                             className="text-xs flex-shrink-0"
                           >
-                            {getInterviewDate(interview.scheduled_date)}
+                            {isPast ? 'Late' : dateLabel}
                           </Badge>
                         </div>
                         <div className="flex gap-2 mt-2">
                           {interview.meeting_link && (
                             <Button 
                               size="sm" 
-                              className="w-full bg-purple-600 hover:bg-purple-700 text-white"
-                              onClick={() => window.open(interview.meeting_link, '_blank')}
+                              className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+                              onClick={() => {
+                                const link = interview.meeting_link.startsWith('http') 
+                                  ? interview.meeting_link 
+                                  : `https://${interview.meeting_link}`;
+                                window.open(link, '_blank');
+                              }}
                             >
                               Join
                             </Button>
                           )}
+                          {isJobOwner && (
+                            <>
+                              <Button 
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleReschedule(interview)}
+                                className="border-orange-500 text-orange-600 hover:bg-orange-50"
+                              >
+                                <RotateCcw className="w-3 h-3 mr-1" />
+                                Reschedule
+                              </Button>
+                              <Button 
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleCompleteInterview(interview.id)}
+                                className="border-green-600 text-green-600 hover:bg-green-50"
+                              >
+                                <CheckCircle className="w-3 h-3 mr-1" />
+                                Complete
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </CardContent>
@@ -1024,6 +1126,85 @@ const StudentDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Reschedule Interview Modal */}
+      <Modal
+        isOpen={showRescheduleModal}
+        onClose={() => setShowRescheduleModal(false)}
+        title="Reschedule Interview"
+        footer={
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowRescheduleModal(false)}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleRescheduleSubmit}
+              className="flex-1"
+            >
+              Reschedule
+            </Button>
+          </div>
+        }
+      >
+        <form className="space-y-4">
+          <div>
+            <label htmlFor="reschedule-date" className="block text-sm font-medium text-gray-700 mb-1">
+              Interview Date *
+            </label>
+            <Input
+              id="reschedule-date"
+              type="date"
+              value={rescheduleData.scheduledDate}
+              onChange={(e) => setRescheduleData({...rescheduleData, scheduledDate: e.target.value})}
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="reschedule-time" className="block text-sm font-medium text-gray-700 mb-1">
+              Interview Time *
+            </label>
+            <Input
+              id="reschedule-time"
+              type="time"
+              value={rescheduleData.scheduledTime}
+              onChange={(e) => setRescheduleData({...rescheduleData, scheduledTime: e.target.value})}
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="reschedule-link" className="block text-sm font-medium text-gray-700 mb-1">
+              Meeting Link
+            </label>
+            <Input
+              id="reschedule-link"
+              type="url"
+              placeholder="https://zoom.us/j/..."
+              value={rescheduleData.meetingLink}
+              onChange={(e) => setRescheduleData({...rescheduleData, meetingLink: e.target.value})}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="reschedule-notes" className="block text-sm font-medium text-gray-700 mb-1">
+              Notes
+            </label>
+            <textarea
+              id="reschedule-notes"
+              placeholder="Reason for rescheduling..."
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={rescheduleData.notes}
+              onChange={(e) => setRescheduleData({...rescheduleData, notes: e.target.value})}
+            />
+          </div>
+        </form>
+      </Modal>
 
       <Footer />
       <ModalComponent />

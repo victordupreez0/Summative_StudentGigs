@@ -15,10 +15,16 @@ router.get('/student', authenticateToken, interviewController.getStudentIntervie
 // Get upcoming interviews for dashboard
 router.get('/upcoming', authenticateToken, interviewController.getUpcomingInterviews);
 
+// Debug: Get all interviews (temporary)
+router.get('/debug/all', authenticateToken, interviewController.getAllInterviewsDebug);
+
 // Update interview status
 router.patch('/:interviewId/status', authenticateToken, interviewController.updateInterviewStatus);
 
 // Reschedule interview (employer only)
 router.patch('/:interviewId/reschedule', authenticateToken, interviewController.rescheduleInterview);
+
+// Mark interview as completed (employer only)
+router.patch('/:interviewId/complete', authenticateToken, interviewController.completeInterview);
 
 module.exports = router;

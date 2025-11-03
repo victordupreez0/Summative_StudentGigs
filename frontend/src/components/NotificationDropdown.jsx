@@ -134,6 +134,8 @@ export const NotificationDropdown = ({ user, token }) => {
       navigate(`/jobs/${notification.related_id}`);
     } else if (notification.related_type === 'application' && notification.related_id) {
       navigate(`/applicants`);
+    } else if (notification.related_type === 'interview' && notification.related_id) {
+      navigate('/dashboard');
     } else if (notification.type === 'message') {
       navigate('/messages');
     }

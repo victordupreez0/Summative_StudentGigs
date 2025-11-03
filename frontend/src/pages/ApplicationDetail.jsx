@@ -3,6 +3,8 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
 import { useModal } from "@/components/ui/modal";
 import { 
   ArrowLeft,
@@ -17,7 +19,8 @@ import {
   User,
   Briefcase,
   MapPin,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Video
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -32,6 +35,16 @@ const ApplicationDetail = () => {
   const [application, setApplication] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  
+  // Interview scheduling state
+  const [showInterviewModal, setShowInterviewModal] = useState(false);
+  const [interviewData, setInterviewData] = useState({
+    scheduledDate: '',
+    scheduledTime: '',
+    meetingLink: '',
+    notes: ''
+  });
+  const [schedulingInterview, setSchedulingInterview] = useState(false);
 
   useEffect(() => {
     fetchApplicationDetail();
@@ -160,6 +173,73 @@ const ApplicationDetail = () => {
         message: 'Failed to start conversation. Please try again.',
         type: 'error'
       });
+    }
+  };
+
+  const handleScheduleInterview = () => {
+    setShowInterviewModal(true);
+    // Reset interview data
+    setInterviewData({
+      scheduledDate: '',
+      scheduledTime: '',
+      meetingLink: '',
+      notes: ''
+    });
+  };
+
+  const handleInterviewSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!interviewData.scheduledDate || !interviewData.scheduledTime) {
+      await showAlert({
+        title: 'Missing Information',
+        message: 'Please provide both date and time for the interview.',
+        type: 'error'
+      });
+      return;
+    }
+
+    try {
+      setSchedulingInterview(true);
+      
+      const res = await fetch(`${API_BASE}/api/interviews/schedule`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          applicationId: application.id,
+          scheduledDate: interviewData.scheduledDate,
+          scheduledTime: interviewData.scheduledTime,
+          meetingLink: interviewData.meetingLink,
+          notes: interviewData.notes
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to schedule interview');
+      }
+
+      await showAlert({
+        title: 'Success',
+        message: 'Interview scheduled successfully!',
+        type: 'success'
+      });
+      
+      setShowInterviewModal(false);
+      fetchApplicationDetail(); // Refresh application details
+    } catch (error) {
+      console.error('Error scheduling interview:', error);
+      await showAlert({
+        title: 'Error',
+        message: error.message || 'Failed to schedule interview. Please try again.',
+        type: 'error'
+      });
+    } finally {
+      setSchedulingInterview(false);
     }
   };
 
@@ -304,6 +384,14 @@ const ApplicationDetail = () => {
             {/* Action Buttons */}
             {application.status === 'pending' && (
               <div className="flex gap-3">
+                <Button
+                  onClick={handleScheduleInterview}
+                  variant="outline"
+                  className="text-purple-700 border-purple-300 hover:bg-purple-50"
+                >
+                  <Video className="w-4 h-4 mr-2" />
+                  Schedule Interview
+                </Button>
                 <Button
                   variant="outline"
                   onClick={() => updateApplicationStatus('rejected')}
@@ -520,21 +608,16 @@ const ApplicationDetail = () => {
                   Message Applicant
                 </Button>
 
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={() => {
-                    // TODO: Add schedule interview functionality
-                    showAlert({
-                      title: 'Coming Soon',
-                      message: 'Interview scheduling functionality will be added soon.',
-                      type: 'info'
-                    });
-                  }}
-                >
-                  <Calendar className="w-4 h-4 mr-2" />
-                  Schedule Interview
-                </Button>
+                {application.status === 'pending' && (
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    onClick={handleScheduleInterview}
+                  >
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Schedule Interview
+                  </Button>
+                )}
                 
                 <Button
                   variant="outline"
@@ -597,6 +680,87 @@ const ApplicationDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Schedule Interview Modal */}
+      <Modal
+        isOpen={showInterviewModal}
+        onClose={() => setShowInterviewModal(false)}
+        title="Schedule Interview"
+        footer={
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowInterviewModal(false)}
+              className="flex-1"
+              disabled={schedulingInterview}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleInterviewSubmit}
+              className="flex-1"
+              disabled={schedulingInterview}
+            >
+              {schedulingInterview ? 'Scheduling...' : 'Schedule Interview'}
+            </Button>
+          </div>
+        }
+      >
+        <form onSubmit={handleInterviewSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
+              Interview Date *
+            </label>
+            <Input
+              id="date"
+              type="date"
+              value={interviewData.scheduledDate}
+              onChange={(e) => setInterviewData({...interviewData, scheduledDate: e.target.value})}
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="time" className="block text-sm font-medium text-gray-700 mb-1">
+              Interview Time *
+            </label>
+            <Input
+              id="time"
+              type="time"
+              value={interviewData.scheduledTime}
+              onChange={(e) => setInterviewData({...interviewData, scheduledTime: e.target.value})}
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="meeting" className="block text-sm font-medium text-gray-700 mb-1">
+              Meeting Link (Zoom, Google Meet, etc.)
+            </label>
+            <Input
+              id="meeting"
+              type="url"
+              placeholder="https://zoom.us/j/..."
+              value={interviewData.meetingLink}
+              onChange={(e) => setInterviewData({...interviewData, meetingLink: e.target.value})}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
+              Additional Notes
+            </label>
+            <textarea
+              id="notes"
+              placeholder="Any additional information for the candidate..."
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={interviewData.notes}
+              onChange={(e) => setInterviewData({...interviewData, notes: e.target.value})}
+            />
+          </div>
+        </form>
+      </Modal>
 
       <Footer />
       <ModalComponent />

@@ -79,6 +79,16 @@ exports.scheduleInterview = async (req, res) => {
                     notes || null
                 ];
 
+                console.log('Inserting interview with values:', {
+                    applicationId,
+                    job_id: application.job_id,
+                    employerId,
+                    student_id: application.student_id,
+                    scheduledDate,
+                    scheduledTime,
+                    status: 'scheduled'
+                });
+
                 db.query(insertSql, values, (insertErr, result) => {
                     if (insertErr) {
                         console.error('Error creating interview:', insertErr);
@@ -89,15 +99,16 @@ exports.scheduleInterview = async (req, res) => {
                     const notificationSql = `
                         INSERT INTO notifications 
                         (user_id, type, title, message, related_id, related_type)
-                        VALUES (?, 'general', 'Interview Scheduled', ?, ?, 'application')
+                        VALUES (?, 'general', 'Interview Scheduled', ?, ?, 'interview')
                     `;
 
                     const notificationMessage = `You have been invited to an interview on ${scheduledDate} at ${scheduledTime}`;
+                    const interviewId = result.insertId;
                     
                     db.query(notificationSql, [
                         application.student_id, 
                         notificationMessage, 
-                        applicationId
+                        interviewId
                     ], (notifErr) => {
                         if (notifErr) {
                             console.error('Error creating notification:', notifErr);
@@ -106,7 +117,7 @@ exports.scheduleInterview = async (req, res) => {
 
                         res.status(201).json({
                             message: 'Interview scheduled successfully',
-                            interviewId: result.insertId
+                            interviewId: interviewId
                         });
                     });
                 });
@@ -344,56 +355,180 @@ exports.getUpcomingInterviews = async (req, res) => {
         if (!db) return res.status(503).json({ error: 'Database not available' });
 
         const userId = req.user.id;
-        const { userType } = req.query;
 
-        let sql;
-        if (userType === 'employer') {
-            sql = `
-                SELECT 
-                    i.*,
-                    j.title as job_title,
-                    u.name as student_name,
-                    u.email as student_email,
-                    u.avatar_color as student_avatar_color
-                FROM interviews i
-                JOIN jobs j ON i.job_id = j.id
-                JOIN users u ON i.student_id = u.id
-                WHERE i.employer_id = ?
-                    AND i.status IN ('scheduled', 'rescheduled')
-                    AND i.scheduled_date >= CURDATE()
-                    AND i.scheduled_date <= DATE_ADD(CURDATE(), INTERVAL 7 DAY)
-                ORDER BY i.scheduled_date ASC, i.scheduled_time ASC
-            `;
-        } else {
-            sql = `
-                SELECT 
-                    i.*,
-                    j.title as job_title,
-                    u.name as employer_name,
-                    u.business_name as employer_business,
-                    u.email as employer_email,
-                    u.avatar_color as employer_avatar_color
-                FROM interviews i
-                JOIN jobs j ON i.job_id = j.id
-                JOIN users u ON i.employer_id = u.id
-                WHERE i.student_id = ?
-                    AND i.status IN ('scheduled', 'rescheduled')
-                    AND i.scheduled_date >= CURDATE()
-                    AND i.scheduled_date <= DATE_ADD(CURDATE(), INTERVAL 7 DAY)
-                ORDER BY i.scheduled_date ASC, i.scheduled_time ASC
-            `;
-        }
+        console.log('Fetching upcoming interviews for user:', userId);
 
-        db.query(sql, [userId], (err, interviews) => {
+        // Fetch interviews where user is EITHER employer OR student
+        const sql = `
+            SELECT 
+                i.*,
+                j.title as job_title,
+                CASE 
+                    WHEN i.employer_id = ? THEN u_student.name
+                    ELSE u_employer.name
+                END as other_party_name,
+                CASE 
+                    WHEN i.employer_id = ? THEN u_student.email
+                    ELSE u_employer.email
+                END as other_party_email,
+                CASE 
+                    WHEN i.employer_id = ? THEN u_student.avatar_color
+                    ELSE u_employer.avatar_color
+                END as other_party_avatar_color,
+                CASE 
+                    WHEN i.employer_id = ? THEN u_employer.business_name
+                    ELSE NULL
+                END as employer_business
+            FROM interviews i
+            JOIN jobs j ON i.job_id = j.id
+            LEFT JOIN users u_student ON i.student_id = u_student.id
+            LEFT JOIN users u_employer ON i.employer_id = u_employer.id
+            WHERE (i.employer_id = ? OR i.student_id = ?)
+                AND i.status IN ('scheduled', 'rescheduled')
+            ORDER BY i.scheduled_date ASC, i.scheduled_time ASC
+        `;
+
+        db.query(sql, [userId, userId, userId, userId, userId, userId], (err, interviews) => {
             if (err) {
                 console.error('Error fetching upcoming interviews:', err);
                 return res.status(500).json({ error: 'Failed to fetch upcoming interviews' });
             }
 
+            console.log('Found interviews:', interviews.length);
+            if (interviews.length > 0) {
+                console.log('Interview details:', interviews);
+            }
+            
             res.json({ interviews: interviews || [] });
         });
     } catch (error) {
         console.error('Error in getUpcomingInterviews:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+// Debug function to get all interviews
+exports.getAllInterviewsDebug = async (req, res) => {
+    try {
+        const db = getDb();
+        if (!db) return res.status(503).json({ error: 'Database not available' });
+
+        const sql = `
+            SELECT 
+                i.*,
+                j.title as job_title,
+                s.name as student_name,
+                e.name as employer_name
+            FROM interviews i
+            LEFT JOIN jobs j ON i.job_id = j.id
+            LEFT JOIN users s ON i.student_id = s.id
+            LEFT JOIN users e ON i.employer_id = e.id
+            ORDER BY i.created_at DESC
+        `;
+
+        db.query(sql, (err, interviews) => {
+            if (err) {
+                console.error('Error fetching all interviews:', err);
+                return res.status(500).json({ error: 'Failed to fetch interviews' });
+            }
+
+            console.log('DEBUG: Total interviews in database:', interviews.length);
+            res.json({ interviews: interviews || [], count: interviews.length });
+        });
+    } catch (error) {
+        console.error('Error in getAllInterviewsDebug:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+// Reschedule an interview (employer only)
+exports.rescheduleInterview = async (req, res) => {
+    try {
+        const db = getDb();
+        if (!db) return res.status(503).json({ error: 'Database not available' });
+
+        const { interviewId } = req.params;
+        const { scheduledDate, scheduledTime, meetingLink, notes } = req.body;
+        const employerId = req.user.id;
+
+        // Validate required fields
+        if (!scheduledDate || !scheduledTime) {
+            return res.status(400).json({ 
+                error: 'Date and time are required' 
+            });
+        }
+
+        // Verify the interview belongs to this employer
+        const checkSql = 'SELECT * FROM interviews WHERE id = ? AND employer_id = ?';
+        
+        db.query(checkSql, [interviewId, employerId], (err, interviews) => {
+            if (err) {
+                console.error('Error checking interview:', err);
+                return res.status(500).json({ error: 'Failed to check interview' });
+            }
+
+            if (!interviews || interviews.length === 0) {
+                return res.status(404).json({ error: 'Interview not found or unauthorized' });
+            }
+
+            // Update the interview
+            const updateSql = `
+                UPDATE interviews 
+                SET scheduled_date = ?, scheduled_time = ?, meeting_link = ?, notes = ?, status = 'rescheduled'
+                WHERE id = ?
+            `;
+
+            db.query(updateSql, [scheduledDate, scheduledTime, meetingLink || null, notes || null, interviewId], (updateErr) => {
+                if (updateErr) {
+                    console.error('Error rescheduling interview:', updateErr);
+                    return res.status(500).json({ error: 'Failed to reschedule interview' });
+                }
+
+                res.json({ message: 'Interview rescheduled successfully' });
+            });
+        });
+    } catch (error) {
+        console.error('Error in rescheduleInterview:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+// Mark interview as completed (employer only)
+exports.completeInterview = async (req, res) => {
+    try {
+        const db = getDb();
+        if (!db) return res.status(503).json({ error: 'Database not available' });
+
+        const { interviewId } = req.params;
+        const employerId = req.user.id;
+
+        // Verify the interview belongs to this employer
+        const checkSql = 'SELECT * FROM interviews WHERE id = ? AND employer_id = ?';
+        
+        db.query(checkSql, [interviewId, employerId], (err, interviews) => {
+            if (err) {
+                console.error('Error checking interview:', err);
+                return res.status(500).json({ error: 'Failed to check interview' });
+            }
+
+            if (!interviews || interviews.length === 0) {
+                return res.status(404).json({ error: 'Interview not found or unauthorized' });
+            }
+
+            // Update the interview status to completed
+            const updateSql = 'UPDATE interviews SET status = ? WHERE id = ?';
+
+            db.query(updateSql, ['completed', interviewId], (updateErr) => {
+                if (updateErr) {
+                    console.error('Error completing interview:', updateErr);
+                    return res.status(500).json({ error: 'Failed to complete interview' });
+                }
+
+                res.json({ message: 'Interview marked as completed' });
+            });
+        });
+    } catch (error) {
+        console.error('Error in completeInterview:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 };
