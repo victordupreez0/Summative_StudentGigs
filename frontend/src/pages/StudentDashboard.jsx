@@ -61,10 +61,37 @@ const StudentDashboard = () => {
     return hourMap[hours] || hours;
   };
 
+  // Helper function to calculate profile completion
+  const calculateProfileCompletion = (profile) => {
+    if (!profile) return { percentage: 20, completed: ['Basic Information'], pending: ['Complete Bio', 'Add Education', 'Add Skills', 'Upload Portfolio'] };
+    
+    const steps = [
+      { name: 'Basic Information', completed: true, key: 'basic' }, // Always true if user exists
+      { name: 'Bio', completed: !!profile.bio, key: 'bio' },
+      { name: 'Education', completed: Array.isArray(profile.education) && profile.education.length > 0, key: 'education' },
+      { name: 'Skills', completed: Array.isArray(profile.skills) && profile.skills.length > 0, key: 'skills' },
+      { name: 'Work Experience', completed: Array.isArray(profile.work_experience) && profile.work_experience.length > 0, key: 'experience' },
+      { name: 'Portfolio', completed: Array.isArray(profile.portfolio) && profile.portfolio.length > 0, key: 'portfolio' },
+      { name: 'Availability', completed: profile.availability && Object.keys(profile.availability).length > 0, key: 'availability' },
+    ];
+    
+    const completedSteps = steps.filter(s => s.completed);
+    const pendingSteps = steps.filter(s => !s.completed);
+    const percentage = Math.round((completedSteps.length / steps.length) * 100);
+    
+    return {
+      percentage,
+      completed: completedSteps.map(s => s.name),
+      pending: pendingSteps.map(s => s.name)
+    };
+  };
+
   const [recommendedJobs, setRecommendedJobs] = useState([])
   const [savedJobIds, setSavedJobIds] = useState(new Set())
   const [recentActivity, setRecentActivity] = useState([])
   const [loadingActivity, setLoadingActivity] = useState(false)
+  const [profileData, setProfileData] = useState(null)
+  const [loadingProfile, setLoadingProfile] = useState(false)
   
   // Stats state
   const [stats, setStats] = useState([
@@ -101,6 +128,40 @@ const StudentDashboard = () => {
       link: "/open-jobs"
     }
   ]);
+
+  // Fetch profile data for profile views
+  useEffect(() => {
+    if (!user || !token) return;
+    
+    let mounted = true;
+    setLoadingProfile(true);
+    
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/profile/me/profile`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!res.ok) {
+          setLoadingProfile(false);
+          return;
+        }
+        
+        const data = await res.json();
+        if (!mounted) return;
+        
+        setProfileData(data);
+        setLoadingProfile(false);
+      } catch (e) {
+        console.error('Failed to load profile data', e);
+        setLoadingProfile(false);
+      }
+    })();
+    
+    return () => { mounted = false };
+  }, [user, token]);
 
   // Fetch stats data
   useEffect(() => {
@@ -202,8 +263,8 @@ const StudentDashboard = () => {
           console.error('Failed to fetch open jobs:', e);
         }
         
-        // Profile views - for now, use a mock value since we don't have this endpoint yet
-        const profileViews = Math.floor(Math.random() * 50) + 10; // Mock data
+        // Get profile views from profile data
+        const profileViews = profileData?.profile?.profile_views || 0;
         
         if (!mounted) return;
         
@@ -283,7 +344,7 @@ const StudentDashboard = () => {
     })();
     
     return () => { mounted = false };
-  }, [user, token]);
+  }, [user, token, profileData]);
 
   // Fetch recent notifications for activity feed
   useEffect(() => {
@@ -759,41 +820,51 @@ const StudentDashboard = () => {
                     className="mx-auto mb-4 border-4 border-primary-foreground/20"
                   />
                   <h3 className="text-xl font-bold">{user?.name || 'Student'}</h3>
-                  <p className="text-primary-foreground/80">Computer Science Student</p>
-                  <div className="flex items-center justify-center gap-1 mt-2">
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    <span className="font-semibold">4.8</span>
-                    <span className="text-primary-foreground/80 ml-1">Boston, MA</span>
-                  </div>
+                  <p className="text-primary-foreground/80">
+                    {profileData?.profile?.education?.[0]?.degree || 'Student'}
+                    {profileData?.profile?.education?.[0]?.field && ` • ${profileData.profile.education[0].field}`}
+                  </p>
+                  {profileData?.stats?.totalCompletedJobs > 0 && (
+                    <div className="flex items-center justify-center gap-1 mt-2">
+                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      <span className="font-semibold">{profileData.stats.averageRating || '5.0'}</span>
+                      <span className="text-primary-foreground/80 ml-1">
+                        • {profileData.stats.totalCompletedJobs} jobs completed
+                      </span>
+                    </div>
+                  )}
                 </div>
-                <Button variant="accent" className="w-full mb-4">
-                  Complete Profile
+                <Button variant="accent" className="w-full mb-4" asChild>
+                  <Link to="/student-profile">
+                    {loadingProfile ? 'Loading...' : 'Complete Profile'}
+                  </Link>
                 </Button>
                 
                 <div className="space-y-3">
                   <div className="flex justify-between text-sm">
                     <span>Profile Completion</span>
-                    <span className="font-semibold">65%</span>
+                    <span className="font-semibold">
+                      {calculateProfileCompletion(profileData?.profile).percentage}%
+                    </span>
                   </div>
-                  <Progress value={65} className="bg-primary-foreground/20" />
+                  <Progress 
+                    value={calculateProfileCompletion(profileData?.profile).percentage} 
+                    className="bg-primary-foreground/20" 
+                  />
                   
                   <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-400" />
-                      <span>Basic Information</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-400" />
-                      <span>Education Details</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full border-2 border-primary-foreground/40" />
-                      <span className="text-primary-foreground/70">Upload Portfolio</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full border-2 border-primary-foreground/40" />
-                      <span className="text-primary-foreground/70">Add Skills Assessment</span>
-                    </div>
+                    {calculateProfileCompletion(profileData?.profile).completed.slice(0, 2).map((step, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-400" />
+                        <span>{step}</span>
+                      </div>
+                    ))}
+                    {calculateProfileCompletion(profileData?.profile).pending.slice(0, 2).map((step, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full border-2 border-primary-foreground/40" />
+                        <span className="text-primary-foreground/70">Add {step}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </CardContent>
