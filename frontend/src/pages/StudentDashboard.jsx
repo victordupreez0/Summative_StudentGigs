@@ -10,6 +10,7 @@ import {
   Eye, 
   Send, 
   Bookmark, 
+  Briefcase,
   DollarSign, 
   Star, 
   Clock,
@@ -30,6 +31,8 @@ const StudentDashboard = () => {
   const { user, token } = useContext(AuthContext);
   const navigate = useNavigate();
   const { showAlert, ModalComponent } = useModal();
+  
+  console.log('StudentDashboard rendering, user:', user ? 'logged in' : 'not logged in');
   
   // Helper function to format experience level
   const formatExperienceLevel = (level) => {
@@ -58,41 +61,229 @@ const StudentDashboard = () => {
     return hourMap[hours] || hours;
   };
 
-  const stats = [
-    {
-      title: "Profile Views",
-      value: "28",
-      change: "12% from last week",
-      icon: Eye,
-      color: "text-gray-600"
-    },
-    {
-      title: "Applications", 
-      value: "5",
-      change: "3 awaiting response",
-      icon: Send,
-      color: "text-gray-600"
-    },
-    {
-      title: "Saved Jobs",
-      value: "12", 
-      change: "2 closing soon",
-      icon: Bookmark,
-      color: "text-gray-600"
-    },
-    {
-      title: "Earnings",
-      value: "$240",
-      change: "This month",
-      icon: DollarSign,
-      color: "text-purple-600"
-    }
-  ];
-
   const [recommendedJobs, setRecommendedJobs] = useState([])
   const [savedJobIds, setSavedJobIds] = useState(new Set())
   const [recentActivity, setRecentActivity] = useState([])
   const [loadingActivity, setLoadingActivity] = useState(false)
+  
+  // Stats state
+  const [stats, setStats] = useState([
+    {
+      title: "Profile Views",
+      value: "0",
+      change: "Loading...",
+      icon: Eye,
+      color: "text-gray-600",
+      link: "/student-profile"
+    },
+    {
+      title: "Applications", 
+      value: "0",
+      change: "Loading...",
+      icon: Send,
+      color: "text-gray-600",
+      link: "/applications"
+    },
+    {
+      title: "Saved Jobs",
+      value: "0", 
+      change: "Loading...",
+      icon: Bookmark,
+      color: "text-gray-600",
+      link: "/browse-jobs?filter=saved"
+    },
+    {
+      title: "Open Jobs",
+      value: "0",
+      change: "Loading...",
+      icon: Briefcase,
+      color: "text-purple-600",
+      link: "/open-jobs"
+    }
+  ]);
+
+  // Fetch stats data
+  useEffect(() => {
+    if (!user || !token) {
+      // Set default stats for non-logged in users
+      setStats([
+        {
+          title: "Profile Views",
+          value: "0",
+          change: "Login to view",
+          icon: Eye,
+          color: "text-gray-600",
+          link: "/student-profile"
+        },
+        {
+          title: "Applications", 
+          value: "0",
+          change: "Login to view",
+          icon: Send,
+          color: "text-gray-600",
+          link: "/applications"
+        },
+        {
+          title: "Saved Jobs",
+          value: "0", 
+          change: "Login to view",
+          icon: Bookmark,
+          color: "text-gray-600",
+          link: "/browse-jobs?filter=saved"
+        },
+        {
+          title: "Open Jobs",
+          value: "0",
+          change: "Loading...",
+          icon: Briefcase,
+          color: "text-purple-600",
+          link: "/open-jobs"
+        }
+      ]);
+      return;
+    }
+    
+    let mounted = true;
+    
+    (async () => {
+      try {
+        // Fetch applications count
+        let applicationsCount = 0;
+        let awaitingResponse = 0;
+        try {
+          const appsRes = await fetch(`${API_BASE}/api/applications/my-applications`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          
+          if (appsRes.ok) {
+            const appsData = await appsRes.json();
+            applicationsCount = appsData.length;
+            awaitingResponse = appsData.filter(app => app.status === 'pending').length;
+          }
+        } catch (e) {
+          console.error('Failed to fetch applications:', e);
+        }
+        
+        // Fetch saved jobs count
+        let savedJobsCount = 0;
+        let closingSoon = 0;
+        try {
+          const savedRes = await fetch(`${API_BASE}/api/jobs/saved`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          
+          if (savedRes.ok) {
+            const savedData = await savedRes.json();
+            savedJobsCount = savedData.length;
+            // Count jobs closing within 7 days
+            const now = new Date();
+            const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+            closingSoon = savedData.filter(job => {
+              if (job.deadline) {
+                const deadline = new Date(job.deadline);
+                return deadline <= sevenDaysFromNow && deadline > now;
+              }
+              return false;
+            }).length;
+          }
+        } catch (e) {
+          console.error('Failed to fetch saved jobs:', e);
+        }
+        
+        // Fetch open jobs count (all available jobs)
+        let openJobsCount = 0;
+        try {
+          const jobsRes = await fetch(`${API_BASE}/api/jobs`);
+          if (jobsRes.ok) {
+            const jobsData = await jobsRes.json();
+            openJobsCount = jobsData.filter(job => job.status === 'open').length;
+          }
+        } catch (e) {
+          console.error('Failed to fetch open jobs:', e);
+        }
+        
+        // Profile views - for now, use a mock value since we don't have this endpoint yet
+        const profileViews = Math.floor(Math.random() * 50) + 10; // Mock data
+        
+        if (!mounted) return;
+        
+        setStats([
+          {
+            title: "Profile Views",
+            value: profileViews.toString(),
+            change: "Last 30 days",
+            icon: Eye,
+            color: "text-gray-600",
+            link: "/student-profile"
+          },
+          {
+            title: "Applications", 
+            value: applicationsCount.toString(),
+            change: awaitingResponse > 0 ? `${awaitingResponse} awaiting response` : "All reviewed",
+            icon: Send,
+            color: "text-gray-600",
+            link: "/applications"
+          },
+          {
+            title: "Saved Jobs",
+            value: savedJobsCount.toString(), 
+            change: closingSoon > 0 ? `${closingSoon} closing soon` : "No urgent deadlines",
+            icon: Bookmark,
+            color: "text-gray-600",
+            link: "/browse-jobs?filter=saved"
+          },
+          {
+            title: "Open Jobs",
+            value: openJobsCount.toString(),
+            change: "Available now",
+            icon: Briefcase,
+            color: "text-purple-600",
+            link: "/open-jobs"
+          }
+        ]);
+      } catch (e) {
+        console.error('Failed to load stats', e);
+        // Set default values on error
+        if (!mounted) return;
+        setStats([
+          {
+            title: "Profile Views",
+            value: "0",
+            change: "Error loading",
+            icon: Eye,
+            color: "text-gray-600",
+            link: "/student-profile"
+          },
+          {
+            title: "Applications", 
+            value: "0",
+            change: "Error loading",
+            icon: Send,
+            color: "text-gray-600",
+            link: "/applications"
+          },
+          {
+            title: "Saved Jobs",
+            value: "0", 
+            change: "Error loading",
+            icon: Bookmark,
+            color: "text-gray-600",
+            link: "/browse-jobs?filter=saved"
+          },
+          {
+            title: "Open Jobs",
+            value: "0",
+            change: "Error loading",
+            icon: Briefcase,
+            color: "text-purple-600",
+            link: "/open-jobs"
+          }
+        ]);
+      }
+    })();
+    
+    return () => { mounted = false };
+  }, [user, token]);
 
   // Fetch recent notifications for activity feed
   useEffect(() => {
@@ -352,7 +543,12 @@ const StudentDashboard = () => {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           {stats.map((stat, index) => (
-            <Card key={index} hover={true} className="border-gray-200 bg-white">
+            <Card 
+              key={index} 
+              hover={true} 
+              className="border-gray-200 bg-white cursor-pointer transition-all hover:shadow-lg"
+              onClick={() => navigate(stat.link)}
+            >
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
