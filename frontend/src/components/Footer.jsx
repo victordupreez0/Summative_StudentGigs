@@ -32,39 +32,35 @@ export const Footer = () => {
           
           {/* For Students */}
           <div>
-            <h3 className="font-semibold text-white mb-5 text-base">For Students</h3>
+            <h3 className="font-bold mb-5 text-lg" style={{ color: '#ffffff' }}>For Students</h3>
             <ul className="space-y-3 text-sm">
               <li><Link to="/browse-jobs" className="text-slate-400 hover:text-white transition-colors duration-200">Find Work</Link></li>
-              <li><Link to="/profile" className="text-slate-400 hover:text-white transition-colors duration-200">Create Profile</Link></li>
-              <li><Link to="/success-stories" className="text-slate-400 hover:text-white transition-colors duration-200">Success Stories</Link></li>
-              <li><Link to="/resources" className="text-slate-400 hover:text-white transition-colors duration-200">Resources</Link></li>
-              <li><Link to="/safety" className="text-slate-400 hover:text-white transition-colors duration-200">Safety Tips</Link></li>
+              <li><Link to="/applications" className="text-slate-400 hover:text-white transition-colors duration-200">My Applications</Link></li>
+              <li><Link to="/student-profile" className="text-slate-400 hover:text-white transition-colors duration-200">My Profile</Link></li>
+              <li><Link to="/student-dashboard" className="text-slate-400 hover:text-white transition-colors duration-200">Dashboard</Link></li>
+              <li><Link to="/messages" className="text-slate-400 hover:text-white transition-colors duration-200">Messages</Link></li>
             </ul>
           </div>
           
           {/* For Hirers */}
           <div>
-            <h3 className="font-semibold text-white mb-5 text-base">For Hirers</h3>
+            <h3 className="font-bold mb-5 text-lg" style={{ color: '#ffffff' }}>For Hirers</h3>
             <ul className="space-y-3 text-sm">
               <li><Link to="/post-job" className="text-slate-400 hover:text-white transition-colors duration-200">Post a Job</Link></li>
-              <li><Link to="/browse-talent" className="text-slate-400 hover:text-white transition-colors duration-200">Browse Talent</Link></li>
-              <li><Link to="/hiring-guides" className="text-slate-400 hover:text-white transition-colors duration-200">Hiring Guides</Link></li>
-              <li><Link to="/payment-options" className="text-slate-400 hover:text-white transition-colors duration-200">Payment Options</Link></li>
-              <li><Link to="/success-stories" className="text-slate-400 hover:text-white transition-colors duration-200">Success Stories</Link></li>
+              <li><Link to="/my-jobs" className="text-slate-400 hover:text-white transition-colors duration-200">My Jobs</Link></li>
+              <li><Link to="/applicants" className="text-slate-400 hover:text-white transition-colors duration-200">View Applicants</Link></li>
+              <li><Link to="/employer-dashboard" className="text-slate-400 hover:text-white transition-colors duration-200">Dashboard</Link></li>
+              <li><Link to="/messages" className="text-slate-400 hover:text-white transition-colors duration-200">Messages</Link></li>
             </ul>
           </div>
           
           {/* Support */}
           <div>
-            <h3 className="font-semibold text-white mb-5 text-base">Support</h3>
+            <h3 className="font-bold mb-5 text-lg" style={{ color: '#ffffff' }}>Support</h3>
             <ul className="space-y-3 text-sm">
-              <li><Link to="/help" className="text-slate-400 hover:text-white transition-colors duration-200">Help Center</Link></li>
+              <li><Link to="/demo-disclaimer" className="text-slate-400 hover:text-white transition-colors duration-200">Demo Notice</Link></li>
               <li><Link to="/feedback" className="text-slate-400 hover:text-white transition-colors duration-200">Send Feedback</Link></li>
               <li><Link to="/report-error" className="text-slate-400 hover:text-white transition-colors duration-200">Report an Error</Link></li>
-              <li><Link to="/trust-safety" className="text-slate-400 hover:text-white transition-colors duration-200">Trust & Safety</Link></li>
-              <li><Link to="/terms" className="text-slate-400 hover:text-white transition-colors duration-200">Terms of Service</Link></li>
-              <li><Link to="/privacy" className="text-slate-400 hover:text-white transition-colors duration-200">Privacy Policy</Link></li>
-              <li><Link to="/contact" className="text-slate-400 hover:text-white transition-colors duration-200">Contact Us</Link></li>
             </ul>
           </div>
         </div>

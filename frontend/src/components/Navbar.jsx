@@ -1,4 +1,4 @@
-import { Search, Bell, Mail, User, Settings, LogOut, LayoutDashboard, MessageSquare, AlertCircle } from "lucide-react";
+import { Search, Bell, Mail, User, Settings, LogOut, LayoutDashboard, MessageSquare, AlertCircle, AlertTriangle } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -95,14 +95,33 @@ export const Navbar = () => {
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 group">
-          <img 
-            src="/logo.png" 
-            alt="StudentGigs Logo" 
-            className="h-10 w-auto transition-transform duration-200 group-hover:scale-105"
-          />
-        </Link>
+        {/* Demo Warning Banner and Logo Container */}
+        <div className="flex items-center">
+          {/* Demo Warning Banner - positioned much farther left */}
+          <Link 
+            to="/demo-disclaimer" 
+            className="hidden lg:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-lg hover:border-amber-400 transition-all duration-300 shadow-sm hover:shadow-md group -ml-16 mr-16"
+          >
+            <AlertTriangle className="w-5 h-5 text-amber-600 animate-pulse flex-shrink-0" />
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-amber-800 group-hover:text-amber-900 leading-tight">
+                Demo App
+              </span>
+              <span className="text-xs text-amber-700 group-hover:text-amber-800 leading-tight">
+                click here
+              </span>
+            </div>
+          </Link>
+          
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2 group">
+            <img 
+              src="/logo.png" 
+              alt="StudentGigs Logo" 
+              className="h-10 w-auto transition-transform duration-200 group-hover:scale-105"
+            />
+          </Link>
+        </div>
         
         {/* Navigation - Modern Typography with Better Spacing */}
         <nav className="hidden md:flex items-center gap-8">

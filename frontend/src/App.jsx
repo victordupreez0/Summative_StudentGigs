@@ -20,6 +20,7 @@ import Feedback from './pages/Feedback';
 import ReportError from './pages/ReportError';
 import AdminPanel from './pages/AdminPanel';
 import NotFound from './pages/NotFound';
+import DemoDisclaimer from './pages/DemoDisclaimer';
 import '@radix-ui/themes/styles.css';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -48,6 +49,9 @@ const App = () => (
         {/* Feedback and Error Reporting */}
         <Route path="/feedback" element={<Feedback />} />
         <Route path="/report-error" element={<ReportError />} />
+        
+        {/* Demo Disclaimer */}
+        <Route path="/demo-disclaimer" element={<DemoDisclaimer />} />
         
         {/* Admin Panel */}
         <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
