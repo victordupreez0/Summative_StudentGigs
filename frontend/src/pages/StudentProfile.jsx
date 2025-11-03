@@ -1,4 +1,7 @@
-import { useState } from "react";
+﻿import { useState, useEffect, useContext } from "react";
+import { useParams } from "react-router-dom";
+import AuthContext from "@/context/AuthContext";
+import API_BASE from "@/config/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,6 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { Modal } from "@/components/ui/modal";
+import { Select } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   User,
   Mail,
@@ -29,164 +35,693 @@ import {
   Languages,
   CheckCircle,
   DollarSign,
-  Clock
+  Clock,
+  Loader2
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 
 const StudentProfile = () => {
+  const { userId } = useParams();
+  const { user } = useContext(AuthContext);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [activeSection, setActiveSection] = useState(null);
+  
+  // Modal states
+  const [showWorkModal, setShowWorkModal] = useState(false);
+  const [showEducationModal, setShowEducationModal] = useState(false);
+  const [showSkillModal, setShowSkillModal] = useState(false);
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const [showPortfolioModal, setShowPortfolioModal] = useState(false);
+  const [showCertModal, setShowCertModal] = useState(false);
+  const [showBioModal, setShowBioModal] = useState(false);
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [confirmAction, setConfirmAction] = useState(null);
+  const [confirmMessage, setConfirmMessage] = useState("");
+  const [editingIndex, setEditingIndex] = useState(null);
+  
+  // Form data states
+  const [workForm, setWorkForm] = useState({
+    title: "", company: "", location: "", startDate: "", endDate: "", current: false, description: ""
+  });
+  const [educationForm, setEducationForm] = useState({
+    school: "", degree: "", fieldOfStudy: "", startDate: "", endDate: "", current: false, description: ""
+  });
+  const [skillForm, setSkillForm] = useState({ name: "", level: "Beginner" });
+  const [languageForm, setLanguageForm] = useState({ language: "", proficiency: "Basic" });
+  const [portfolioForm, setPortfolioForm] = useState({
+    title: "", description: "", link: "", startDate: "", endDate: "", technologies: ""
+  });
+  const [certForm, setCertForm] = useState({
+    name: "", issuer: "", issueDate: "", expiryDate: "", credentialId: ""
+  });
+  const [bioForm, setBioForm] = useState({ bio: "" });
+  const [phoneForm, setPhoneForm] = useState({ phone: "" });
   
   // Profile data state
   const [profileData, setProfileData] = useState({
     // Basic Info
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@student.com",
-    phone: "+1 234 567 8900",
-    location: "New York, NY",
-    bio: "Passionate computer science student with a keen interest in web development and machine learning. Looking for opportunities to apply my skills in real-world projects.",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    location: "",
+    bio: "",
     avatar: "",
     
     // Education
-    education: [
-      {
-        id: 1,
-        institution: "Massachusetts Institute of Technology",
-        degree: "Bachelor of Science in Computer Science",
-        startDate: "2022-09",
-        endDate: "2026-05",
-        current: true,
-        gpa: "3.8",
-        description: "Focus on Software Engineering and AI"
-      }
-    ],
+    education: [],
     
     // Work Experience
-    workExperience: [
-      {
-        id: 1,
-        title: "Frontend Developer Intern",
-        company: "Tech Startup Inc.",
-        location: "Boston, MA",
-        startDate: "2024-06",
-        endDate: "2024-08",
-        current: false,
-        description: "Developed responsive web applications using React and TypeScript. Collaborated with design team to implement new UI features."
-      }
-    ],
+    workExperience: [],
     
     // Skills
-    skills: [
-      { id: 1, name: "JavaScript", level: "Advanced", category: "Programming" },
-      { id: 2, name: "React", level: "Advanced", category: "Framework" },
-      { id: 3, name: "Node.js", level: "Intermediate", category: "Backend" },
-      { id: 4, name: "Python", level: "Intermediate", category: "Programming" },
-      { id: 5, name: "SQL", level: "Intermediate", category: "Database" },
-      { id: 6, name: "Git", level: "Advanced", category: "Tools" }
-    ],
+    skills: [],
     
     // Languages
-    languages: [
-      { id: 1, language: "English", proficiency: "Native" },
-      { id: 2, language: "Spanish", proficiency: "Fluent" },
-      { id: 3, language: "French", proficiency: "Intermediate" }
-    ],
+    languages: [],
     
     // Portfolio/Projects
-    portfolio: [
-      {
-        id: 1,
-        title: "E-commerce Platform",
-        description: "Built a full-stack e-commerce application with React, Node.js, and PostgreSQL",
-        technologies: ["React", "Node.js", "PostgreSQL", "Stripe"],
-        link: "https://github.com/johndoe/ecommerce",
-        image: "",
-        startDate: "2024-01",
-        endDate: "2024-04"
-      },
-      {
-        id: 2,
-        title: "Machine Learning Image Classifier",
-        description: "Developed an image classification model using TensorFlow achieving 94% accuracy",
-        technologies: ["Python", "TensorFlow", "OpenCV"],
-        link: "https://github.com/johndoe/ml-classifier",
-        image: "",
-        startDate: "2023-09",
-        endDate: "2023-12"
-      }
-    ],
+    portfolio: [],
     
     // Completed Jobs (from platform)
-    completedJobs: [
-      {
-        id: 1,
-        title: "Website Redesign",
-        employer: "Local Coffee Shop",
-        completedDate: "2024-09-15",
-        earnings: 500,
-        rating: 5,
-        review: "Excellent work! Very professional and delivered on time."
-      },
-      {
-        id: 2,
-        title: "Social Media Graphics",
-        employer: "Fitness Studio",
-        completedDate: "2024-08-20",
-        earnings: 250,
-        rating: 4.5,
-        review: "Great designs, quick turnaround."
-      }
-    ],
+    completedJobs: [],
     
     // Certifications
-    certifications: [
-      {
-        id: 1,
-        name: "AWS Certified Developer",
-        issuer: "Amazon Web Services",
-        issueDate: "2024-03",
-        expiryDate: "2027-03",
-        credentialId: "AWS-123456"
-      }
-    ],
+    certifications: [],
     
     // Social Links
     socialLinks: {
-      github: "https://github.com/johndoe",
-      linkedin: "https://linkedin.com/in/johndoe",
-      portfolio: "https://johndoe.dev",
+      github: "",
+      linkedin: "",
+      portfolio: "",
       twitter: ""
     },
     
     // Availability
     availability: {
-      hoursPerWeek: "15-20",
-      startDate: "Immediately",
-      workType: ["Remote", "On-site"]
+      hoursPerWeek: "",
+      startDate: "",
+      workType: []
     }
   });
 
   // Statistics
-  const stats = {
-    totalJobs: 12,
-    completedJobs: 2,
-    totalEarnings: 750,
-    averageRating: 4.8,
-    profileViews: 156,
-    responseRate: 95
-  };
+  const [stats, setStats] = useState({
+    totalJobs: 0,
+    completedJobs: 0,
+    totalEarnings: 0,
+    averageRating: 0,
+    profileViews: 0,
+    responseRate: 0
+  });
 
-  const handleSave = () => {
-    setIsEditing(false);
-    // TODO: API call to save profile data
+  // Determine if viewing own profile
+  const isOwnProfile = !userId || (user && parseInt(userId) === parseInt(user.id));
+  const targetUserId = userId || user?.id;
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!targetUserId) {
+        setError("User ID not found");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("token");
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        const response = await fetch(`${API_BASE}/api/profiles/${targetUserId}`, {
+          headers
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch profile");
+        }
+
+        const data = await response.json();
+        
+        // Parse name from the user data
+        const nameParts = data.user.name.split(' ');
+        const firstName = nameParts[0] || "";
+        const lastName = nameParts.slice(1).join(' ') || "";
+        
+        // Parse JSON fields if they come as strings
+        const parseJsonField = (field) => {
+          if (!field) return [];
+          if (typeof field === 'string') {
+            try {
+              return JSON.parse(field);
+            } catch (e) {
+              return [];
+            }
+          }
+          return Array.isArray(field) ? field : [];
+        };
+
+        const parseSocialLinks = (field) => {
+          if (!field) return { github: "", linkedin: "", portfolio: "", twitter: "" };
+          if (typeof field === 'string') {
+            try {
+              return JSON.parse(field);
+            } catch (e) {
+              return { github: "", linkedin: "", portfolio: "", twitter: "" };
+            }
+          }
+          return field;
+        };
+
+        const parseAvailability = (field) => {
+          if (!field) return { hoursPerWeek: "", startDate: "", workType: [] };
+          if (typeof field === 'string') {
+            try {
+              return JSON.parse(field);
+            } catch (e) {
+              return { hoursPerWeek: "", startDate: "", workType: [] };
+            }
+          }
+          return field;
+        };
+
+        // Map API response to component state
+        setProfileData({
+          firstName,
+          lastName,
+          email: data.user.email,
+          phone: data.profile?.phone || "",
+          location: data.profile?.location || "",
+          bio: data.profile?.bio || "",
+          avatar: "",
+          education: parseJsonField(data.profile?.education),
+          workExperience: parseJsonField(data.profile?.work_experience),
+          skills: parseJsonField(data.profile?.skills),
+          languages: parseJsonField(data.profile?.languages),
+          portfolio: parseJsonField(data.profile?.portfolio),
+          completedJobs: [], // TODO: Fetch from completed applications
+          certifications: parseJsonField(data.profile?.certifications),
+          socialLinks: parseSocialLinks(data.profile?.social_links),
+          availability: parseAvailability(data.profile?.availability)
+        });
+
+        setStats({
+          totalJobs: data.stats?.totalJobs || 0,
+          completedJobs: data.stats?.totalCompletedJobs || 0,
+          totalEarnings: data.stats?.totalEarnings || 0,
+          averageRating: data.stats?.averageRating || 0,
+          profileViews: data.profile?.profile_views || 0,
+          responseRate: 0 // TODO: Calculate based on messages
+        });
+
+        // Track profile view if viewing someone else's profile
+        if (!isOwnProfile) {
+          fetch(`${API_BASE}/api/profiles/${targetUserId}/view`, {
+            method: 'POST',
+            headers
+          }).catch(err => console.error("Failed to track view:", err));
+        }
+
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [targetUserId, isOwnProfile]);
+
+  const handleSave = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      
+      const payload = {
+        bio: profileData.bio,
+        phone: profileData.phone,
+        location: profileData.location,
+        education: profileData.education,
+        work_experience: profileData.workExperience,
+        skills: profileData.skills,
+        languages: profileData.languages,
+        portfolio: profileData.portfolio,
+        certifications: profileData.certifications,
+        social_links: profileData.socialLinks,
+        availability: profileData.availability
+      };
+      
+      console.log('Saving profile with bio:', payload.bio);
+      
+      const response = await fetch(`${API_BASE}/api/profiles/me`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Save error:', errorData);
+        throw new Error(errorData.error || "Failed to update profile");
+      }
+
+      const result = await response.json();
+      console.log('Save successful:', result);
+
+      // Refetch the profile to ensure we have the latest data
+      const profileResponse = await fetch(`${API_BASE}/api/profiles/${targetUserId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (profileResponse.ok) {
+        const data = await profileResponse.json();
+        console.log('Refetched profile, bio:', data.profile.bio);
+        
+        // Update profileData with the fresh data from server
+        const parseJsonField = (field) => {
+          if (!field) return [];
+          if (typeof field === 'string') {
+            try {
+              return JSON.parse(field);
+            } catch (e) {
+              return [];
+            }
+          }
+          return Array.isArray(field) ? field : [];
+        };
+
+        const parseSocialLinks = (field) => {
+          if (!field) return { github: "", linkedin: "", portfolio: "", twitter: "" };
+          if (typeof field === 'string') {
+            try {
+              return JSON.parse(field);
+            } catch (e) {
+              return { github: "", linkedin: "", portfolio: "", twitter: "" };
+            }
+          }
+          return field;
+        };
+
+        const parseAvailability = (field) => {
+          if (!field) return { workType: [], availability: [], hoursPerWeek: "" };
+          if (typeof field === 'string') {
+            try {
+              return JSON.parse(field);
+            } catch (e) {
+              return { workType: [], availability: [], hoursPerWeek: "" };
+            }
+          }
+          return field;
+        };
+
+        const nameParts = data.user.name.split(' ');
+        const firstName = nameParts[0] || "";
+        const lastName = nameParts.slice(1).join(' ') || "";
+
+        setProfileData({
+          firstName,
+          lastName,
+          email: data.user.email,
+          bio: data.profile.bio || "",
+          phone: data.profile.phone || "",
+          location: data.profile.location || "",
+          education: parseJsonField(data.profile.education),
+          workExperience: parseJsonField(data.profile.work_experience),
+          skills: parseJsonField(data.profile.skills),
+          languages: parseJsonField(data.profile.languages),
+          portfolio: parseJsonField(data.profile.portfolio),
+          certifications: parseJsonField(data.profile.certifications),
+          socialLinks: parseSocialLinks(data.profile.social_links),
+          availability: parseAvailability(data.profile.availability),
+          completedJobs: data.profile.completed_jobs || []
+        });
+      }
+
+      setIsEditing(false);
+      setShowSuccessModal(true);
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      setErrorMessage(err.message || "Failed to save profile changes");
+      setShowErrorModal(true);
+    }
   };
 
   const handleCancel = () => {
     setIsEditing(false);
     // TODO: Revert changes
   };
+
+  // Confirmation helper
+  const showConfirmation = (message, action) => {
+    setConfirmMessage(message);
+    setConfirmAction(() => action);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirm = () => {
+    if (confirmAction) {
+      confirmAction();
+    }
+    setShowConfirmModal(false);
+    setConfirmAction(null);
+  };
+
+  // Work Experience handlers
+  const openWorkModal = (index = null) => {
+    if (index !== null) {
+      setWorkForm(profileData.workExperience[index]);
+      setEditingIndex(index);
+    } else {
+      setWorkForm({ title: "", company: "", location: "", startDate: "", endDate: "", current: false, description: "" });
+      setEditingIndex(null);
+    }
+    setShowWorkModal(true);
+  };
+
+  const saveWork = () => {
+    const newWork = { ...workForm, id: editingIndex !== null ? profileData.workExperience[editingIndex].id : Date.now() };
+    let updated;
+    if (editingIndex !== null) {
+      updated = [...profileData.workExperience];
+      updated[editingIndex] = newWork;
+    } else {
+      updated = [...profileData.workExperience, newWork];
+    }
+    setProfileData({ ...profileData, workExperience: updated });
+    setShowWorkModal(false);
+  };
+
+  const deleteWork = (index) => {
+    showConfirmation("Are you sure you want to delete this work experience?", () => {
+      const updated = profileData.workExperience.filter((_, i) => i !== index);
+      setProfileData({ ...profileData, workExperience: updated });
+    });
+  };
+
+  // Education handlers
+  const openEducationModal = (index = null) => {
+    if (index !== null) {
+      setEducationForm(profileData.education[index]);
+      setEditingIndex(index);
+    } else {
+      setEducationForm({ school: "", degree: "", fieldOfStudy: "", startDate: "", endDate: "", current: false, description: "" });
+      setEditingIndex(null);
+    }
+    setShowEducationModal(true);
+  };
+
+  const saveEducation = () => {
+    const newEdu = { ...educationForm, id: editingIndex !== null ? profileData.education[editingIndex].id : Date.now() };
+    let updated;
+    if (editingIndex !== null) {
+      updated = [...profileData.education];
+      updated[editingIndex] = newEdu;
+    } else {
+      updated = [...profileData.education, newEdu];
+    }
+    setProfileData({ ...profileData, education: updated });
+    setShowEducationModal(false);
+  };
+
+  const deleteEducation = (index) => {
+    showConfirmation("Are you sure you want to delete this education entry?", () => {
+      const updated = profileData.education.filter((_, i) => i !== index);
+      setProfileData({ ...profileData, education: updated });
+    });
+  };
+
+  // Skills handlers
+  const openSkillModal = (index = null) => {
+    if (index !== null) {
+      setSkillForm(profileData.skills[index]);
+      setEditingIndex(index);
+    } else {
+      setSkillForm({ name: "", level: "Beginner" });
+      setEditingIndex(null);
+    }
+    setShowSkillModal(true);
+  };
+
+  const saveSkill = () => {
+    const newSkill = { ...skillForm, id: editingIndex !== null ? profileData.skills[editingIndex].id : Date.now() };
+    let updated;
+    if (editingIndex !== null) {
+      updated = [...profileData.skills];
+      updated[editingIndex] = newSkill;
+    } else {
+      updated = [...profileData.skills, newSkill];
+    }
+    setProfileData({ ...profileData, skills: updated });
+    setShowSkillModal(false);
+  };
+
+  const deleteSkill = (index) => {
+    showConfirmation("Are you sure you want to delete this skill?", () => {
+      const updated = profileData.skills.filter((_, i) => i !== index);
+      setProfileData({ ...profileData, skills: updated });
+    });
+  };
+
+  // Language handlers
+  const openLanguageModal = (index = null) => {
+    if (index !== null) {
+      setLanguageForm(profileData.languages[index]);
+      setEditingIndex(index);
+    } else {
+      setLanguageForm({ language: "", proficiency: "Basic" });
+      setEditingIndex(null);
+    }
+    setShowLanguageModal(true);
+  };
+
+  const saveLanguage = () => {
+    const newLang = { ...languageForm, id: editingIndex !== null ? profileData.languages[editingIndex].id : Date.now() };
+    let updated;
+    if (editingIndex !== null) {
+      updated = [...profileData.languages];
+      updated[editingIndex] = newLang;
+    } else {
+      updated = [...profileData.languages, newLang];
+    }
+    setProfileData({ ...profileData, languages: updated });
+    setShowLanguageModal(false);
+  };
+
+  const deleteLanguage = (index) => {
+    showConfirmation("Are you sure you want to delete this language?", () => {
+      const updated = profileData.languages.filter((_, i) => i !== index);
+      setProfileData({ ...profileData, languages: updated });
+    });
+  };
+
+  // Portfolio handlers
+  const openPortfolioModal = (index = null) => {
+    if (index !== null) {
+      const proj = profileData.portfolio[index];
+      setPortfolioForm({ ...proj, technologies: proj.technologies?.join(", ") || "" });
+      setEditingIndex(index);
+    } else {
+      setPortfolioForm({ title: "", description: "", link: "", startDate: "", endDate: "", technologies: "" });
+      setEditingIndex(null);
+    }
+    setShowPortfolioModal(true);
+  };
+
+  const savePortfolio = () => {
+    const techArray = portfolioForm.technologies.split(",").map(t => t.trim()).filter(t => t);
+    const newProj = { 
+      ...portfolioForm, 
+      technologies: techArray,
+      id: editingIndex !== null ? profileData.portfolio[editingIndex].id : Date.now() 
+    };
+    let updated;
+    if (editingIndex !== null) {
+      updated = [...profileData.portfolio];
+      updated[editingIndex] = newProj;
+    } else {
+      updated = [...profileData.portfolio, newProj];
+    }
+    setProfileData({ ...profileData, portfolio: updated });
+    setShowPortfolioModal(false);
+  };
+
+  const deletePortfolio = (index) => {
+    showConfirmation("Are you sure you want to delete this project?", () => {
+      const updated = profileData.portfolio.filter((_, i) => i !== index);
+      setProfileData({ ...profileData, portfolio: updated });
+    });
+  };
+
+  // Certification handlers
+  const openCertModal = (index = null) => {
+    if (index !== null) {
+      setCertForm(profileData.certifications[index]);
+      setEditingIndex(index);
+    } else {
+      setCertForm({ name: "", issuer: "", issueDate: "", expiryDate: "", credentialId: "" });
+      setEditingIndex(null);
+    }
+    setShowCertModal(true);
+  };
+
+  const saveCert = () => {
+    const newCert = { ...certForm, id: editingIndex !== null ? profileData.certifications[editingIndex].id : Date.now() };
+    let updated;
+    if (editingIndex !== null) {
+      updated = [...profileData.certifications];
+      updated[editingIndex] = newCert;
+    } else {
+      updated = [...profileData.certifications, newCert];
+    }
+    setProfileData({ ...profileData, certifications: updated });
+    setShowCertModal(false);
+  };
+
+  const deleteCert = (index) => {
+    showConfirmation("Are you sure you want to delete this certification?", () => {
+      const updated = profileData.certifications.filter((_, i) => i !== index);
+      setProfileData({ ...profileData, certifications: updated });
+    });
+  };
+
+  // Bio handlers
+  const openBioModal = () => {
+    setBioForm({ bio: profileData.bio || "" });
+    setShowBioModal(true);
+  };
+
+  const saveBio = async () => {
+    console.log('Saving bio to state:', bioForm.bio);
+    const updatedProfileData = { ...profileData, bio: bioForm.bio };
+    setProfileData(updatedProfileData);
+    setShowBioModal(false);
+
+    // Save to database immediately
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE}/api/profiles/me`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          bio: bioForm.bio,
+          phone: profileData.phone,
+          location: profileData.location,
+          education: profileData.education,
+          work_experience: profileData.workExperience,
+          skills: profileData.skills,
+          languages: profileData.languages,
+          portfolio: profileData.portfolio,
+          certifications: profileData.certifications,
+          social_links: profileData.socialLinks,
+          availability: profileData.availability
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Save error:', errorData);
+        throw new Error(errorData.error || "Failed to update bio");
+      }
+
+      console.log('Bio saved successfully to database');
+      setShowSuccessModal(true);
+    } catch (err) {
+      console.error("Error saving bio:", err);
+      setErrorMessage(err.message || "Failed to save bio");
+      setShowErrorModal(true);
+    }
+  };
+
+  // Phone handlers
+  const openPhoneModal = () => {
+    setPhoneForm({ phone: profileData.phone || "" });
+    setShowPhoneModal(true);
+  };
+
+  const savePhone = async () => {
+    console.log('Saving phone to state:', phoneForm.phone);
+    const updatedProfileData = { ...profileData, phone: phoneForm.phone };
+    setProfileData(updatedProfileData);
+    setShowPhoneModal(false);
+
+    // Save to database immediately
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE}/api/profiles/me`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          bio: profileData.bio,
+          phone: phoneForm.phone,
+          location: profileData.location,
+          education: profileData.education,
+          work_experience: profileData.workExperience,
+          skills: profileData.skills,
+          languages: profileData.languages,
+          portfolio: profileData.portfolio,
+          certifications: profileData.certifications,
+          social_links: profileData.socialLinks,
+          availability: profileData.availability
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Save error:', errorData);
+        throw new Error(errorData.error || "Failed to update phone");
+      }
+
+      console.log('Phone saved successfully to database');
+      setShowSuccessModal(true);
+    } catch (err) {
+      console.error("Error saving phone:", err);
+      setErrorMessage(err.message || "Failed to save phone");
+      setShowErrorModal(true);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="flex items-center justify-center h-96">
+          <Loader2 className="w-8 h-8 animate-spin text-gray-600" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <p className="text-red-600 mb-4">Error: {error}</p>
+            <Button onClick={() => window.location.reload()}>Try Again</Button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -230,19 +765,72 @@ const StudentProfile = () => {
                     <Mail className="w-4 h-4" />
                     {profileData.email}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Phone className="w-4 h-4" />
-                    {profileData.phone}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <MapPin className="w-4 h-4" />
-                    {profileData.location}
-                  </div>
+                  {profileData.phone ? (
+                    <div className="flex items-center gap-2">
+                      <Phone className="w-4 h-4" />
+                      <span>{profileData.phone}</span>
+                      {isEditing && isOwnProfile && (
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="h-7 px-2 border-gray-300 hover:bg-gray-100"
+                          onClick={openPhoneModal}
+                        >
+                          <Edit2 className="w-3.5 h-3.5 mr-1" />
+                          <span className="text-xs">Edit</span>
+                        </Button>
+                      )}
+                    </div>
+                  ) : (
+                    isOwnProfile && (
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-7 text-xs"
+                        onClick={openPhoneModal}
+                      >
+                        <Plus className="w-3 h-3 mr-1" />
+                        Add Phone Number
+                      </Button>
+                    )
+                  )}
+                  {profileData.location && (
+                    <div className="flex items-center gap-1">
+                      {profileData.location}
+                    </div>
+                  )}
                 </div>
                 
-                <p className="text-gray-700 max-w-2xl text-sm">
-                  {profileData.bio}
-                </p>
+                {profileData.bio ? (
+                  <div className="flex items-start gap-2">
+                    <p className="text-gray-700 max-w-2xl text-sm flex-1">
+                      {profileData.bio}
+                    </p>
+                    {isEditing && isOwnProfile && (
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-7 px-2 border-gray-300 hover:bg-gray-100"
+                        onClick={openBioModal}
+                      >
+                        <Edit2 className="w-3.5 h-3.5 mr-1" />
+                        <span className="text-xs">Edit</span>
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  isOwnProfile && (
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="mb-4"
+                      onClick={openBioModal}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Bio
+                    </Button>
+                  )
+                )}
                 
                 {/* Social Links */}
                 <div className="flex gap-3 mt-4">
@@ -268,25 +856,27 @@ const StudentProfile = () => {
               </div>
             </div>
             
-            <div className="flex flex-col gap-2">
-              {!isEditing ? (
-                <Button onClick={() => setIsEditing(true)} variant="outline" className="border-gray-300">
-                  <Edit2 className="w-4 h-4 mr-2" />
-                  Edit Profile
-                </Button>
-              ) : (
-                <>
-                  <Button onClick={handleSave} className="bg-gray-900 hover:bg-gray-800">
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Changes
+            {!loading && isOwnProfile && (
+              <div className="flex flex-col gap-2">
+                {!isEditing ? (
+                  <Button onClick={() => setIsEditing(true)} variant="outline" className="border-gray-300">
+                    <Edit2 className="w-4 h-4 mr-2" />
+                    Edit Profile
                   </Button>
-                  <Button onClick={handleCancel} variant="outline" className="border-gray-300">
-                    <X className="w-4 h-4 mr-2" />
-                    Cancel
-                  </Button>
-                </>
-              )}
-            </div>
+                ) : (
+                  <>
+                    <Button onClick={handleSave} className="bg-gray-900 hover:bg-gray-800">
+                      <Save className="w-4 h-4 mr-2" />
+                      Save Changes
+                    </Button>
+                    <Button onClick={handleCancel} variant="outline" className="border-gray-300">
+                      <X className="w-4 h-4 mr-2" />
+                      Cancel
+                    </Button>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -333,7 +923,7 @@ const StudentProfile = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Rating</p>
-                  <p className="text-xl font-semibold text-gray-900">{stats.averageRating}</p>
+                  <p className="text-xl font-semibold text-gray-900">{stats.averageRating.toFixed(1)}</p>
                 </div>
                 <Star className="w-7 h-7 text-amber-400 fill-amber-400" />
               </div>
@@ -378,45 +968,51 @@ const StudentProfile = () => {
                     <GraduationCap className="w-4 h-4 text-gray-600" />
                     Education
                   </CardTitle>
-                  {isEditing && (
-                    <Button size="sm" variant="ghost">
+                  {isOwnProfile && (
+                    <Button size="sm" variant="ghost" onClick={() => openEducationModal()}>
                       <Plus className="w-4 h-4" />
                     </Button>
                   )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
-                {profileData.education.map((edu) => (
-                  <div key={edu.id} className="relative border-l-2 border-gray-300 pl-6 pb-6 last:pb-0">
-                    <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-gray-600 border-2 border-white" />
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h3 className="font-semibold text-base">{edu.degree}</h3>
-                        <p className="text-gray-600 text-sm">{edu.institution}</p>
-                      </div>
-                      {isEditing && (
-                        <div className="flex gap-1">
-                          <Button size="sm" variant="ghost">
-                            <Edit2 className="w-3 h-3" />
-                          </Button>
-                          <Button size="sm" variant="ghost" className="text-red-600">
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
+                {profileData.education.length === 0 ? (
+                  <p className="text-gray-500 text-sm text-center py-4">
+                    No education added yet.{isOwnProfile && " Click + to add."}
+                  </p>
+                ) : (
+                  profileData.education.map((edu, index) => (
+                      <div key={edu.id} className="relative border-l-2 border-gray-300 pl-6 pb-6 last:pb-0">
+                        <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-gray-600 border-2 border-white" />
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <h3 className="font-semibold text-base">{edu.degree}</h3>
+                            <p className="text-gray-600 text-sm">{edu.school}</p>
+                            {edu.fieldOfStudy && <p className="text-gray-500 text-sm">{edu.fieldOfStudy}</p>}
+                          </div>
+                          {isEditing && (
+                            <div className="flex gap-1">
+                              <Button size="sm" variant="ghost" onClick={() => openEducationModal(index)}>
+                                <Edit2 className="w-3 h-3" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="text-red-600" onClick={() => deleteEducation(index)}>
+                                <Trash2 className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-gray-500 mb-2">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        {edu.startDate} - {edu.current ? "Present" : edu.endDate}
-                      </span>
-                      {edu.gpa && <span>GPA: {edu.gpa}</span>}
-                    </div>
-                    {edu.description && <p className="text-gray-700">{edu.description}</p>}
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+                        <div className="flex items-center gap-4 text-sm text-gray-500 mb-2">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            {edu.startDate} - {edu.current ? "Present" : edu.endDate}
+                          </span>
+                        </div>
+                        {edu.description && <p className="text-gray-700">{edu.description}</p>}
+                      </div>
+                    ))
+                  )}
+                </CardContent>
+              </Card>
 
             {/* Work Experience Section */}
             <Card>
@@ -426,46 +1022,52 @@ const StudentProfile = () => {
                     <Briefcase className="w-4 h-4 text-gray-600" />
                     Work Experience
                   </CardTitle>
-                  {isEditing && (
-                    <Button size="sm" variant="ghost">
+                  {isOwnProfile && (
+                    <Button size="sm" variant="ghost" onClick={() => openWorkModal()}>
                       <Plus className="w-4 h-4" />
                     </Button>
                   )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
-                {profileData.workExperience.map((exp) => (
-                  <div key={exp.id} className="relative border-l-2 border-gray-300 pl-6 pb-6 last:pb-0">
-                    <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-gray-600 border-2 border-white" />
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h3 className="font-semibold text-base">{exp.title}</h3>
-                        <p className="text-gray-600 text-sm">{exp.company}</p>
-                      </div>
-                      {isEditing && (
-                        <div className="flex gap-1">
-                          <Button size="sm" variant="ghost">
-                            <Edit2 className="w-3 h-3" />
-                          </Button>
-                          <Button size="sm" variant="ghost" className="text-red-600">
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
+                {profileData.workExperience.length === 0 ? (
+                  <p className="text-gray-500 text-sm text-center py-4">
+                    No work experience added yet.{isOwnProfile && " Click + to add."}
+                  </p>
+                ) : (
+                  profileData.workExperience.map((exp, index) => (
+                    <div key={exp.id} className="relative border-l-2 border-gray-300 pl-6 pb-6 last:pb-0">
+                      <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-gray-600 border-2 border-white" />
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <h3 className="font-semibold text-base">{exp.title}</h3>
+                          <p className="text-gray-600 text-sm">{exp.company}</p>
                         </div>
-                      )}
+                        {isEditing && (
+                          <div className="flex gap-1">
+                            <Button size="sm" variant="ghost" onClick={() => openWorkModal(index)}>
+                              <Edit2 className="w-3 h-3" />
+                            </Button>
+                            <Button size="sm" variant="ghost" className="text-red-600" onClick={() => deleteWork(index)}>
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-4 text-sm text-gray-500 mb-2">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4" />
+                          {exp.startDate} - {exp.current ? "Present" : exp.endDate}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-4 h-4" />
+                          {exp.location}
+                        </span>
+                      </div>
+                      <p className="text-gray-700">{exp.description}</p>
                     </div>
-                    <div className="flex items-center gap-4 text-sm text-gray-500 mb-2">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        {exp.startDate} - {exp.current ? "Present" : exp.endDate}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
-                        {exp.location}
-                      </span>
-                    </div>
-                    <p className="text-gray-700">{exp.description}</p>
-                  </div>
-                ))}
+                  ))
+                )}
               </CardContent>
             </Card>
 
@@ -477,55 +1079,62 @@ const StudentProfile = () => {
                     <FileText className="w-4 h-4 text-gray-600" />
                     Portfolio & Projects
                   </CardTitle>
-                  {isEditing && (
-                    <Button size="sm" variant="ghost">
+                  {isOwnProfile && (
+                    <Button size="sm" variant="ghost" onClick={() => openPortfolioModal()}>
                       <Plus className="w-4 h-4" />
                     </Button>
                   )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
-                {profileData.portfolio.map((project) => (
-                  <div key={project.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition">
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <h3 className="font-semibold text-base flex items-center gap-2">
-                          {project.title}
-                          {project.link && (
-                            <a href={project.link} target="_blank" rel="noopener noreferrer"
-                               className="text-gray-600 hover:text-gray-900">
-                              <ExternalLink className="w-4 h-4" />
-                            </a>
-                          )}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          {project.startDate} - {project.endDate}
-                        </p>
-                      </div>
-                      {isEditing && (
-                        <div className="flex gap-1">
-                          <Button size="sm" variant="ghost">
-                            <Edit2 className="w-3 h-3" />
-                          </Button>
-                          <Button size="sm" variant="ghost" className="text-red-600">
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
+                {profileData.portfolio.length === 0 ? (
+                  <p className="text-gray-500 text-sm text-center py-4">
+                    No projects added yet.{isOwnProfile && " Click + to add."}
+                  </p>
+                ) : (
+                  profileData.portfolio.map((project, index) => (
+                    <div key={project.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h3 className="font-semibold text-base flex items-center gap-2">
+                            {project.title}
+                            {project.link && (
+                              <a href={project.link} target="_blank" rel="noopener noreferrer"
+                                 className="text-gray-600 hover:text-gray-900">
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                            )}
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            {project.startDate} - {project.endDate}
+                          </p>
                         </div>
-                      )}
+                        {isEditing && (
+                          <div className="flex gap-1">
+                            <Button size="sm" variant="ghost" onClick={() => openPortfolioModal(index)}>
+                              <Edit2 className="w-3 h-3" />
+                            </Button>
+                            <Button size="sm" variant="ghost" className="text-red-600" onClick={() => deletePortfolio(index)}>
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-gray-700 mb-3">{project.description}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {project.technologies && project.technologies.map((tech, idx) => (
+                          <Badge key={idx} variant="secondary">{tech}</Badge>
+                        ))}
+                      </div>
                     </div>
-                    <p className="text-gray-700 mb-3">{project.description}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {project.technologies.map((tech, idx) => (
-                        <Badge key={idx} variant="secondary">{tech}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </CardContent>
             </Card>
 
             {/* Completed Jobs Section */}
-            <Card>
+            {profileData.completedJobs.length > 0 && (
+              <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base font-semibold">
                   <CheckCircle className="w-4 h-4 text-gray-600" />
@@ -564,6 +1173,7 @@ const StudentProfile = () => {
                 ))}
               </CardContent>
             </Card>
+            )}
 
             {/* Certifications Section */}
             <Card>
@@ -573,40 +1183,48 @@ const StudentProfile = () => {
                     <Award className="w-4 h-4 text-gray-600" />
                     Certifications
                   </CardTitle>
-                  {isEditing && (
-                    <Button size="sm" variant="ghost">
+                  {isOwnProfile && (
+                    <Button size="sm" variant="ghost" onClick={() => openCertModal()}>
                       <Plus className="w-4 h-4" />
                     </Button>
                   )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {profileData.certifications.map((cert) => (
-                  <div key={cert.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="font-semibold text-sm">{cert.name}</h3>
-                        <p className="text-gray-600 text-sm">{cert.issuer}</p>
-                        <p className="text-sm text-gray-500 mt-1">
-                          Issued: {cert.issueDate} | Expires: {cert.expiryDate}
-                        </p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          Credential ID: {cert.credentialId}
-                        </p>
-                      </div>
-                      {isEditing && (
-                        <div className="flex gap-1">
-                          <Button size="sm" variant="ghost">
-                            <Edit2 className="w-3 h-3" />
-                          </Button>
-                          <Button size="sm" variant="ghost" className="text-red-600">
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
+                {profileData.certifications.length === 0 ? (
+                  <p className="text-gray-500 text-sm text-center py-4">
+                    No certifications added yet.{isOwnProfile && " Click + to add."}
+                  </p>
+                ) : (
+                  profileData.certifications.map((cert, index) => (
+                    <div key={cert.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="font-semibold text-sm">{cert.name}</h3>
+                          <p className="text-gray-600 text-sm">{cert.issuer}</p>
+                          <p className="text-sm text-gray-500 mt-1">
+                            Issued: {cert.issueDate} {cert.expiryDate && `| Expires: ${cert.expiryDate}`}
+                          </p>
+                          {cert.credentialId && (
+                            <p className="text-xs text-gray-400 mt-1">
+                              Credential ID: {cert.credentialId}
+                            </p>
+                          )}
                         </div>
-                      )}
+                        {isEditing && (
+                          <div className="flex gap-1">
+                            <Button size="sm" variant="ghost" onClick={() => openCertModal(index)}>
+                              <Edit2 className="w-3 h-3" />
+                            </Button>
+                            <Button size="sm" variant="ghost" className="text-red-600" onClick={() => deleteCert(index)}>
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </CardContent>
             </Card>
           </div>
@@ -622,8 +1240,8 @@ const StudentProfile = () => {
                     <Award className="w-4 h-4 text-gray-600" />
                     Skills
                   </CardTitle>
-                  {isEditing && (
-                    <Button size="sm" variant="ghost">
+                  {isOwnProfile && (
+                    <Button size="sm" variant="ghost" onClick={() => openSkillModal()}>
                       <Plus className="w-4 h-4" />
                     </Button>
                   )}
@@ -631,25 +1249,43 @@ const StudentProfile = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {profileData.skills.map((skill) => (
-                    <div key={skill.id}>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium">{skill.name}</span>
-                        <Badge variant="outline" className="text-xs">
-                          {skill.level}
-                        </Badge>
+                  {profileData.skills.length === 0 ? (
+                    <p className="text-gray-500 text-sm text-center py-4">
+                      No skills added yet.{isOwnProfile && " Click + to add."}
+                    </p>
+                  ) : (
+                    profileData.skills.map((skill, index) => (
+                      <div key={skill.id}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium">{skill.name}</span>
+                          <div className="flex items-center gap-1">
+                            <Badge variant="outline" className="text-xs">
+                              {skill.level}
+                            </Badge>
+                            {isEditing && (
+                              <>
+                                <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => openSkillModal(index)}>
+                                  <Edit2 className="w-3 h-3" />
+                                </Button>
+                                <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-red-600" onClick={() => deleteSkill(index)}>
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full ${
+                              skill.level === 'Advanced' ? 'bg-gray-700 w-full' :
+                              skill.level === 'Intermediate' ? 'bg-gray-600 w-2/3' :
+                              'bg-gray-500 w-1/3'
+                            }`}
+                          />
+                        </div>
                       </div>
-                      <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full ${
-                            skill.level === 'Advanced' ? 'bg-gray-700 w-full' :
-                            skill.level === 'Intermediate' ? 'bg-gray-600 w-2/3' :
-                            'bg-gray-500 w-1/3'
-                          }`}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -662,8 +1298,8 @@ const StudentProfile = () => {
                     <Languages className="w-4 h-4 text-gray-600" />
                     Languages
                   </CardTitle>
-                  {isEditing && (
-                    <Button size="sm" variant="ghost">
+                  {isOwnProfile && (
+                    <Button size="sm" variant="ghost" onClick={() => openLanguageModal()}>
                       <Plus className="w-4 h-4" />
                     </Button>
                   )}
@@ -671,69 +1307,410 @@ const StudentProfile = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {profileData.languages.map((lang) => (
-                    <div key={lang.id} className="flex items-center justify-between">
-                      <span className="font-medium">{lang.language}</span>
-                      <Badge variant="secondary">{lang.proficiency}</Badge>
-                    </div>
-                  ))}
+                  {profileData.languages.length === 0 ? (
+                    <p className="text-gray-500 text-sm text-center py-4">
+                      No languages added yet.{isOwnProfile && " Click + to add."}
+                    </p>
+                  ) : (
+                    profileData.languages.map((lang, index) => (
+                      <div key={lang.id} className="flex items-center justify-between">
+                        <span className="font-medium">{lang.language}</span>
+                        <div className="flex items-center gap-1">
+                          <Badge variant="secondary">{lang.proficiency}</Badge>
+                          {isEditing && (
+                            <>
+                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => openLanguageModal(index)}>
+                                <Edit2 className="w-3 h-3" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-red-600" onClick={() => deleteLanguage(index)}>
+                                <Trash2 className="w-3 h-3" />
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
 
             {/* Availability Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-                  <Clock className="w-4 h-4 text-gray-600" />
-                  Availability
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Hours per week</p>
-                  <p className="font-semibold">{profileData.availability.hoursPerWeek} hours</p>
-                </div>
-                <Separator />
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Start date</p>
-                  <p className="font-semibold">{profileData.availability.startDate}</p>
-                </div>
-                <Separator />
-                <div>
-                  <p className="text-sm text-gray-600 mb-2">Work type</p>
-                  <div className="flex flex-wrap gap-2">
-                    {profileData.availability.workType.map((type, idx) => (
-                      <Badge key={idx} variant="outline">{type}</Badge>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {(profileData.availability.hoursPerWeek || profileData.availability.startDate || (profileData.availability.workType && profileData.availability.workType.length > 0)) && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+                    <Clock className="w-4 h-4 text-gray-600" />
+                    Availability
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {profileData.availability.hoursPerWeek && (
+                    <>
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Hours per week</p>
+                        <p className="font-semibold">{profileData.availability.hoursPerWeek} hours</p>
+                      </div>
+                      <Separator />
+                    </>
+                  )}
+                  {profileData.availability.startDate && (
+                    <>
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Start date</p>
+                        <p className="font-semibold">{profileData.availability.startDate}</p>
+                      </div>
+                      <Separator />
+                    </>
+                  )}
+                  {profileData.availability.workType && profileData.availability.workType.length > 0 && (
+                    <div>
+                      <p className="text-sm text-gray-600 mb-2">Work type</p>
+                      <div className="flex flex-wrap gap-2">
+                        {profileData.availability.workType.map((type, idx) => (
+                          <Badge key={idx} variant="outline">{type}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Quick Actions */}
-            <Card className="bg-gray-50 border-gray-200">
-              <CardHeader>
-                <CardTitle className="text-sm font-semibold">Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <Button className="w-full justify-start" variant="outline">
-                  <FileText className="w-4 h-4 mr-2" />
-                  Download Resume
-                </Button>
-                <Button className="w-full justify-start" variant="outline">
-                  <Globe className="w-4 h-4 mr-2" />
-                  Share Profile
-                </Button>
-                <Button className="w-full justify-start" variant="outline">
-                  <Briefcase className="w-4 h-4 mr-2" />
-                  Browse Jobs
-                </Button>
-              </CardContent>
-            </Card>
+            {!loading && isOwnProfile && (
+              <Card className="bg-gray-50 border-gray-200">
+                <CardHeader>
+                  <CardTitle className="text-sm font-semibold">Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <Button className="w-full justify-start" variant="outline">
+                    <FileText className="w-4 h-4 mr-2" />
+                    Download Resume
+                  </Button>
+                  <Button className="w-full justify-start" variant="outline">
+                    <Globe className="w-4 h-4 mr-2" />
+                    Share Profile
+                  </Button>
+                  <Button className="w-full justify-start" variant="outline">
+                    <Briefcase className="w-4 h-4 mr-2" />
+                    Browse Jobs
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Work Experience Modal */}
+      {showWorkModal && (
+        <Modal isOpen={showWorkModal} onClose={() => setShowWorkModal(false)} title={editingIndex !== null ? "Edit Work Experience" : "Add Work Experience"}>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Job Title *</label>
+              <Input value={workForm.title} onChange={(e) => setWorkForm({...workForm, title: e.target.value})} placeholder="e.g. Software Engineer" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Company *</label>
+              <Input value={workForm.company} onChange={(e) => setWorkForm({...workForm, company: e.target.value})} placeholder="e.g. Tech Corp" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Location *</label>
+              <Input value={workForm.location} onChange={(e) => setWorkForm({...workForm, location: e.target.value})} placeholder="e.g. Remote, Cape Town" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Start Date *</label>
+                <Input type="month" value={workForm.startDate} onChange={(e) => setWorkForm({...workForm, startDate: e.target.value})} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">End Date</label>
+                <Input type="month" value={workForm.endDate} onChange={(e) => setWorkForm({...workForm, endDate: e.target.value})} disabled={workForm.current} />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox checked={workForm.current} onCheckedChange={(checked) => setWorkForm({...workForm, current: checked, endDate: checked ? "" : workForm.endDate})} />
+              <label className="text-sm">I currently work here</label>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Description</label>
+              <Textarea value={workForm.description} onChange={(e) => setWorkForm({...workForm, description: e.target.value})} placeholder="Describe your responsibilities and achievements..." rows={4} />
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setShowWorkModal(false)}>Cancel</Button>
+              <Button onClick={saveWork}>Save</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Education Modal */}
+      {showEducationModal && (
+        <Modal isOpen={showEducationModal} onClose={() => setShowEducationModal(false)} title={editingIndex !== null ? "Edit Education" : "Add Education"}>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">School/University *</label>
+              <Input value={educationForm.school} onChange={(e) => setEducationForm({...educationForm, school: e.target.value})} placeholder="e.g. University of Cape Town" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Degree *</label>
+              <Input value={educationForm.degree} onChange={(e) => setEducationForm({...educationForm, degree: e.target.value})} placeholder="e.g. Bachelor's Degree" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Field of Study *</label>
+              <Input value={educationForm.fieldOfStudy} onChange={(e) => setEducationForm({...educationForm, fieldOfStudy: e.target.value})} placeholder="e.g. Computer Science" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Start Date *</label>
+                <Input type="month" value={educationForm.startDate} onChange={(e) => setEducationForm({...educationForm, startDate: e.target.value})} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">End Date</label>
+                <Input type="month" value={educationForm.endDate} onChange={(e) => setEducationForm({...educationForm, endDate: e.target.value})} disabled={educationForm.current} />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox checked={educationForm.current} onCheckedChange={(checked) => setEducationForm({...educationForm, current: checked, endDate: checked ? "" : educationForm.endDate})} />
+              <label className="text-sm">I currently study here</label>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Description</label>
+              <Textarea value={educationForm.description} onChange={(e) => setEducationForm({...educationForm, description: e.target.value})} placeholder="Extra details..." rows={3} />
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setShowEducationModal(false)}>Cancel</Button>
+              <Button onClick={saveEducation}>Save</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Skill Modal */}
+      {showSkillModal && (
+        <Modal isOpen={showSkillModal} onClose={() => setShowSkillModal(false)} title={editingIndex !== null ? "Edit Skill" : "Add Skill"}>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Skill Name *</label>
+              <Input value={skillForm.name} onChange={(e) => setSkillForm({...skillForm, name: e.target.value})} placeholder="e.g. React, Python, Design" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Proficiency Level *</label>
+              <select 
+                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                value={skillForm.level} 
+                onChange={(e) => setSkillForm({...skillForm, level: e.target.value})}
+              >
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+              </select>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setShowSkillModal(false)}>Cancel</Button>
+              <Button onClick={saveSkill}>Save</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Language Modal */}
+      {showLanguageModal && (
+        <Modal isOpen={showLanguageModal} onClose={() => setShowLanguageModal(false)} title={editingIndex !== null ? "Edit Language" : "Add Language"}>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Language *</label>
+              <Input value={languageForm.language} onChange={(e) => setLanguageForm({...languageForm, language: e.target.value})} placeholder="e.g. English, Spanish" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Proficiency *</label>
+              <select 
+                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                value={languageForm.proficiency} 
+                onChange={(e) => setLanguageForm({...languageForm, proficiency: e.target.value})}
+              >
+                <option value="Basic">Basic</option>
+                <option value="Conversational">Conversational</option>
+                <option value="Fluent">Fluent</option>
+                <option value="Native">Native</option>
+              </select>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setShowLanguageModal(false)}>Cancel</Button>
+              <Button onClick={saveLanguage}>Save</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Portfolio Modal */}
+      {showPortfolioModal && (
+        <Modal isOpen={showPortfolioModal} onClose={() => setShowPortfolioModal(false)} title={editingIndex !== null ? "Edit Project" : "Add Project"}>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Project Title *</label>
+              <Input value={portfolioForm.title} onChange={(e) => setPortfolioForm({...portfolioForm, title: e.target.value})} placeholder="e.g. E-commerce Website" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Description *</label>
+              <Textarea value={portfolioForm.description} onChange={(e) => setPortfolioForm({...portfolioForm, description: e.target.value})} placeholder="Describe the project..." rows={3} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Project Link</label>
+              <Input value={portfolioForm.link} onChange={(e) => setPortfolioForm({...portfolioForm, link: e.target.value})} placeholder="https://..." />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Start Date</label>
+                <Input type="month" value={portfolioForm.startDate} onChange={(e) => setPortfolioForm({...portfolioForm, startDate: e.target.value})} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">End Date</label>
+                <Input type="month" value={portfolioForm.endDate} onChange={(e) => setPortfolioForm({...portfolioForm, endDate: e.target.value})} />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Technologies</label>
+              <Input value={portfolioForm.technologies} onChange={(e) => setPortfolioForm({...portfolioForm, technologies: e.target.value})} placeholder="e.g. React, Node.js, MongoDB (comma-separated)" />
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setShowPortfolioModal(false)}>Cancel</Button>
+              <Button onClick={savePortfolio}>Save</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Certification Modal */}
+      {showCertModal && (
+        <Modal isOpen={showCertModal} onClose={() => setShowCertModal(false)} title={editingIndex !== null ? "Edit Certification" : "Add Certification"}>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Certification Name *</label>
+              <Input value={certForm.name} onChange={(e) => setCertForm({...certForm, name: e.target.value})} placeholder="e.g. AWS Certified Developer" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Issuing Organization *</label>
+              <Input value={certForm.issuer} onChange={(e) => setCertForm({...certForm, issuer: e.target.value})} placeholder="e.g. Amazon Web Services" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Issue Date *</label>
+                <Input type="month" value={certForm.issueDate} onChange={(e) => setCertForm({...certForm, issueDate: e.target.value})} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Expiry Date</label>
+                <Input type="month" value={certForm.expiryDate} onChange={(e) => setCertForm({...certForm, expiryDate: e.target.value})} />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Credential ID</label>
+              <Input value={certForm.credentialId} onChange={(e) => setCertForm({...certForm, credentialId: e.target.value})} placeholder="e.g. ABC123XYZ" />
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setShowCertModal(false)}>Cancel</Button>
+              <Button onClick={saveCert}>Save</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <Modal 
+          isOpen={showSuccessModal} 
+          onClose={() => setShowSuccessModal(false)} 
+          title="Success!" 
+          type="success"
+        >
+          <div className="space-y-4">
+            <p className="text-gray-700">Your profile has been updated successfully!</p>
+            <div className="flex justify-end">
+              <Button onClick={() => setShowSuccessModal(false)}>OK</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Error Modal */}
+      {showErrorModal && (
+        <Modal 
+          isOpen={showErrorModal} 
+          onClose={() => setShowErrorModal(false)} 
+          title="Error" 
+          type="error"
+        >
+          <div className="space-y-4">
+            <p className="text-gray-700">{errorMessage}</p>
+            <div className="flex justify-end">
+              <Button variant="outline" onClick={() => setShowErrorModal(false)}>Close</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <Modal 
+          isOpen={showConfirmModal} 
+          onClose={() => setShowConfirmModal(false)} 
+          title="Confirm Action" 
+          type="alert"
+        >
+          <div className="space-y-4">
+            <p className="text-gray-700">{confirmMessage}</p>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setShowConfirmModal(false)}>Cancel</Button>
+              <Button onClick={handleConfirm} className="bg-red-600 hover:bg-red-700">Delete</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Bio Modal */}
+      {showBioModal && (
+        <Modal 
+          isOpen={showBioModal} 
+          onClose={() => setShowBioModal(false)} 
+          title="Edit Bio"
+        >
+          <div className="space-y-4">
+            <Textarea 
+              placeholder="Tell us about yourself..."
+              value={bioForm.bio}
+              onChange={(e) => setBioForm({ bio: e.target.value })}
+              rows={5}
+            />
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setShowBioModal(false)}>Cancel</Button>
+              <Button onClick={saveBio}>Save</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Phone Modal */}
+      {showPhoneModal && (
+        <Modal 
+          isOpen={showPhoneModal} 
+          onClose={() => setShowPhoneModal(false)} 
+          title="Edit Phone Number"
+        >
+          <div className="space-y-4">
+            <Input 
+              type="tel"
+              placeholder="Enter your phone number"
+              value={phoneForm.phone}
+              onChange={(e) => setPhoneForm({ phone: e.target.value })}
+            />
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setShowPhoneModal(false)}>Cancel</Button>
+              <Button onClick={savePhone}>Save</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       <Footer />
     </div>

@@ -318,7 +318,7 @@ const Messages = () => {
       <Navbar />
       
       {/* Secondary Navigation */}
-      <div className="border-b border-gray-200 bg-white flex-shrink-0">
+      <div className="border-b border-gray-200 bg-gray-50 flex-shrink-0">
         <div className="container mx-auto px-4">
           <nav className="flex items-center gap-8 h-16">
             <Link 
@@ -382,7 +382,7 @@ const Messages = () => {
           <div className="flex h-full">
               {/* Sidebar - Conversations List */}
               <div className="w-1/3 border-r border-gray-200 flex flex-col">
-                <div className="p-4 border-b border-gray-200 bg-gray-50">
+                <div className="p-4 border-b border-gray-200 bg-white">
                   <h2 className="text-lg font-semibold text-gray-900 flex items-center">
                     <MessageSquare className="w-5 h-5 mr-2" />
                     Conversations

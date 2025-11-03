@@ -136,6 +136,18 @@ export const Navbar = () => {
           >
             Browse Talent
           </Link>
+          {user && (
+            <Link 
+              to={user.userType === 'employer' ? '/employer-dashboard' : '/student-dashboard'} 
+              className={`text-sm font-medium transition-all duration-300 ${
+                isActive('/student-dashboard') || isActive('/employer-dashboard')
+                  ? 'text-gray-900' 
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Dashboard
+            </Link>
+          )}
           <Link 
             to="/resources" 
             className={`text-sm font-medium transition-all duration-300 ${

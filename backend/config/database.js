@@ -550,6 +550,60 @@ async function initDatabase() {
             });
         });
 
+        // Create student_profiles table
+        await new Promise((resolve, reject) => {
+            const createStudentProfilesSql = process.env.JAWSDB_URL
+                ? `CREATE TABLE IF NOT EXISTS student_profiles (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL UNIQUE,
+                    bio TEXT NULL,
+                    phone VARCHAR(50) NULL,
+                    location VARCHAR(255) NULL,
+                    education JSON NULL,
+                    work_experience JSON NULL,
+                    skills JSON NULL,
+                    languages JSON NULL,
+                    portfolio JSON NULL,
+                    certifications JSON NULL,
+                    social_links JSON NULL,
+                    availability JSON NULL,
+                    profile_views INT DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    INDEX idx_user_id (user_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
+                : `CREATE TABLE IF NOT EXISTS \`${DB_NAME}\`.student_profiles (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL UNIQUE,
+                    bio TEXT NULL,
+                    phone VARCHAR(50) NULL,
+                    location VARCHAR(255) NULL,
+                    education JSON NULL,
+                    work_experience JSON NULL,
+                    skills JSON NULL,
+                    languages JSON NULL,
+                    portfolio JSON NULL,
+                    certifications JSON NULL,
+                    social_links JSON NULL,
+                    availability JSON NULL,
+                    profile_views INT DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES \`${DB_NAME}\`.users(id) ON DELETE CASCADE,
+                    INDEX idx_user_id (user_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`;
+            
+            tablePool.query(createStudentProfilesSql, (err) => {
+                if (err) {
+                    console.error('Failed to create student_profiles table:', err.message, err.code);
+                    return reject(err);
+                }
+                console.log('Student_profiles table created/verified');
+                resolve();
+            });
+        });
+
         console.log('Database initialization complete');
         
         // Close the temporary pool for JawsDB
