@@ -46,7 +46,7 @@ import { Footer } from "@/components/Footer";
 
 const StudentProfile = () => {
   const { userId } = useParams();
-  const { user } = useContext(AuthContext);
+  const { user, refreshUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -63,6 +63,7 @@ const StudentProfile = () => {
   const [showCertModal, setShowCertModal] = useState(false);
   const [showBioModal, setShowBioModal] = useState(false);
   const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -89,6 +90,12 @@ const StudentProfile = () => {
   });
   const [bioForm, setBioForm] = useState({ bio: "" });
   const [phoneForm, setPhoneForm] = useState({ phone: "" });
+  const [photoForm, setPhotoForm] = useState({ 
+    photoUrl: "", 
+    uploadMethod: "url", // "url" or "file"
+    uploading: false,
+    previewUrl: ""
+  });
   
   // Profile data state
   const [profileData, setProfileData] = useState({
@@ -100,6 +107,7 @@ const StudentProfile = () => {
     location: "",
     bio: "",
     avatar: "",
+    avatarColor: "#1e40af",
     
     // Education
     education: [],
@@ -151,6 +159,8 @@ const StudentProfile = () => {
   // Determine if viewing own profile
   const isOwnProfile = !userId || (user && parseInt(userId) === parseInt(user.id));
   const targetUserId = userId || user?.id;
+
+  console.log('Profile check - userId:', userId, 'user.id:', user?.id, 'isOwnProfile:', isOwnProfile);
 
   // Check if the logged-in user is an employer viewing their own profile
   useEffect(() => {
@@ -247,7 +257,8 @@ const StudentProfile = () => {
           phone: data.profile?.phone || "",
           location: data.profile?.location || "",
           bio: data.profile?.bio || "",
-          avatar: "",
+          avatar: data.user.profilePicture || "",
+          avatarColor: data.user.avatarColor || "#1e40af",
           education: parseJsonField(data.profile?.education),
           workExperience: parseJsonField(data.profile?.work_experience),
           skills: parseJsonField(data.profile?.skills),
@@ -258,6 +269,8 @@ const StudentProfile = () => {
           socialLinks: parseSocialLinks(data.profile?.social_links),
           availability: parseAvailability(data.profile?.availability)
         });
+
+        console.log('Profile loaded. Avatar:', data.user.profilePicture ? data.user.profilePicture.substring(0, 100) + '...' : 'None');
 
         setStats({
           totalJobs: data.stats?.totalJobs || 0,
@@ -383,6 +396,8 @@ const StudentProfile = () => {
           bio: data.profile.bio || "",
           phone: data.profile.phone || "",
           location: data.profile.location || "",
+          avatar: data.user.profilePicture || "",
+          avatarColor: data.user.avatarColor || "#1e40af",
           education: parseJsonField(data.profile.education),
           workExperience: parseJsonField(data.profile.work_experience),
           skills: parseJsonField(data.profile.skills),
@@ -757,6 +772,104 @@ const StudentProfile = () => {
     }
   };
 
+  const savePhoto = async () => {
+    const photoToSave = photoForm.uploadMethod === "file" ? photoForm.previewUrl : photoForm.photoUrl;
+    
+    if (!photoToSave) {
+      setErrorMessage("Please provide a photo URL or upload a file");
+      setShowErrorModal(true);
+      return;
+    }
+
+    console.log('Saving photo:', photoToSave.substring(0, 100) + '...');
+    setPhotoForm({ ...photoForm, uploading: true });
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_BASE}/api/profiles/me/photo`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          profilePicture: photoToSave
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to update profile picture");
+      }
+
+      const result = await response.json();
+      console.log('Photo save result:', result);
+      
+      // Update local state with new profile picture
+      setProfileData({ ...profileData, avatar: photoToSave });
+      console.log('Updated profileData.avatar to:', photoToSave.substring(0, 100) + '...');
+      
+      // Refresh user context so the photo shows everywhere (navbar, etc.)
+      if (refreshUser) {
+        await refreshUser();
+        console.log('User context refreshed');
+      }
+      
+      // Close modal and reset form
+      setShowPhotoModal(false);
+      setPhotoForm({ 
+        photoUrl: "", 
+        uploadMethod: "url",
+        uploading: false,
+        previewUrl: ""
+      });
+      
+      setSuccessMessage("Profile picture updated successfully!");
+      setShowSuccessModal(true);
+    } catch (err) {
+      console.error("Error saving photo:", err);
+      setErrorMessage(err.message || "Failed to save profile picture");
+      setShowErrorModal(true);
+      setPhotoForm({ ...photoForm, uploading: false });
+    }
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      setErrorMessage("Please upload a valid image file (JPG, PNG, GIF, or WebP)");
+      setShowErrorModal(true);
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+      setErrorMessage("File size must be less than 5MB");
+      setShowErrorModal(true);
+      return;
+    }
+
+    // Convert to base64
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPhotoForm({
+        ...photoForm,
+        previewUrl: reader.result,
+        uploadMethod: "file"
+      });
+    };
+    reader.onerror = () => {
+      setErrorMessage("Failed to read file");
+      setShowErrorModal(true);
+    };
+    reader.readAsDataURL(file);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -940,16 +1053,25 @@ const StudentProfile = () => {
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="flex items-start gap-6">
               <div className="relative">
-                <Avatar className="w-24 h-24 border-2 border-gray-200 shadow-sm">
+                <Avatar 
+                  className="w-24 h-24 border-2 border-gray-200 shadow-sm bg-transparent"
+                >
                   <AvatarImage src={profileData.avatar} />
-                  <AvatarFallback className="bg-gray-100 text-gray-700 text-2xl font-medium">
+                  <AvatarFallback 
+                    className="text-white text-2xl font-medium"
+                    style={{ backgroundColor: profileData.avatarColor }}
+                  >
                     {profileData.firstName[0]}{profileData.lastName[0]}
                   </AvatarFallback>
                 </Avatar>
-                {isEditing && (
+                {isOwnProfile && user && isEditing && (
                   <Button
                     size="sm"
-                    className="absolute bottom-0 right-0 rounded-full w-10 h-10 p-0"
+                    className="absolute bottom-0 right-0 rounded-full w-10 h-10 p-0 shadow-md hover:shadow-lg transition-shadow z-20 bg-purple-600 hover:bg-purple-700 text-white"
+                    onClick={() => {
+                      console.log('Edit button clicked, opening photo modal');
+                      setShowPhotoModal(true);
+                    }}
                   >
                     <Edit2 className="w-4 h-4" />
                   </Button>
@@ -1941,6 +2063,160 @@ const StudentProfile = () => {
             <div className="flex gap-2 justify-end">
               <Button variant="outline" onClick={() => setShowPhoneModal(false)}>Cancel</Button>
               <Button onClick={savePhone}>Save</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Profile Photo Modal */}
+      {showPhotoModal && (
+        <Modal 
+          isOpen={showPhotoModal} 
+          onClose={() => {
+            setShowPhotoModal(false);
+            setPhotoForm({ 
+              photoUrl: "", 
+              uploadMethod: "url",
+              uploading: false,
+              previewUrl: ""
+            });
+          }} 
+          title="Update Profile Picture"
+        >
+          <div className="space-y-4">
+            {/* Tab Selection */}
+            <div className="flex gap-2 border-b border-gray-200">
+              <button
+                className={`px-4 py-2 font-medium text-sm transition-colors ${
+                  photoForm.uploadMethod === "url"
+                    ? "border-b-2 border-purple-600 text-purple-600"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+                onClick={() => setPhotoForm({ 
+                  ...photoForm, 
+                  uploadMethod: "url",
+                  previewUrl: ""
+                })}
+              >
+                Enter URL
+              </button>
+              <button
+                className={`px-4 py-2 font-medium text-sm transition-colors ${
+                  photoForm.uploadMethod === "file"
+                    ? "border-b-2 border-purple-600 text-purple-600"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+                onClick={() => setPhotoForm({ 
+                  ...photoForm, 
+                  uploadMethod: "file",
+                  photoUrl: ""
+                })}
+              >
+                Upload File
+              </button>
+            </div>
+
+            {/* URL Input */}
+            {photoForm.uploadMethod === "url" && (
+              <div className="space-y-3">
+                <div className="text-sm text-gray-600">
+                  Enter the URL of your profile picture. Supported formats: JPG, PNG, GIF, WebP
+                </div>
+                <Input 
+                  type="url"
+                  placeholder="https://example.com/your-photo.jpg"
+                  value={photoForm.photoUrl}
+                  onChange={(e) => setPhotoForm({ ...photoForm, photoUrl: e.target.value })}
+                />
+              </div>
+            )}
+
+            {/* File Upload */}
+            {photoForm.uploadMethod === "file" && (
+              <div className="space-y-3">
+                <div className="text-sm text-gray-600">
+                  Upload an image from your device. Max size: 5MB. Supported formats: JPG, PNG, GIF, WebP
+                </div>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors">
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="photo-upload"
+                  />
+                  <label
+                    htmlFor="photo-upload"
+                    className="cursor-pointer flex flex-col items-center"
+                  >
+                    <User className="w-12 h-12 text-gray-400 mb-2" />
+                    <span className="text-sm font-medium text-gray-700">
+                      Click to upload image
+                    </span>
+                    <span className="text-xs text-gray-500 mt-1">
+                      JPG, PNG, GIF, or WebP (max 5MB)
+                    </span>
+                  </label>
+                </div>
+              </div>
+            )}
+
+            {/* Preview */}
+            {((photoForm.uploadMethod === "url" && photoForm.photoUrl) || 
+              (photoForm.uploadMethod === "file" && photoForm.previewUrl)) && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                <div className="text-sm font-medium mb-3">Preview:</div>
+                <div className="flex items-center gap-4">
+                  <Avatar className="w-24 h-24 border-2 border-gray-200">
+                    <AvatarImage 
+                      src={photoForm.uploadMethod === "file" ? photoForm.previewUrl : photoForm.photoUrl} 
+                    />
+                    <AvatarFallback className="bg-gray-100 text-gray-700">
+                      Preview
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="text-xs text-gray-600">
+                    {photoForm.uploadMethod === "file" 
+                      ? "Your uploaded image" 
+                      : "Image from URL"}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex gap-2 justify-end pt-4">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setShowPhotoModal(false);
+                  setPhotoForm({ 
+                    photoUrl: "", 
+                    uploadMethod: "url",
+                    uploading: false,
+                    previewUrl: ""
+                  });
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={savePhoto}
+                disabled={
+                  photoForm.uploading || 
+                  (photoForm.uploadMethod === "url" && !photoForm.photoUrl) ||
+                  (photoForm.uploadMethod === "file" && !photoForm.previewUrl)
+                }
+              >
+                {photoForm.uploading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  'Save'
+                )}
+              </Button>
             </div>
           </div>
         </Modal>

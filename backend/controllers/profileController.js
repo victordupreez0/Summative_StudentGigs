@@ -244,6 +244,44 @@ function updateProfile(req, res) {
     });
 }
 
+// Update profile picture
+function updateProfilePicture(req, res) {
+    const db = getDb();
+    if (!db) {
+        return res.status(500).json({ error: 'db not initialized' });
+    }
+
+    const userId = req.user && req.user.id;
+    if (!userId) {
+        return res.status(401).json({ error: 'invalid token payload' });
+    }
+
+    const { profilePicture } = req.body;
+
+    if (!profilePicture) {
+        return res.status(400).json({ error: 'profilePicture is required' });
+    }
+
+    // Update the profile_picture in users table
+    const sql = 'UPDATE users SET profile_picture = ? WHERE id = ?';
+    
+    db.query(sql, [profilePicture, userId], (err, result) => {
+        if (err) {
+            console.error('Error updating profile picture:', err);
+            return res.status(500).json({ error: 'db error' });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'user not found' });
+        }
+
+        res.json({ 
+            message: 'profile picture updated successfully',
+            profilePicture 
+        });
+    });
+}
+
 // Increment profile views
 function incrementProfileViews(req, res) {
     const db = getDb();
@@ -376,6 +414,7 @@ module.exports = {
     getProfile,
     getMyProfile,
     updateProfile,
+    updateProfilePicture,
     incrementProfileViews,
     checkBioInDatabase,
     getEmployerStats

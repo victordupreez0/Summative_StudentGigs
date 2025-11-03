@@ -4,6 +4,7 @@ const {
     getProfile, 
     getMyProfile, 
     updateProfile,
+    updateProfilePicture,
     incrementProfileViews,
     checkBioInDatabase,
     getEmployerStats
@@ -24,6 +25,9 @@ router.get('/me/profile', authenticateToken, getMyProfile);
 
 // Protected route - update own profile
 router.put('/me', authenticateToken, updateProfile);
+
+// Protected route - update profile picture
+router.put('/me/photo', authenticateToken, updateProfilePicture);
 
 // Track profile view (with optional auth to avoid counting own views)
 router.post('/:userId/view', optionalAuth, incrementProfileViews);

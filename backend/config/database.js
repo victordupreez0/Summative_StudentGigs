@@ -176,6 +176,37 @@ async function initDatabase() {
             });
         });
 
+        // Upgrade profile_picture column to MEDIUMTEXT to support base64 images
+        await new Promise((resolve, reject) => {
+            const tableName = process.env.JAWSDB_URL ? 'users' : `\`${DB_NAME}\`.users`;
+            
+            const checkColumns = `SHOW COLUMNS FROM ${tableName}`;
+            tablePool.query(checkColumns, (err, columns) => {
+                if (err) {
+                    console.error('Error checking profile_picture column:', err);
+                    return resolve(); // Don't fail, just continue
+                }
+
+                const profilePictureColumn = columns.find(col => col.Field === 'profile_picture');
+                
+                if (profilePictureColumn && profilePictureColumn.Type !== 'mediumtext') {
+                    const alterQuery = `ALTER TABLE ${tableName} MODIFY COLUMN profile_picture MEDIUMTEXT NULL`;
+                    tablePool.query(alterQuery, (alterErr) => {
+                        if (alterErr) {
+                            console.error('Warning: Could not upgrade profile_picture column:', alterErr.message);
+                            resolve();
+                        } else {
+                            console.log('Upgraded profile_picture column to MEDIUMTEXT');
+                            resolve();
+                        }
+                    });
+                } else {
+                    console.log('Profile_picture column type is correct');
+                    resolve();
+                }
+            });
+        });
+
         // Create jobs table with additional fields
         await new Promise((resolve, reject) => {
             const createJobsSql = process.env.JAWSDB_URL

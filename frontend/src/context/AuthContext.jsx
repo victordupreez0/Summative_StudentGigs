@@ -43,6 +43,20 @@ export function AuthProvider({ children }) {
     setUser(null)
   }
 
+  const refreshUser = async () => {
+    const t = getToken()
+    if (!t) return { ok: false }
+    try {
+      const res = await fetch(`${API_BASE}/api/profile`, { headers: { Authorization: `Bearer ${t}` } })
+      if (!res.ok) return { ok: false }
+      const data = await res.json()
+      setUser(data)
+      return { ok: true, user: data }
+    } catch (e) {
+      return { ok: false }
+    }
+  }
+
   useEffect(() => {
     ;(async () => {
       const t = getToken()
@@ -61,7 +75,7 @@ export function AuthProvider({ children }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, token: getToken() }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, refreshUser, token: getToken() }}>
       {children}
     </AuthContext.Provider>
   )
