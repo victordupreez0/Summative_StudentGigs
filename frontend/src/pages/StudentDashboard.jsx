@@ -214,33 +214,123 @@ const StudentDashboard = () => {
               <CardContent>
                 <div className="space-y-6">
                   {recommendedJobs.map((job) => (
-                    <div key={job.id} className="border-b border-gray-200 last:border-0 pb-6 last:pb-0">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-semibold text-gray-900 hover:text-purple-600 cursor-pointer">
-                          {job.title}
-                        </h3>
-                        <Button variant="ghost" size="icon" className="text-gray-600 hover:text-gray-900">
-                          <Bookmark className="w-4 h-4" />
-                        </Button>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-2">{job.user_id ? `Posted by employer` : ''}</p>
-                      <p className="text-sm font-medium text-gray-900 mb-3">{job.projectLength || ''}</p>
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {(job.tags || []).map((tag, tagIndex) => (
-                          <Badge key={tagIndex} variant="secondary" className="bg-gray-100 text-gray-700 border-gray-200">{tag}</Badge>
-                        ))}
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-4 text-sm text-gray-600">
-                          <span>{(job.education_levels && job.education_levels[0]) || ''}</span>
-                          <span>{job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}</span>
+                    <Card 
+                      key={job.id} 
+                      className="hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => navigate(`/jobs/${job.id}`)}
+                    >
+                      <CardContent className="p-6">
+                        <div className="flex items-start gap-4">
+                          {/* Company Icon/Avatar */}
+                          <div className="flex-shrink-0">
+                            <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                              job.poster_type === 'employer' ? 'bg-primary/10' : 'bg-green-100'
+                            }`}>
+                              <span className={`font-semibold text-lg ${
+                                job.poster_type === 'employer' ? 'text-primary' : 'text-green-700'
+                              }`}>
+                                {(job.poster_business_name || job.poster_name || job.category || 'U').charAt(0)}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex-1">
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <h3 className="text-lg font-semibold text-foreground hover:text-primary">
+                                  {job.title}
+                                </h3>
+                                <p className="text-muted-foreground">
+                                  {job.poster_business_name || job.poster_name || `User ${job.user_id}`}
+                                </p>
+                              </div>
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // TODO: Save job functionality
+                                }}
+                              >
+                                <Bookmark className="w-5 h-5" />
+                              </Button>
+                            </div>
+
+                            {/* Student vs Business Badge */}
+                            <div className="flex flex-wrap gap-2 mb-3">
+                              <Badge variant={job.poster_type === 'employer' ? 'default' : 'secondary'}>
+                                {job.poster_type === 'employer' ? '🏢 Business' : '🎓 Student'} Job
+                              </Badge>
+                              {job.category && <Badge variant="outline">{job.category}</Badge>}
+                              {job.projectType && <Badge variant="outline">{job.projectType}</Badge>}
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-3">
+                              <div className="flex items-center gap-1">
+                                <MapPin className="w-4 h-4" />
+                                {job.workLocation || 'Remote'}
+                              </div>
+                              {job.budgetType === 'hourly' && job.hourlyRateMin && (
+                                <div className="flex items-center gap-1">
+                                  <DollarSign className="w-4 h-4" />
+                                  ${job.hourlyRateMin}-${job.hourlyRateMax}/hr
+                                </div>
+                              )}
+                              {job.budgetType === 'fixed' && job.fixedBudget && (
+                                <div className="flex items-center gap-1">
+                                  <DollarSign className="w-4 h-4" />
+                                  ${job.fixedBudget}
+                                </div>
+                              )}
+                              <div className="flex items-center gap-1">
+                                <Clock className="w-4 h-4" />
+                                {job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}
+                              </div>
+                            </div>
+
+                            <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                              {job.description}
+                            </p>
+
+                            <div className="flex flex-wrap gap-2 mb-4">
+                              {(job.requiredSkills || job.tags || []).slice(0, 5).map((tag, index) => (
+                                <Badge key={index} variant="secondary">
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                {job.experienceLevel && <span>{job.experienceLevel}</span>}
+                                {job.weeklyHours && <span>{job.weeklyHours}</span>}
+                              </div>
+                              <div className="flex gap-2">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`/jobs/${job.id}`);
+                                  }}
+                                >
+                                  View Details
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleApplyClick(job.id);
+                                  }}
+                                >
+                                  Apply Now
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm" className="border-gray-300 text-gray-700 hover:bg-gray-50">Save</Button>
-                          <Button size="sm" className="bg-gray-900 hover:bg-gray-800 text-white" onClick={() => handleApplyClick(job.id)}>Apply Now</Button>
-                        </div>
-                      </div>
-                    </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
                 <div className="text-center mt-6">
