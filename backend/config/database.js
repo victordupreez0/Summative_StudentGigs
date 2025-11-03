@@ -454,7 +454,19 @@ async function initDatabase() {
                     return reject(err);
                 }
                 console.log('Messages table created/verified');
-                resolve();
+                
+                // Ensure messages table uses utf8mb4 for emoji support
+                const tableName = process.env.JAWSDB_URL ? 'messages' : `\`${DB_NAME}\`.messages`;
+                const alterCharsetSql = `ALTER TABLE ${tableName} CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`;
+                
+                tablePool.query(alterCharsetSql, (alterErr) => {
+                    if (alterErr) {
+                        console.log('Note: Could not alter messages table charset (may already be correct):', alterErr.message);
+                    } else {
+                        console.log('Messages table charset updated to utf8mb4 for emoji support');
+                    }
+                    resolve();
+                });
             });
         });
 
@@ -490,6 +502,7 @@ async function initAndConnect() {
         user: DB_USER,
         password: DB_PASS,
         database: DB_NAME,
+        charset: 'utf8mb4',
         waitForConnections: true,
         connectionLimit: 10,
         queueLimit: 0,

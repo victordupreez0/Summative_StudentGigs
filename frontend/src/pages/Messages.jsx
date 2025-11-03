@@ -450,9 +450,9 @@ const Messages = () => {
                           const isStudentReceiving = !isOwnMessage && user?.userType === 'student';
                           const showCompletionCard = isCompletion && isStudentReceiving;
                           
-                          // Debug logging for completion detection
+                          // Debug the newest message
                           if (message.content.includes('🎉')) {
-                            console.log('🔍 Completion message debug:', {
+                            console.log('🎉 Completion message found:', {
                               messageId: message.id,
                               senderId: message.sender_id,
                               userId: user?.id,
@@ -460,8 +460,7 @@ const Messages = () => {
                               isOwnMessage,
                               isCompletion,
                               isStudentReceiving,
-                              showCompletionCard,
-                              content: message.content.substring(0, 50)
+                              showCompletionCard
                             });
                           }
                           
