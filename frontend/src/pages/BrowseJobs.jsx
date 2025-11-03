@@ -8,7 +8,7 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useModal } from "@/components/ui/modal";
 import { Search, Filter, MapPin, Clock, DollarSign, Users, Bookmark } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import AuthContext from '@/context/AuthContext';
@@ -18,10 +18,16 @@ const BrowseJobs = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const { showAlert, ModalComponent } = useModal();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [location, setLocation] = useState("");
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || "");
   const [jobs, setJobs] = useState([])
   const [savedJobIds, setSavedJobIds] = useState(new Set())
+  const [jobType, setJobType] = useState("all");
+  const [category, setCategory] = useState("all");
+  const [payRate, setPayRate] = useState("all");
+  const [experienceLevel, setExperienceLevel] = useState("all");
+  const [duration, setDuration] = useState("all");
+  const [sortBy, setSortBy] = useState("relevance");
 
   // Helper function to format experience level
   const formatExperienceLevel = (level) => {
@@ -65,6 +71,106 @@ const BrowseJobs = () => {
     })()
     return () => { mounted = false }
   }, [])
+
+  // Update search query when URL params change
+  useEffect(() => {
+    const searchParam = searchParams.get('search');
+    if (searchParam) {
+      setSearchQuery(searchParam);
+    }
+  }, [searchParams]);
+
+  // Filter and sort jobs
+  const filteredJobs = jobs.filter((job) => {
+    // Search query filter (title, description, category, required skills)
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesTitle = job.title?.toLowerCase().includes(query);
+      const matchesDescription = job.description?.toLowerCase().includes(query);
+      const matchesCategory = job.category?.toLowerCase().includes(query);
+      const matchesSkills = job.required_skills?.toLowerCase().includes(query);
+      
+      if (!matchesTitle && !matchesDescription && !matchesCategory && !matchesSkills) {
+        return false;
+      }
+    }
+
+    // Job type filter
+    if (jobType !== "all" && job.project_type) {
+      if (job.project_type.toLowerCase() !== jobType.toLowerCase()) {
+        return false;
+      }
+    }
+
+    // Category filter
+    if (category !== "all" && job.category) {
+      if (job.category.toLowerCase() !== category.toLowerCase()) {
+        return false;
+      }
+    }
+
+    // Pay rate filter
+    if (payRate !== "all") {
+      const rate = job.hourly_rate_min || 0;
+      switch (payRate) {
+        case "10-20":
+          if (rate < 10 || rate > 20) return false;
+          break;
+        case "20-30":
+          if (rate < 20 || rate > 30) return false;
+          break;
+        case "30-50":
+          if (rate < 30 || rate > 50) return false;
+          break;
+        case "50+":
+          if (rate < 50) return false;
+          break;
+      }
+    }
+
+    // Experience level filter
+    if (experienceLevel !== "all" && job.experience_level) {
+      if (job.experience_level.toLowerCase() !== experienceLevel.toLowerCase()) {
+        return false;
+      }
+    }
+
+    // Duration filter
+    if (duration !== "all" && job.project_length) {
+      const length = job.project_length.toLowerCase();
+      switch (duration) {
+        case "1-week":
+          if (!length.includes("week") && !length.includes("less")) return false;
+          break;
+        case "1-month":
+          if (!length.includes("1-3 months") && !length.includes("month")) return false;
+          break;
+        case "3-month":
+          if (!length.includes("3-6 months")) return false;
+          break;
+        case "6-month":
+          if (!length.includes("6+ months") && !length.includes("ongoing")) return false;
+          break;
+      }
+    }
+
+    return true;
+  });
+
+  // Sort jobs
+  const sortedJobs = [...filteredJobs].sort((a, b) => {
+    switch (sortBy) {
+      case "newest":
+        return new Date(b.created_at) - new Date(a.created_at);
+      case "pay-high":
+        return (b.hourly_rate_min || 0) - (a.hourly_rate_min || 0);
+      case "pay-low":
+        return (a.hourly_rate_min || 0) - (b.hourly_rate_min || 0);
+      case "relevance":
+      default:
+        return 0;
+    }
+  });
 
   // Fetch saved jobs to check which are saved
   useEffect(() => {
@@ -170,87 +276,18 @@ const BrowseJobs = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-  <Navbar />
-      
-      {/* Secondary Navigation */}
-      <div className="border-b border-gray-200">
-        <div className="container mx-auto px-4">
-          <nav className="flex items-center gap-8 h-16">
-            <Link 
-              to="/browse-jobs" 
-              className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2"
-            >
-              Browse Jobs
-            </Link>
-            <Link 
-              to={user?.userType === 'employer' ? '/employer-dashboard' : '/student-dashboard'} 
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
-            >
-              Dashboard
-            </Link>
-            <Link 
-              to="/open-jobs" 
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
-            >
-              Open Jobs
-            </Link>
-            <Link 
-              to="/applicants" 
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
-            >
-              Applicants
-            </Link>
-            {user?.userType === 'student' && (
-              <>
-                <Link 
-                  to="/my-jobs" 
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
-                >
-                  My Jobs
-                </Link>
-                <Link 
-                  to="/applications" 
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
-                >
-                  Applications
-                </Link>
-              </>
-            )}
-            <Link 
-              to="/messages" 
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
-            >
-              Messages
-            </Link>
-            <Link 
-              to={user?.userType === 'employer' ? '/profile' : '/student-profile'} 
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
-            >
-              Profile
-            </Link>
-          </nav>
-        </div>
-      </div>
+      <Navbar />
 
       <div className="container mx-auto px-4 py-8">
         {/* Search Section */}
         <div className="bg-background-section rounded-lg p-6 mb-8">
-          <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
                 placeholder="Search for jobs, skills, or keywords"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12"
-              />
-            </div>
-            <div className="flex-1 relative">
-              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <Input
-                placeholder="Location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
                 className="pl-10 h-12"
               />
             </div>
@@ -272,16 +309,35 @@ const BrowseJobs = () => {
 
               {/* Job Type Filter */}
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">Job Type</label>
-                <Select>
+                <label className="text-sm font-medium text-foreground mb-2 block">Project Type</label>
+                <Select value={jobType} onValueChange={setJobType}>
                   <SelectTrigger>
                     <SelectValue placeholder="All Types" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value="part-time">Part-time</SelectItem>
-                    <SelectItem value="freelance">Freelance</SelectItem>
+                    <SelectItem value="one-time">One-time project</SelectItem>
+                    <SelectItem value="ongoing">Ongoing work</SelectItem>
                     <SelectItem value="internship">Internship</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Category Filter */}
+              <div>
+                <label className="text-sm font-medium text-foreground mb-2 block">Category</label>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="web-development">Web, Mobile & Software Dev</SelectItem>
+                    <SelectItem value="content-writing">Content Writing</SelectItem>
+                    <SelectItem value="data-analysis">Data Analysis</SelectItem>
+                    <SelectItem value="graphic-design">Graphic Design</SelectItem>
+                    <SelectItem value="marketing">Marketing & Sales</SelectItem>
+                    <SelectItem value="research">Research & Analysis</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -289,7 +345,7 @@ const BrowseJobs = () => {
               {/* Pay Rate Filter */}
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Pay Rate</label>
-                <Select>
+                <Select value={payRate} onValueChange={setPayRate}>
                   <SelectTrigger>
                     <SelectValue placeholder="All Rates" />
                   </SelectTrigger>
@@ -306,7 +362,7 @@ const BrowseJobs = () => {
               {/* Experience Level Filter */}
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Experience Level</label>
-                <Select>
+                <Select value={experienceLevel} onValueChange={setExperienceLevel}>
                   <SelectTrigger>
                     <SelectValue placeholder="All Levels" />
                   </SelectTrigger>
@@ -321,8 +377,8 @@ const BrowseJobs = () => {
 
               {/* Duration Filter */}
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">Duration</label>
-                <Select>
+                <label className="text-sm font-medium text-foreground mb-2 block">Project Length</label>
+                <Select value={duration} onValueChange={setDuration}>
                   <SelectTrigger>
                     <SelectValue placeholder="All Durations" />
                   </SelectTrigger>
@@ -331,14 +387,26 @@ const BrowseJobs = () => {
                     <SelectItem value="1-week">Less than 1 week</SelectItem>
                     <SelectItem value="1-month">1-3 months</SelectItem>
                     <SelectItem value="3-month">3-6 months</SelectItem>
-                    <SelectItem value="6-month">6+ months</SelectItem>
+                    <SelectItem value="6-month">More than 6 months</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              {/* More Filters Button */}
-              <Button variant="outline" className="w-full">
-                More Filters ≡
+              {/* Clear Filters Button */}
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => {
+                  setSearchQuery("");
+                  setJobType("all");
+                  setCategory("all");
+                  setPayRate("all");
+                  setExperienceLevel("all");
+                  setDuration("all");
+                  setSortBy("relevance");
+                }}
+              >
+                Clear All Filters
               </Button>
             </div>
           </div>
@@ -346,10 +414,12 @@ const BrowseJobs = () => {
           {/* Job Listings */}
           <div className="flex-1">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">Recommended Jobs</h2>
+              <h2 className="text-2xl font-bold">
+                {searchQuery ? `Search Results (${sortedJobs.length})` : `Recommended Jobs (${sortedJobs.length})`}
+              </h2>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">Sort by:</span>
-                <Select defaultValue="relevance">
+                <Select value={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger className="w-40">
                     <SelectValue />
                   </SelectTrigger>
@@ -364,7 +434,15 @@ const BrowseJobs = () => {
             </div>
 
             <div className="space-y-6">
-              {jobs.map((job) => (
+              {sortedJobs.length === 0 ? (
+                <Card className="p-8">
+                  <div className="text-center text-gray-500">
+                    <p className="text-lg font-semibold mb-2">No jobs found</p>
+                    <p>Try adjusting your search or filters</p>
+                  </div>
+                </Card>
+              ) : (
+                sortedJobs.map((job) => (
                 <Card 
                   key={job.id} 
                   className="hover:shadow-md transition-shadow cursor-pointer"
@@ -480,7 +558,8 @@ const BrowseJobs = () => {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              ))
+              )}
             </div>
 
             {/* Load More */}

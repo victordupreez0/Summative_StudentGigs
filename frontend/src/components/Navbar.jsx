@@ -23,12 +23,21 @@ export const Navbar = () => {
   const { user, logout, token } = useContext(AuthContext)
   const [recentMessages, setRecentMessages] = useState([])
   const [loadingMessages, setLoadingMessages] = useState(false)
+  const [navSearchQuery, setNavSearchQuery] = useState("")
   
   const isActive = (path) => {
     try {
       return location?.pathname === path || location?.pathname?.startsWith(path + '/');
     } catch (e) {
       return false;
+    }
+  };
+
+  const handleNavSearch = (e) => {
+    e.preventDefault();
+    if (navSearchQuery.trim()) {
+      navigate(`/browse-jobs?search=${encodeURIComponent(navSearchQuery.trim())}`);
+      setNavSearchQuery("");
     }
   };
 
@@ -181,13 +190,15 @@ export const Navbar = () => {
         
         {/* Search - Compact Modern Input */}
         <div className="hidden lg:flex items-center gap-2 flex-1 max-w-xs">
-          <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <form onSubmit={handleNavSearch} className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             <Input 
               placeholder="Search jobs..." 
               className="pl-11 py-2.5 bg-gray-50 border-gray-200 text-sm"
+              value={navSearchQuery}
+              onChange={(e) => setNavSearchQuery(e.target.value)}
             />
-          </div>
+          </form>
         </div>
         
         {/* Right side actions */}
