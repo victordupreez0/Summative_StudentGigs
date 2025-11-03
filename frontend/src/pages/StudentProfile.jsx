@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect, useContext } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import AuthContext from "@/context/AuthContext";
 import API_BASE from "@/config/api";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,10 @@ import {
   CheckCircle,
   DollarSign,
   Clock,
-  Loader2
+  Loader2,
+  MessageCircle,
+  Copy,
+  Check
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -44,6 +47,7 @@ import { Footer } from "@/components/Footer";
 const StudentProfile = () => {
   const { userId } = useParams();
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -61,6 +65,7 @@ const StudentProfile = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [confirmAction, setConfirmAction] = useState(null);
   const [confirmMessage, setConfirmMessage] = useState("");
@@ -379,6 +384,39 @@ const StudentProfile = () => {
   const handleCancel = () => {
     setIsEditing(false);
     // TODO: Revert changes
+  };
+
+  // Handle message button click
+  const handleSendMessage = () => {
+    if (!user) {
+      // If not logged in, redirect to login
+      navigate('/login');
+      return;
+    }
+    // Navigate to messages page with the userId as a parameter
+    navigate(`/messages?userId=${targetUserId}`);
+  };
+
+  // Handle share profile - copy link to clipboard
+  const [copied, setCopied] = useState(false);
+  const handleShareProfile = async () => {
+    const profileUrl = `https://studentgigs.xyz/student-profile/${targetUserId}`;
+    
+    try {
+      await navigator.clipboard.writeText(profileUrl);
+      setCopied(true);
+      setSuccessMessage('Profile link copied to clipboard!');
+      setShowSuccessModal(true);
+      
+      // Reset copied state after 3 seconds
+      setTimeout(() => {
+        setCopied(false);
+      }, 3000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      setErrorMessage('Failed to copy link to clipboard');
+      setShowErrorModal(true);
+    }
   };
 
   // Confirmation helper
@@ -727,6 +765,62 @@ const StudentProfile = () => {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       
+      {/* Secondary Navigation */}
+      <div className="border-b border-gray-200">
+        <div className="container mx-auto px-4">
+          <nav className="flex items-center gap-8 h-16">
+            <Link 
+              to="/browse-jobs" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Browse Jobs
+            </Link>
+            <Link 
+              to="/student-dashboard" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Dashboard
+            </Link>
+            <Link 
+              to="/open-jobs" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Open Jobs
+            </Link>
+            <Link 
+              to="/applicants" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Applicants
+            </Link>
+            <Link 
+              to="/my-jobs" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-2"
+            >
+              My Jobs
+            </Link>
+            <Link 
+              to="/applications" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Applications
+            </Link>
+            <Link 
+              to="/messages" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Messages
+            </Link>
+            <Link 
+              to="/student-profile" 
+              className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2"
+            >
+              Profile
+            </Link>
+          </nav>
+        </div>
+      </div>
+      
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header Section */}
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-8 mb-8">
@@ -875,6 +969,15 @@ const StudentProfile = () => {
                     </Button>
                   </>
                 )}
+              </div>
+            )}
+            
+            {!loading && !isOwnProfile && (
+              <div className="flex flex-col gap-2">
+                <Button onClick={handleSendMessage} className="bg-purple-600 hover:bg-purple-700">
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Send Message
+                </Button>
               </div>
             )}
           </div>
@@ -1388,13 +1491,31 @@ const StudentProfile = () => {
                     <FileText className="w-4 h-4 mr-2" />
                     Download Resume
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <Globe className="w-4 h-4 mr-2" />
-                    Share Profile
+                  <Button className="w-full justify-start" variant="outline" onClick={handleShareProfile}>
+                    {copied ? <Check className="w-4 h-4 mr-2 text-green-600" /> : <Copy className="w-4 h-4 mr-2" />}
+                    {copied ? 'Link Copied!' : 'Share Profile'}
                   </Button>
                   <Button className="w-full justify-start" variant="outline">
                     <Briefcase className="w-4 h-4 mr-2" />
                     Browse Jobs
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+            
+            {!loading && !isOwnProfile && (
+              <Card className="bg-gray-50 border-gray-200">
+                <CardHeader>
+                  <CardTitle className="text-sm font-semibold">Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <Button className="w-full justify-start bg-purple-600 hover:bg-purple-700 text-white" onClick={handleSendMessage}>
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    Send Message
+                  </Button>
+                  <Button className="w-full justify-start" variant="outline" onClick={handleShareProfile}>
+                    {copied ? <Check className="w-4 h-4 mr-2 text-green-600" /> : <Copy className="w-4 h-4 mr-2" />}
+                    {copied ? 'Link Copied!' : 'Share Profile'}
                   </Button>
                 </CardContent>
               </Card>
@@ -1625,7 +1746,7 @@ const StudentProfile = () => {
           type="success"
         >
           <div className="space-y-4">
-            <p className="text-gray-700">Your profile has been updated successfully!</p>
+            <p className="text-gray-700">{successMessage || 'Your profile has been updated successfully!'}</p>
             <div className="flex justify-end">
               <Button onClick={() => setShowSuccessModal(false)}>OK</Button>
             </div>

@@ -346,7 +346,7 @@ const EmployerDashboard = () => {
         {/* Welcome Section - Employer */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-6">
-            <UserAvatar user={user} size="lg" />
+            <UserAvatar user={user} userId={user?.id} size="lg" />
             <div>
               <h1 className="text-2xl font-bold flex items-center gap-2">
                 Welcome back, {user?.name || 'User'} 👋

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Send, MessageSquare, User, Building2, CheckCircle, XCircle, AlertCircle } from "lucide-react";
@@ -382,7 +383,7 @@ const Messages = () => {
           <div className="flex h-full">
               {/* Sidebar - Conversations List */}
               <div className="w-1/3 border-r border-gray-200 flex flex-col">
-                <div className="p-4 border-b border-gray-200 bg-white">
+                <div className="p-4 border-b border-gray-200 bg-gray-50">
                   <h2 className="text-lg font-semibold text-gray-900 flex items-center">
                     <MessageSquare className="w-5 h-5 mr-2" />
                     Conversations
@@ -414,16 +415,14 @@ const Messages = () => {
                         }`}
                       >
                         <div className="flex items-start space-x-3">
-                          <Avatar className="w-12 h-12">
-                            <AvatarFallback 
-                              style={{ 
-                                backgroundColor: getAvatarColor(conversation.other_user_name),
-                                color: 'white'
-                              }}
-                            >
-                              {getInitials(conversation.other_user_name)}
-                            </AvatarFallback>
-                          </Avatar>
+                          <UserAvatar 
+                            user={{
+                              name: conversation.other_user_name,
+                              avatarColor: getAvatarColor(conversation.other_user_name)
+                            }}
+                            userId={conversation.other_user_id}
+                            size="lg"
+                          />
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-1">
@@ -474,16 +473,14 @@ const Messages = () => {
                     {/* Chat Header */}
                     <div className="p-4 border-b border-gray-200 bg-gray-50">
                       <div className="flex items-center space-x-3">
-                        <Avatar className="w-10 h-10">
-                          <AvatarFallback 
-                            style={{ 
-                              backgroundColor: getAvatarColor(selectedConversation.other_user_name),
-                              color: 'white'
-                            }}
-                          >
-                            {getInitials(selectedConversation.other_user_name)}
-                          </AvatarFallback>
-                        </Avatar>
+                        <UserAvatar 
+                          user={{
+                            name: selectedConversation.other_user_name,
+                            avatarColor: getAvatarColor(selectedConversation.other_user_name)
+                          }}
+                          userId={selectedConversation.other_user_id}
+                          size="md"
+                        />
                         <div>
                           <h3 className="font-semibold text-gray-900">
                             {selectedConversation.other_user_name}

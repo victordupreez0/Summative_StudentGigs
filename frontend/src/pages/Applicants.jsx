@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { UserAvatar } from "@/components/UserAvatar";
 import { 
   Users, 
   Search, 
@@ -376,24 +377,15 @@ const Applicants = () => {
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-4 flex-1">
                           {/* Avatar */}
-                          <div 
-                            className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0"
-                            style={{ 
-                              backgroundColor: application.profile_picture 
-                                ? 'transparent' 
-                                : (application.avatar_color || '#6366f1') 
+                          <UserAvatar 
+                            user={{
+                              name: application.name,
+                              profilePicture: application.profile_picture,
+                              avatarColor: application.avatar_color
                             }}
-                          >
-                            {application.profile_picture ? (
-                              <img 
-                                src={application.profile_picture} 
-                                alt={application.name} 
-                                className="w-full h-full rounded-full object-cover" 
-                              />
-                            ) : (
-                              (application.name?.charAt(0) || 'U').toUpperCase()
-                            )}
-                          </div>
+                            userId={application.user_id}
+                            size="lg"
+                          />
 
                           {/* Applicant Info */}
                           <div className="flex-1 min-w-0">

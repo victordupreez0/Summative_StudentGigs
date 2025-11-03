@@ -816,6 +816,7 @@ const StudentDashboard = () => {
                 <div className="text-center mb-4">
                   <UserAvatar 
                     user={user} 
+                    userId={user?.id}
                     size="xl"
                     className="mx-auto mb-4 border-4 border-primary-foreground/20"
                   />

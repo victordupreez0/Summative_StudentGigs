@@ -225,6 +225,7 @@ export const Navbar = () => {
                               name: conversation.other_user_name,
                               userType: conversation.other_user_type || 'student'
                             }} 
+                            userId={conversation.other_user_id}
                             size="sm"
                           />
                           <div className="flex-1 min-w-0">
