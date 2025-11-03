@@ -641,6 +641,149 @@ function denyCompletion(req, res) {
     });
 }
 
+// Save a job
+function saveJob(req, res) {
+    const db = getDb();
+    if (!db) {
+        return res.status(500).json({ error: 'db not initialized' });
+    }
+
+    const userId = req.user && req.user.id;
+    if (!userId) {
+        return res.status(401).json({ error: 'invalid token payload' });
+    }
+
+    const jobId = req.params.jobId;
+
+    // Check if job exists
+    db.query('SELECT id FROM jobs WHERE id = ?', [jobId], (err, jobResults) => {
+        if (err) {
+            console.error('Error checking job:', err);
+            return res.status(500).json({ error: 'db error' });
+        }
+
+        if (!jobResults || jobResults.length === 0) {
+            return res.status(404).json({ error: 'job not found' });
+        }
+
+        // Check if already saved
+        db.query('SELECT id FROM saved_jobs WHERE user_id = ? AND job_id = ?', [userId, jobId], (err, existingResults) => {
+            if (err) {
+                console.error('Error checking saved job:', err);
+                return res.status(500).json({ error: 'db error' });
+            }
+
+            if (existingResults && existingResults.length > 0) {
+                return res.status(200).json({ message: 'job already saved', saved: true });
+            }
+
+            // Save the job
+            db.query('INSERT INTO saved_jobs (user_id, job_id) VALUES (?, ?)', [userId, jobId], (err, result) => {
+                if (err) {
+                    console.error('Error saving job:', err);
+                    return res.status(500).json({ error: 'db insert error' });
+                }
+
+                res.status(201).json({ message: 'job saved successfully', saved: true });
+            });
+        });
+    });
+}
+
+// Unsave a job
+function unsaveJob(req, res) {
+    const db = getDb();
+    if (!db) {
+        return res.status(500).json({ error: 'db not initialized' });
+    }
+
+    const userId = req.user && req.user.id;
+    if (!userId) {
+        return res.status(401).json({ error: 'invalid token payload' });
+    }
+
+    const jobId = req.params.jobId;
+
+    db.query('DELETE FROM saved_jobs WHERE user_id = ? AND job_id = ?', [userId, jobId], (err, result) => {
+        if (err) {
+            console.error('Error unsaving job:', err);
+            return res.status(500).json({ error: 'db delete error' });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'saved job not found' });
+        }
+
+        res.json({ message: 'job unsaved successfully', saved: false });
+    });
+}
+
+// Get all saved jobs for a user
+function getSavedJobs(req, res) {
+    const db = getDb();
+    if (!db) {
+        return res.status(500).json({ error: 'db not initialized' });
+    }
+
+    const userId = req.user && req.user.id;
+    if (!userId) {
+        return res.status(401).json({ error: 'invalid token payload' });
+    }
+
+    const sql = `
+        SELECT 
+            j.id, j.user_id, j.title, j.description, 
+            j.project_type AS projectType, 
+            j.project_length AS projectLength,
+            j.category, j.tags, 
+            j.education_levels AS educationLevels,
+            j.work_location AS workLocation,
+            j.student_count AS studentCount,
+            j.weekly_hours AS weeklyHours,
+            j.start_date AS startDate,
+            j.experience_level AS experienceLevel,
+            j.required_skills AS requiredSkills,
+            j.preferred_majors AS preferredMajors,
+            j.languages,
+            j.budget_type AS budgetType,
+            j.hourly_rate_min AS hourlyRateMin,
+            j.hourly_rate_max AS hourlyRateMax,
+            j.fixed_budget AS fixedBudget,
+            j.payment_schedule AS paymentSchedule,
+            j.status,
+            j.created_at,
+            u.name AS poster_name,
+            u.business_name AS poster_business_name,
+            u.user_type AS poster_type,
+            sj.created_at AS saved_at
+        FROM saved_jobs sj
+        INNER JOIN jobs j ON sj.job_id = j.id
+        LEFT JOIN users u ON j.user_id = u.id
+        WHERE sj.user_id = ?
+        ORDER BY sj.created_at DESC
+    `;
+
+    db.query(sql, [userId], (err, results) => {
+        if (err) {
+            console.error('Error fetching saved jobs:', err);
+            return res.status(500).json({ error: 'db query error' });
+        }
+
+        // Parse JSON fields
+        const jobs = results.map(job => ({
+            ...job,
+            tags: job.tags ? JSON.parse(job.tags) : [],
+            educationLevels: job.educationLevels ? JSON.parse(job.educationLevels) : [],
+            requiredSkills: job.requiredSkills ? JSON.parse(job.requiredSkills) : [],
+            preferredMajors: job.preferredMajors ? JSON.parse(job.preferredMajors) : [],
+            languages: job.languages ? JSON.parse(job.languages) : [],
+            saved: true
+        }));
+
+        res.json(jobs);
+    });
+}
+
 module.exports = {
     createJob,
     getAllJobs,
@@ -650,5 +793,8 @@ module.exports = {
     deleteJob,
     completeJob,
     acceptCompletion,
-    denyCompletion
+    denyCompletion,
+    saveJob,
+    unsaveJob,
+    getSavedJobs
 };

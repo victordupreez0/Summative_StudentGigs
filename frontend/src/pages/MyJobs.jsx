@@ -14,7 +14,8 @@ import {
   AlertCircle,
   CheckCircle,
   Eye,
-  MessageSquare
+  MessageSquare,
+  Bookmark
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
@@ -27,8 +28,37 @@ const MyJobs = () => {
   const navigate = useNavigate();
   const { showAlert, ModalComponent } = useModal();
   const [jobs, setJobs] = useState([]);
+  const [savedJobs, setSavedJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, active, completed, completion_pending
+  const [activeTab, setActiveTab] = useState('accepted'); // accepted or saved
+
+  // Helper function to format experience level
+  const formatExperienceLevel = (level) => {
+    const levels = {
+      'entry': 'Entry Level',
+      'intermediate': 'Intermediate',
+      'expert': 'Expert',
+      'beginner': 'Beginner',
+      'advanced': 'Advanced'
+    };
+    return levels[level?.toLowerCase()] || level;
+  };
+
+  // Helper function to format weekly hours
+  const formatWeeklyHours = (hours) => {
+    if (!hours) return '';
+    const hourMap = {
+      'less-10': 'Less than 10 hours/week',
+      '10-20': '10-20 hours/week',
+      '20-30': '20-30 hours/week',
+      '30-40': '30-40 hours/week',
+      '40+': '40+ hours/week',
+      'full-time': 'Full-time',
+      'part-time': 'Part-time'
+    };
+    return hourMap[hours] || hours;
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -62,6 +92,72 @@ const MyJobs = () => {
     fetchMyAcceptedJobs();
     return () => { mounted = false };
   }, [token]);
+
+  // Fetch saved jobs
+  useEffect(() => {
+    let mounted = true;
+    
+    const fetchSavedJobs = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/jobs/saved`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!res.ok) {
+          console.error('Failed to fetch saved jobs');
+          if (mounted) setSavedJobs([]);
+          return;
+        }
+        
+        const data = await res.json();
+        if (mounted) {
+          setSavedJobs(data);
+        }
+      } catch (err) {
+        console.error('Failed to load saved jobs', err);
+        if (mounted) setSavedJobs([]);
+      }
+    };
+
+    if (activeTab === 'saved') {
+      fetchSavedJobs();
+    }
+    return () => { mounted = false };
+  }, [token, activeTab]);
+
+  const handleUnsaveJob = async (jobId) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/jobs/${jobId}/save`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to unsave job');
+      }
+
+      // Remove from local state
+      setSavedJobs(prevJobs => prevJobs.filter(job => job.id !== jobId));
+
+      await showAlert({
+        title: 'Success',
+        message: 'Job removed from saved jobs',
+        type: 'success'
+      });
+    } catch (error) {
+      console.error('Error unsaving job:', error);
+      await showAlert({
+        title: 'Error',
+        message: 'Failed to remove job. Please try again.',
+        type: 'error'
+      });
+    }
+  };
 
   const getTimeAgo = (dateString) => {
     const date = new Date(dateString);
@@ -195,16 +291,37 @@ const MyJobs = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
+        {/* Header with Tabs */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">My Jobs</h1>
-          <p className="text-muted-foreground">
-            Jobs where your application has been accepted
+          <p className="text-muted-foreground mb-4">
+            {activeTab === 'accepted' ? 'Jobs where your application has been accepted' : 'Jobs you have saved for later'}
           </p>
+          
+          {/* Tab Switcher */}
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              className={`rounded-none ${activeTab === 'accepted' ? 'text-primary' : 'border-transparent'}`}
+              onClick={() => setActiveTab('accepted')}
+            >
+              <Briefcase className="w-4 h-4 mr-2" />
+              Accepted Jobs
+            </Button>
+            <Button
+              variant="ghost"
+              className={`rounded-none ${activeTab === 'saved' ? 'border-primary text-primary' : 'border-transparent'}`}
+              onClick={() => setActiveTab('saved')}
+            >
+              <Bookmark className="w-4 h-4 mr-2" />
+              Saved Jobs ({savedJobs.length})
+            </Button>
+          </div>
         </div>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        {/* Stats Overview - Only show for accepted jobs */}
+        {activeTab === 'accepted' && (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -258,8 +375,10 @@ const MyJobs = () => {
             </CardContent>
           </Card>
         </div>
+        )}
 
-        {/* Filter Tabs */}
+        {/* Filter Tabs - Only show for accepted jobs */}
+        {activeTab === 'accepted' && (
         <div className="flex gap-2 mb-6">
           <Button
             variant={filter === 'all' ? 'default' : 'outline'}
@@ -290,9 +409,11 @@ const MyJobs = () => {
             Completed ({stats.completed})
           </Button>
         </div>
+        )}
 
         {/* Jobs List */}
-        {loading ? (
+        {activeTab === 'accepted' ? (
+        loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-muted-foreground">Loading your jobs...</p>
@@ -420,6 +541,146 @@ const MyJobs = () => {
               </Card>
             ))}
           </div>
+        )
+        ) : (
+          /* Saved Jobs Section */
+          savedJobs.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <Bookmark className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2">No saved jobs yet</h3>
+                <p className="text-muted-foreground mb-6">
+                  Browse jobs and click the bookmark icon to save them for later
+                </p>
+                <Button onClick={() => navigate('/browse-jobs')}>
+                  Browse Jobs
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-6">
+              {savedJobs.map((job) => (
+                <Card 
+                  key={job.id} 
+                  className="hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => navigate(`/jobs/${job.id}`)}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4">
+                      {/* Company Icon/Avatar */}
+                      <div className="flex-shrink-0">
+                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                          job.poster_type === 'employer' ? 'bg-primary/10' : 'bg-green-100'
+                        }`}>
+                          <span className={`font-semibold text-lg ${
+                            job.poster_type === 'employer' ? 'text-primary' : 'text-green-700'
+                          }`}>
+                            {(job.poster_business_name || job.poster_name || job.category || 'U').charAt(0)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h3 className="text-lg font-semibold text-foreground hover:text-primary">
+                              {job.title}
+                            </h3>
+                            <p className="text-muted-foreground">
+                              {job.poster_business_name || job.poster_name || `User ${job.user_id}`}
+                            </p>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleUnsaveJob(job.id);
+                            }}
+                            className="text-primary"
+                          >
+                            <Bookmark className="w-5 h-5 fill-current" />
+                          </Button>
+                        </div>
+
+                        {/* Student vs Business Badge */}
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          <Badge variant={job.poster_type === 'employer' ? 'default' : 'secondary'}>
+                            {job.poster_type === 'employer' ? '🏢 Business' : '🎓 Student'} Job
+                          </Badge>
+                          {job.category && <Badge variant="outline">{job.category}</Badge>}
+                          {job.projectType && <Badge variant="outline">{job.projectType}</Badge>}
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-3">
+                          <div className="flex items-center gap-1">
+                            <MapPin className="w-4 h-4" />
+                            {job.workLocation || 'Remote'}
+                          </div>
+                          {job.budgetType === 'hourly' && job.hourlyRateMin && (
+                            <div className="flex items-center gap-1">
+                              <DollarSign className="w-4 h-4" />
+                              ${job.hourlyRateMin}-${job.hourlyRateMax}/hr
+                            </div>
+                          )}
+                          {job.budgetType === 'fixed' && job.fixedBudget && (
+                            <div className="flex items-center gap-1">
+                              <DollarSign className="w-4 h-4" />
+                              ${job.fixedBudget}
+                            </div>
+                          )}
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-4 h-4" />
+                            {job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}
+                          </div>
+                        </div>
+
+                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                          {job.description}
+                        </p>
+
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {(job.requiredSkills || job.tags || []).slice(0, 5).map((tag, index) => (
+                            <Badge key={index} variant="secondary">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            {job.experienceLevel && <span>{formatExperienceLevel(job.experienceLevel)}</span>}
+                            {job.weeklyHours && <span>{formatWeeklyHours(job.weeklyHours)}</span>}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/jobs/${job.id}`);
+                              }}
+                            >
+                              View Details
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/jobs/${job.id}/apply`);
+                              }}
+                            >
+                              Apply Now
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )
         )}
       </div>
 

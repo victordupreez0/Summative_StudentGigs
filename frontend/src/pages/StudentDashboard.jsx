@@ -30,6 +30,34 @@ const StudentDashboard = () => {
   const { user, token } = useContext(AuthContext);
   const navigate = useNavigate();
   const { showAlert, ModalComponent } = useModal();
+  
+  // Helper function to format experience level
+  const formatExperienceLevel = (level) => {
+    const levels = {
+      'entry': 'Entry Level',
+      'intermediate': 'Intermediate',
+      'expert': 'Expert',
+      'beginner': 'Beginner',
+      'advanced': 'Advanced'
+    };
+    return levels[level?.toLowerCase()] || level;
+  };
+
+  // Helper function to format weekly hours
+  const formatWeeklyHours = (hours) => {
+    if (!hours) return '';
+    const hourMap = {
+      'less-10': 'Less than 10 hours/week',
+      '10-20': '10-20 hours/week',
+      '20-30': '20-30 hours/week',
+      '30-40': '30-40 hours/week',
+      '40+': '40+ hours/week',
+      'full-time': 'Full-time',
+      'part-time': 'Part-time'
+    };
+    return hourMap[hours] || hours;
+  };
+
   const stats = [
     {
       title: "Profile Views",
@@ -62,6 +90,7 @@ const StudentDashboard = () => {
   ];
 
   const [recommendedJobs, setRecommendedJobs] = useState([])
+  const [savedJobIds, setSavedJobIds] = useState(new Set())
 
   useEffect(() => {
     let mounted = true
@@ -79,6 +108,81 @@ const StudentDashboard = () => {
     })()
     return () => { mounted = false }
   }, [])
+
+  // Fetch saved jobs to check which are saved
+  useEffect(() => {
+    if (!user || !token) return;
+    
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/jobs/saved`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!mounted) return;
+        const savedIds = new Set(data.map(job => job.id));
+        setSavedJobIds(savedIds);
+      } catch (e) {
+        console.error('Failed to load saved jobs', e);
+      }
+    })();
+    return () => { mounted = false };
+  }, [user, token]);
+
+  const handleSaveJob = async (e, jobId) => {
+    e.stopPropagation();
+    
+    if (!user || !token) {
+      await showAlert({
+        title: 'Login Required',
+        message: 'Please log in to save jobs',
+        type: 'info'
+      });
+      return;
+    }
+
+    const isSaved = savedJobIds.has(jobId);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/jobs/${jobId}/save`, {
+        method: isSaved ? 'DELETE' : 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to save/unsave job');
+      }
+
+      // Update local state
+      const newSavedIds = new Set(savedJobIds);
+      if (isSaved) {
+        newSavedIds.delete(jobId);
+      } else {
+        newSavedIds.add(jobId);
+      }
+      setSavedJobIds(newSavedIds);
+
+      await showAlert({
+        title: 'Success',
+        message: isSaved ? 'Job removed from saved jobs' : 'Job saved successfully',
+        type: 'success'
+      });
+    } catch (error) {
+      console.error('Error saving/unsaving job:', error);
+      await showAlert({
+        title: 'Error',
+        message: 'Failed to save job. Please try again.',
+        type: 'error'
+      });
+    }
+  };
 
   const handleApplyClick = async (jobId) => {
     if (!user) {
@@ -247,12 +351,10 @@ const StudentDashboard = () => {
                               <Button 
                                 variant="ghost" 
                                 size="icon"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  // TODO: Save job functionality
-                                }}
+                                onClick={(e) => handleSaveJob(e, job.id)}
+                                className={savedJobIds.has(job.id) ? 'text-primary' : ''}
                               >
-                                <Bookmark className="w-5 h-5" />
+                                <Bookmark className={`w-5 h-5 ${savedJobIds.has(job.id) ? 'fill-current' : ''}`} />
                               </Button>
                             </div>
 
@@ -302,8 +404,8 @@ const StudentDashboard = () => {
 
                             <div className="flex justify-between items-center">
                               <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                {job.experienceLevel && <span>{job.experienceLevel}</span>}
-                                {job.weeklyHours && <span>{job.weeklyHours}</span>}
+                                {job.experienceLevel && <span>{formatExperienceLevel(job.experienceLevel)}</span>}
+                                {job.weeklyHours && <span>{formatWeeklyHours(job.weeklyHours)}</span>}
                               </div>
                               <div className="flex gap-2">
                                 <Button 

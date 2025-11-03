@@ -30,12 +30,13 @@ export const Navbar = () => {
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-        {/* Logo - Professional Design */}
-        <Link to="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-200">
-            <span className="text-white font-semibold text-lg">SG</span>
-          </div>
-          <span className="text-xl font-semibold text-slate-900 tracking-tight">StudentGigs</span>
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-2 group">
+          <img 
+            src="/logo.png" 
+            alt="StudentGigs Logo" 
+            className="h-48 w-auto transition-transform duration-200 group-hover:scale-105"
+          />
         </Link>
         
         {/* Navigation - Modern Typography with Better Spacing */}

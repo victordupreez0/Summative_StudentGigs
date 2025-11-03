@@ -29,6 +29,33 @@ const JobDetails = () => {
   const [loading, setLoading] = useState(true);
   const [applications, setApplications] = useState([]);
 
+  // Helper function to format weekly hours
+  const formatWeeklyHours = (hours) => {
+    if (!hours) return '';
+    const hourMap = {
+      'less-10': 'Less than 10 hours/week',
+      '10-20': '10-20 hours/week',
+      '20-30': '20-30 hours/week',
+      '30-40': '30-40 hours/week',
+      '40+': '40+ hours/week',
+      'full-time': 'Full-time',
+      'part-time': 'Part-time'
+    };
+    return hourMap[hours] || hours;
+  };
+
+  // Helper function to format experience level
+  const formatExperienceLevel = (level) => {
+    const levels = {
+      'entry': 'Entry Level',
+      'intermediate': 'Intermediate',
+      'expert': 'Expert',
+      'beginner': 'Beginner',
+      'advanced': 'Advanced'
+    };
+    return levels[level?.toLowerCase()] || level;
+  };
+
   useEffect(() => {
     fetchJob();
     if (user && token) {
@@ -245,7 +272,7 @@ const JobDetails = () => {
                         <Calendar className="w-4 h-4 text-muted-foreground" />
                         <div>
                           <p className="text-xs text-muted-foreground">Time Commitment</p>
-                          <p className="font-medium">{job.weeklyHours}</p>
+                          <p className="font-medium">{formatWeeklyHours(job.weeklyHours)}</p>
                         </div>
                       </div>
                     )}
@@ -263,7 +290,7 @@ const JobDetails = () => {
                         <Briefcase className="w-4 h-4 text-muted-foreground" />
                         <div>
                           <p className="text-xs text-muted-foreground">Level</p>
-                          <p className="font-medium capitalize">{job.experienceLevel}</p>
+                          <p className="font-medium">{formatExperienceLevel(job.experienceLevel)}</p>
                         </div>
                       </div>
                     )}

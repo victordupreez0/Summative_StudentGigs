@@ -420,6 +420,42 @@ async function initDatabase() {
             });
         });
 
+        // Create saved_jobs table
+        await new Promise((resolve, reject) => {
+            const createSavedJobsSql = process.env.JAWSDB_URL
+                ? `CREATE TABLE IF NOT EXISTS saved_jobs (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    job_id INT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
+                    UNIQUE KEY unique_saved_job (user_id, job_id),
+                    INDEX idx_user_id (user_id),
+                    INDEX idx_job_id (job_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`
+                : `CREATE TABLE IF NOT EXISTS \`${DB_NAME}\`.saved_jobs (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    job_id INT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES \`${DB_NAME}\`.users(id) ON DELETE CASCADE,
+                    FOREIGN KEY (job_id) REFERENCES \`${DB_NAME}\`.jobs(id) ON DELETE CASCADE,
+                    UNIQUE KEY unique_saved_job (user_id, job_id),
+                    INDEX idx_user_id (user_id),
+                    INDEX idx_job_id (job_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`;
+            
+            tablePool.query(createSavedJobsSql, (err) => {
+                if (err) {
+                    console.error('Failed to create saved_jobs table:', err.message, err.code);
+                    return reject(err);
+                }
+                console.log('Saved_jobs table created/verified');
+                resolve();
+            });
+        });
+
         // Create messages table
         await new Promise((resolve, reject) => {
             const createMessagesSql = process.env.JAWSDB_URL

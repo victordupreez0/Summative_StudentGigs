@@ -20,6 +20,7 @@ const BrowseJobs = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("");
   const [jobs, setJobs] = useState([])
+  const [savedJobIds, setSavedJobIds] = useState(new Set())
 
   // Helper function to format experience level
   const formatExperienceLevel = (level) => {
@@ -63,6 +64,87 @@ const BrowseJobs = () => {
     })()
     return () => { mounted = false }
   }, [])
+
+  // Fetch saved jobs to check which are saved
+  useEffect(() => {
+    if (!user) return;
+    
+    let mounted = true;
+    (async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        
+        const res = await fetch(`${API_BASE}/api/jobs/saved`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!mounted) return;
+        const savedIds = new Set(data.map(job => job.id));
+        setSavedJobIds(savedIds);
+      } catch (e) {
+        console.error('Failed to load saved jobs', e);
+      }
+    })();
+    return () => { mounted = false };
+  }, [user]);
+
+  const handleSaveJob = async (e, jobId) => {
+    e.stopPropagation();
+    
+    if (!user) {
+      await showAlert({
+        title: 'Login Required',
+        message: 'Please log in to save jobs',
+        type: 'info'
+      });
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const isSaved = savedJobIds.has(jobId);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/jobs/${jobId}/save`, {
+        method: isSaved ? 'DELETE' : 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to save/unsave job');
+      }
+
+      // Update local state
+      const newSavedIds = new Set(savedJobIds);
+      if (isSaved) {
+        newSavedIds.delete(jobId);
+      } else {
+        newSavedIds.add(jobId);
+      }
+      setSavedJobIds(newSavedIds);
+
+      await showAlert({
+        title: 'Success',
+        message: isSaved ? 'Job removed from saved jobs' : 'Job saved successfully',
+        type: 'success'
+      });
+    } catch (error) {
+      console.error('Error saving/unsaving job:', error);
+      await showAlert({
+        title: 'Error',
+        message: 'Failed to save job. Please try again.',
+        type: 'error'
+      });
+    }
+  };
 
   const handleApplyClick = async (e, jobId) => {
     e.stopPropagation();
@@ -330,12 +412,10 @@ const BrowseJobs = () => {
                           <Button 
                             variant="ghost" 
                             size="icon"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              // TODO: Save job functionality
-                            }}
+                            onClick={(e) => handleSaveJob(e, job.id)}
+                            className={savedJobIds.has(job.id) ? 'text-primary' : ''}
                           >
-                            <Bookmark className="w-5 h-5" />
+                            <Bookmark className={`w-5 h-5 ${savedJobIds.has(job.id) ? 'fill-current' : ''}`} />
                           </Button>
                         </div>
 

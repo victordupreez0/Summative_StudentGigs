@@ -32,6 +32,33 @@ const ApplyJob = () => {
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState(false);
   
+  // Helper function to format weekly hours
+  const formatWeeklyHours = (hours) => {
+    if (!hours) return '';
+    const hourMap = {
+      'less-10': 'Less than 10 hours/week',
+      '10-20': '10-20 hours/week',
+      '20-30': '20-30 hours/week',
+      '30-40': '30-40 hours/week',
+      '40+': '40+ hours/week',
+      'full-time': 'Full-time',
+      'part-time': 'Part-time'
+    };
+    return hourMap[hours] || hours;
+  };
+
+  // Helper function to format experience level
+  const formatExperienceLevel = (level) => {
+    const levels = {
+      'entry': 'Entry Level',
+      'intermediate': 'Intermediate',
+      'expert': 'Expert',
+      'beginner': 'Beginner',
+      'advanced': 'Advanced'
+    };
+    return levels[level?.toLowerCase()] || level;
+  };
+  
   // Application form state
   const [formData, setFormData] = useState({
     coverLetter: "",
@@ -388,7 +415,7 @@ const ApplyJob = () => {
                       <Clock className="w-4 h-4 mt-0.5 text-muted-foreground" />
                       <div>
                         <p className="font-medium">Time Commitment</p>
-                        <p className="text-muted-foreground">{job.weeklyHours}</p>
+                        <p className="text-muted-foreground">{formatWeeklyHours(job.weeklyHours)}</p>
                       </div>
                     </div>
                   )}
@@ -398,7 +425,7 @@ const ApplyJob = () => {
                       <Users className="w-4 h-4 mt-0.5 text-muted-foreground" />
                       <div>
                         <p className="font-medium">Experience Level</p>
-                        <p className="text-muted-foreground capitalize">{job.experienceLevel}</p>
+                        <p className="text-muted-foreground">{formatExperienceLevel(job.experienceLevel)}</p>
                       </div>
                     </div>
                   )}
