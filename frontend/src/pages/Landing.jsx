@@ -351,7 +351,7 @@ const Landing = () => {
             </Button>
           </div>
           <div className="space-y-4 sm:space-y-6">
-            {jobs.slice(0, 5).map((job) => (
+            {jobs.slice(0, 3).map((job) => (
               <Card 
                 key={job.id} 
                 className="hover:shadow-md transition-shadow cursor-pointer border-gray-200 bg-white"
