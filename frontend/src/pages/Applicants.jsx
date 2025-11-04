@@ -213,30 +213,30 @@ const Applicants = () => {
       <Navbar />
       
       {/* Secondary Navigation */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 bg-gray-50 overflow-x-auto">
         <div className="container mx-auto px-4">
-          <nav className="flex items-center gap-8 h-16">
+          <nav className="flex items-center gap-4 sm:gap-6 lg:gap-8 h-16 min-w-max sm:min-w-0">
             <Link 
               to="/browse-jobs" 
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
             >
               Browse Jobs
             </Link>
             <Link 
               to={user?.userType === 'employer' ? '/employer-dashboard' : '/student-dashboard'} 
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
             >
               Dashboard
             </Link>
             <Link 
               to="/open-jobs" 
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
             >
               Open Jobs
             </Link>
             <Link 
               to="/applicants" 
-              className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2"
+              className="text-xs sm:text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2 whitespace-nowrap"
             >
               Applicants
             </Link>
@@ -244,13 +244,13 @@ const Applicants = () => {
               <>
                 <Link 
                   to="/my-jobs" 
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+                  className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
                 >
                   My Jobs
                 </Link>
                 <Link 
                   to="/applications" 
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+                  className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
                 >
                   Applications
                 </Link>
@@ -258,13 +258,13 @@ const Applicants = () => {
             )}
             <Link 
               to="/messages" 
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
             >
               Messages
             </Link>
             <Link 
               to={user?.userType === 'employer' ? '/profile' : '/student-profile'} 
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
             >
               Profile
             </Link>

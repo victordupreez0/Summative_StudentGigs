@@ -324,7 +324,7 @@ const Messages = () => {
           <nav className="flex items-center gap-4 sm:gap-6 lg:gap-8 h-16 min-w-max sm:min-w-0">
             <Link 
               to="/browse-jobs" 
-              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-5 whitespace-nowrap"
+              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
             >
               Browse Jobs
             </Link>
@@ -336,13 +336,13 @@ const Messages = () => {
             </Link>
             <Link 
               to="/open-jobs" 
-              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-5 whitespace-nowrap"
+              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
             >
               Open Jobs
             </Link>
             <Link 
               to="/applicants" 
-              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-5 whitespace-nowrap"
+              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
             >
               Applicants
             </Link>
@@ -356,7 +356,7 @@ const Messages = () => {
                 </Link>
                 <Link 
                   to="/applications" 
-                  className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-5 whitespace-nowrap"
+                  className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
                 >
                   Applications
                 </Link>
