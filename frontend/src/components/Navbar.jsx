@@ -204,84 +204,80 @@ export const Navbar = () => {
         
         {/* Right side actions */}
         <div className="flex items-center gap-2 sm:gap-4">
-          {/* Show notifications and messages only when user is logged in */}
+          {/* Show notifications and messages only when user is logged in - always visible */}
           {user && (
             <>
-              {/* Notifications Dropdown - hidden on small mobile */}
-              <div className="hidden sm:block">
-                <NotificationDropdown user={user} token={token} />
-              </div>
+              {/* Notifications Dropdown - always visible */}
+              <NotificationDropdown user={user} token={token} />
               
-              {/* Messages Dropdown - hidden on small mobile */}
-              <div className="hidden sm:block">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button 
-                      className={`w-10 h-10 p-0 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors ${
-                        isActive('/messages') ? 'bg-gray-100' : ''
-                      }`}
-                    >
-                      <Mail className="w-5 h-5" style={{ stroke: '#374151', strokeWidth: 2 }} />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-80">
-                    <DropdownMenuLabel>
-                      <div className="flex items-center justify-between">
-                        <span>Recent Messages</span>
-                        <button 
-                          onClick={() => navigate('/messages')}
-                          className="text-xs text-purple-600 hover:text-purple-700 font-normal"
-                        >
-                          View all
-                        </button>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    {loadingMessages ? (
-                      <div className="p-4 text-center text-sm text-gray-500">
-                        Loading messages...
-                      </div>
-                    ) : recentMessages.length === 0 ? (
-                      <div className="p-4 text-center">
-                        <MessageSquare className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                        <p className="text-sm text-gray-500">No messages yet</p>
-                      </div>
-                    ) : (
-                      recentMessages.map((conversation) => (
-                        <DropdownMenuItem 
-                          key={conversation.id}
-                          onClick={() => navigate('/messages')}
-                          className="cursor-pointer p-3 hover:bg-gray-50"
-                        >
-                          <div className="flex items-start gap-3 w-full">
-                            <UserAvatar 
-                              user={{ 
-                                name: conversation.other_user_name,
-                                userType: conversation.other_user_type || 'student'
-                              }} 
-                              userId={conversation.other_user_id}
-                              size="sm"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between mb-1">
-                                <p className="text-sm font-medium text-gray-900 truncate">
-                                  {conversation.other_user_name}
-                                </p>
-                                <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
-                                  {getTimeAgo(conversation.last_message_time || conversation.updated_at)}
-                                </span>
-                              </div>
-                              <p className="text-sm text-gray-600 truncate">
-                                {getMessagePreview(conversation.last_message)}
+              {/* Messages Dropdown - always visible */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button 
+                    className={`w-8 h-8 sm:w-10 sm:h-10 p-0 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors ${
+                      isActive('/messages') ? 'bg-gray-100' : ''
+                    }`}
+                  >
+                    <Mail className="w-4 h-4 sm:w-5 sm:h-5" style={{ stroke: '#374151', strokeWidth: 2 }} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-80">
+                  <DropdownMenuLabel>
+                    <div className="flex items-center justify-between">
+                      <span>Recent Messages</span>
+                      <button 
+                        onClick={() => navigate('/messages')}
+                        className="text-xs text-purple-600 hover:text-purple-700 font-normal"
+                      >
+                        View all
+                      </button>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {loadingMessages ? (
+                    <div className="p-4 text-center text-sm text-gray-500">
+                      Loading messages...
+                    </div>
+                  ) : recentMessages.length === 0 ? (
+                    <div className="p-4 text-center">
+                      <MessageSquare className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                      <p className="text-sm text-gray-500">No messages yet</p>
+                    </div>
+                  ) : (
+                    recentMessages.map((conversation) => (
+                      <DropdownMenuItem 
+                        key={conversation.id}
+                        onClick={() => navigate('/messages')}
+                        className="cursor-pointer p-3 hover:bg-gray-50"
+                      >
+                        <div className="flex items-start gap-3 w-full">
+                          <UserAvatar 
+                            user={{ 
+                              name: conversation.other_user_name,
+                              userType: conversation.other_user_type || 'student'
+                            }} 
+                            userId={conversation.other_user_id}
+                            size="sm"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <p className="text-sm font-medium text-gray-900 truncate">
+                                {conversation.other_user_name}
                               </p>
+                              <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
+                                {getTimeAgo(conversation.last_message_time || conversation.updated_at)}
+                              </span>
                             </div>
+                            <p className="text-sm text-gray-600 truncate">
+                              {getMessagePreview(conversation.last_message)}
+                            </p>
                           </div>
-                        </DropdownMenuItem>
-                      ))
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+                        </div>
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </>
           )}
           
@@ -374,6 +370,23 @@ export const Navbar = () => {
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-gray-200 bg-white">
           <div className="container mx-auto px-4 py-4 space-y-4">
+            {/* Demo Warning in Mobile Menu */}
+            <Link 
+              to="/demo-disclaimer" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-lg hover:border-amber-400 transition-all duration-300"
+            >
+              <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+              <div className="flex flex-col">
+                <span className="text-sm font-bold text-amber-800 leading-tight">
+                  Demo App
+                </span>
+                <span className="text-xs text-amber-700 leading-tight">
+                  Click to learn more
+                </span>
+              </div>
+            </Link>
+            
             {/* Mobile Search */}
             <form onSubmit={handleNavSearch} className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
@@ -444,26 +457,6 @@ export const Navbar = () => {
               >
                 Resources
               </Link>
-              
-              {/* Mobile-only quick access for logged-in users */}
-              {user && (
-                <>
-                  <div className="sm:hidden border-t border-gray-200 pt-2 mt-2">
-                    <Link 
-                      to="/messages" 
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                        isActive('/messages') 
-                          ? 'bg-gray-100 text-gray-900' 
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                      }`}
-                    >
-                      <Mail className="w-4 h-4" />
-                      Messages
-                    </Link>
-                  </div>
-                </>
-              )}
               
               {/* Mobile Auth Buttons */}
               {!user && (
