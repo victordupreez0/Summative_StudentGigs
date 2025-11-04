@@ -18,7 +18,14 @@ import {
   BarChart3,
   Eye,
   CheckCircle,
-  RotateCcw
+  RotateCcw,
+  Plus,
+  MessageSquare,
+  FileText,
+  Search,
+  Bell,
+  Settings,
+  TrendingUp
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
@@ -258,30 +265,56 @@ const EmployerDashboard = () => {
     }
   };
 
-  const statsDisplay = [
+  const quickActions = [
     {
-      title: "Applications",
-      value: stats.applications.toString(),
+      title: "Post New Job",
+      description: "Create a new job posting",
+      icon: Plus,
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
+      link: "/post-job",
+      primary: true
+    },
+    {
+      title: "Review Applications",
+      description: `${stats.applications} pending`,
       icon: Users,
-      color: "text-gray-600"
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
+      link: "/applicants",
+      badge: stats.applications > 0 ? stats.applications : null
     },
     {
-      title: "Active jobs",
-      value: stats.activeJobs.toString(),
+      title: "Manage Jobs",
+      description: `${stats.activeJobs} active`,
       icon: Briefcase,
-      color: "text-gray-600"
+      color: "text-green-600",
+      bgColor: "bg-green-50",
+      link: "/my-jobs"
     },
     {
-      title: "Interviews",
-      value: stats.interviews.toString(),
+      title: "Schedule Interview",
+      description: `${stats.interviews} scheduled`,
       icon: Calendar,
-      color: "text-purple-600"
+      color: "text-orange-600",
+      bgColor: "bg-orange-50",
+      link: "#interviews"
     },
     {
-      title: "Hires",
-      value: stats.hires.toString(),
-      icon: Star,
-      color: "text-amber-500"
+      title: "Messages",
+      description: "Chat with applicants",
+      icon: MessageSquare,
+      color: "text-indigo-600",
+      bgColor: "bg-indigo-50",
+      link: "/messages"
+    },
+    {
+      title: "View Profile",
+      description: "Edit your business profile",
+      icon: Eye,
+      color: "text-gray-600",
+      bgColor: "bg-gray-50",
+      link: "/business-profile"
     }
   ];
 
@@ -405,59 +438,85 @@ const EmployerDashboard = () => {
       <SecondaryNav />
 
       <div className="container mx-auto px-4 py-8">
-        {/* Welcome Section - Employer */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-6">
-            <UserAvatar user={user} userId={user?.id} size="lg" />
-            <div>
-              <h1 className="text-2xl font-bold flex items-center gap-2">
-                Welcome back, {user?.name || 'User'} 👋
-              </h1>
-              <p className="text-gray-600">{user?.businessName || 'Your Business'} • Employer Account</p>
+        {/* Quick Actions Section */}
+        <Card className="mb-8 border-gray-200 bg-white">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span className="text-gray-900">Quick Actions</span>
+              <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+                {stats.applications} new applications
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+              {quickActions.map((action, index) => (
+                <Card 
+                  key={index}
+                  className={`relative cursor-pointer transition-all hover:shadow-md border-2 ${
+                    action.primary ? 'border-purple-200 bg-purple-50' : 'border-gray-200 hover:border-purple-200'
+                  }`}
+                  onClick={() => action.link.startsWith('#') ? document.querySelector(action.link)?.scrollIntoView({ behavior: 'smooth' }) : navigate(action.link)}
+                >
+                  <CardContent className="p-4">
+                    {action.badge && (
+                      <Badge 
+                        className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-0.5"
+                      >
+                        {action.badge}
+                      </Badge>
+                    )}
+                    <div className={`w-12 h-12 rounded-lg ${action.bgColor} flex items-center justify-center mb-3`}>
+                      <action.icon className={`w-6 h-6 ${action.color}`} />
+                    </div>
+                    <h3 className="font-semibold text-gray-900 mb-1">{action.title}</h3>
+                    <p className="text-xs text-gray-500">{action.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
-          </div>
+          </CardContent>
+        </Card>
 
-          <div className="bg-gradient-hero rounded-lg p-6 text-primary-foreground">
-            <div className="flex flex-col lg:flex-row items-center justify-between">
-              <div className="mb-4 lg:mb-0">
-                <h2 className="text-xl font-semibold mb-2">Find talented students for your projects</h2>
-                <p className="text-charcoal">
-                  Post jobs, review applications, and hire the best students for your team.
+        {/* Welcome/Bio Section - Matching Student Dashboard Style */}
+        <Card className="mb-8 border-gray-200 bg-white">
+          <CardContent className="p-6">
+            <div className="flex items-start gap-4 mb-4">
+              <UserAvatar user={user} userId={user?.id} size="lg" />
+              <div className="flex-1">
+                <h1 className="text-2xl font-bold text-gray-900 mb-1">
+                  Welcome back, {user?.name || 'User'} 👋
+                </h1>
+                <p className="text-gray-600">
+                  {user?.businessName || 'Your Business'} • Employer Account
                 </p>
               </div>
-              <div className="flex gap-3">
-                <Button className="bg-purple-600 hover:bg-purple-700 text-white" asChild>
-                  <Link to="/post-job">+ Post a Job</Link>
-                </Button>
-                <Button variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900" asChild>
-                  <Link to="/browse-talent">
-                    <Users className="w-4 h-4 mr-2" />
-                    Browse Students
-                  </Link>
-                </Button>
+            </div>
+            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-4 border border-purple-100">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 mb-1">
+                    Find talented students for your projects
+                  </h2>
+                  <p className="text-gray-600 text-sm">
+                    Post jobs, review applications, and hire the best students for your team.
+                  </p>
+                </div>
+                <div className="flex gap-2 flex-shrink-0">
+                  <Button className="bg-purple-600 hover:bg-purple-700 text-white" asChild>
+                    <Link to="/post-job">+ Post a Job</Link>
+                  </Button>
+                  <Button variant="outline" className="border-gray-300" asChild>
+                    <Link to="/applicants">
+                      <Users className="w-4 h-4 mr-2" />
+                      View Applicants
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-8">
-          {statsDisplay.map((stat, index) => (
-            <Card key={index} hover={true} className="border-gray-200 bg-white">
-              <CardContent className="p-3 sm:p-4 md:p-6">
-                <div className="flex items-center justify-between">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">{stat.title}</p>
-                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">{stat.value}</p>
-                  </div>
-                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 ml-2`}>
-                    <stat.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${stat.color}`} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+          </CardContent>
+        </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
