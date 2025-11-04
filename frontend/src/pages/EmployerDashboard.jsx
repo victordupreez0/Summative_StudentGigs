@@ -49,13 +49,15 @@ const EmployerDashboard = () => {
     applications: 0,
     activeJobs: 0,
     interviews: 0,
-    hires: 0
+    hires: 0,
+    profileViews: 0
   });
   const [monthlyStats, setMonthlyStats] = useState({
     applications: 0,
     activeJobs: 0,
     interviews: 0,
-    hires: 0
+    hires: 0,
+    profileViews: 0
   });
   const [loadingStats, setLoadingStats] = useState(true);
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
@@ -250,13 +252,15 @@ const EmployerDashboard = () => {
         applications: data.overall.applications,
         activeJobs: data.overall.activeJobs,
         interviews: data.overall.interviews,
-        hires: data.overall.hires
+        hires: data.overall.hires,
+        profileViews: data.overall.profileViews || 0
       });
       setMonthlyStats({
         applications: data.monthly.applications,
         activeJobs: data.monthly.activeJobs,
         interviews: data.monthly.interviews,
-        hires: data.monthly.hires
+        hires: data.monthly.hires,
+        profileViews: data.monthly.profileViews || 0
       });
       setLoadingStats(false);
     } catch (err) {
@@ -267,13 +271,13 @@ const EmployerDashboard = () => {
 
   const quickActions = [
     {
-      title: "Post New Job",
-      description: "Create a new job posting",
-      icon: Plus,
+      title: "Profile Views",
+      description: `${stats.profileViews || 0}`,
+      icon: Eye,
       color: "text-purple-600",
       bgColor: "bg-purple-50",
-      link: "/post-job",
-      primary: true
+      link: "/business-profile",
+      primary: false
     },
     {
       title: "Review Applications",

@@ -268,50 +268,54 @@ const BusinessProfile = () => {
       <SecondaryNav />
       
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header Section - Compact Style */}
-        <Card className="mb-6 overflow-hidden">
-          {/* Cover Image/Banner - Smaller */}
-          <div className="h-24 sm:h-32 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
-          
-          {/* Profile Info */}
-          <CardContent className="pt-0 pb-6 px-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-end -mt-12 sm:-mt-16 mb-4">
-              <Avatar className="w-24 h-24 sm:w-28 sm:h-28 border-4 border-white shadow-xl">
+        {/* Header Section - Student Profile Style */}
+        <Card className="mb-6">
+          <CardContent className="p-6">
+            <div className="flex flex-col sm:flex-row items-start gap-4 mb-6">
+              <Avatar className="w-20 h-20 sm:w-24 sm:h-24 border-2 border-gray-200 shadow-md">
                 {profileData.avatar ? (
                   <AvatarImage src={profileData.avatar} alt={profileData.businessName} />
                 ) : (
                   <AvatarFallback 
                     style={{ backgroundColor: profileData.avatarColor }}
-                    className="text-white text-2xl sm:text-3xl font-bold"
+                    className="text-white text-2xl font-bold"
                   >
                     {getInitials(profileData.businessName)}
                   </AvatarFallback>
                 )}
               </Avatar>
               
-              <div className="flex-1 mt-4 sm:mt-0 sm:ml-6 w-full">
+              <div className="flex-1 w-full min-w-0">
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                  <div className="flex-1">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                       {profileData.businessName}
                     </h1>
-                    <p className="text-gray-600 flex items-center mb-2">
-                      <Building2 className="w-4 h-4 mr-2" />
-                      {profileData.ownerName}
-                    </p>
-                    {profileData.location && (
-                      <p className="text-gray-500 flex items-center text-sm">
-                        <MapPin className="w-4 h-4 mr-1" />
-                        {profileData.location}
+                    <div className="flex flex-col gap-1.5">
+                      <p className="text-gray-600 flex items-center">
+                        <Building2 className="w-4 h-4 mr-2 flex-shrink-0" />
+                        <span className="truncate">{profileData.ownerName}</span>
                       </p>
-                    )}
+                      {profileData.location && (
+                        <p className="text-gray-600 flex items-center">
+                          <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
+                          <span className="truncate">{profileData.location}</span>
+                        </p>
+                      )}
+                      {profileData.industry && (
+                        <p className="text-gray-600 flex items-center">
+                          <Target className="w-4 h-4 mr-2 flex-shrink-0" />
+                          <span className="truncate">{profileData.industry}</span>
+                        </p>
+                      )}
+                    </div>
                   </div>
                   
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-shrink-0">
                     {!isOwnProfile && (
                       <Button 
                         onClick={() => navigate('/messages')}
-                        className="bg-blue-600 hover:bg-blue-700"
+                        className="bg-purple-600 hover:bg-purple-700"
                       >
                         <MessageCircle className="w-4 h-4 mr-2" />
                         Message
@@ -334,25 +338,45 @@ const BusinessProfile = () => {
               </div>
             </div>
 
-            {/* Quick Stats - More Compact */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
-              <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-100">
-                <div className="text-xl sm:text-2xl font-bold text-blue-600">{stats.totalJobsPosted}</div>
-                <div className="text-xs sm:text-sm text-gray-600">Jobs Posted</div>
-              </div>
-              <div className="text-center p-3 bg-green-50 rounded-lg border border-green-100">
-                <div className="text-xl sm:text-2xl font-bold text-green-600">{stats.activeJobs}</div>
-                <div className="text-xs sm:text-sm text-gray-600">Active Jobs</div>
-              </div>
-              <div className="text-center p-3 bg-purple-50 rounded-lg border border-purple-100">
-                <div className="text-xl sm:text-2xl font-bold text-purple-600">{stats.totalHires}</div>
-                <div className="text-xs sm:text-sm text-gray-600">Total Hires</div>
-              </div>
-              <div className="text-center p-3 bg-amber-50 rounded-lg border border-amber-100">
-                <div className="text-xl sm:text-2xl font-bold text-amber-600">
-                  {stats.averageRating > 0 ? stats.averageRating.toFixed(1) : "N/A"}
+            {/* Quick Stats - Clean Cards Matching Student Dashboard */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                  <Briefcase className="w-5 h-5 text-blue-600" />
                 </div>
-                <div className="text-xs sm:text-sm text-gray-600">Rating</div>
+                <div className="min-w-0">
+                  <div className="text-xl font-bold text-gray-900">{stats.activeJobs}</div>
+                  <div className="text-xs text-gray-600 truncate">Active Jobs</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xl font-bold text-gray-900">{stats.totalHires}</div>
+                  <div className="text-xs text-gray-600 truncate">Total Hires</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                  <Eye className="w-5 h-5 text-purple-600" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xl font-bold text-gray-900">{stats.profileViews}</div>
+                  <div className="text-xs text-gray-600 truncate">Profile Views</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                  <Star className="w-5 h-5 text-amber-600" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xl font-bold text-gray-900">
+                    {stats.averageRating > 0 ? stats.averageRating.toFixed(1) : "N/A"}
+                  </div>
+                  <div className="text-xs text-gray-600 truncate">Rating</div>
+                </div>
               </div>
             </div>
           </CardContent>
