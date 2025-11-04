@@ -16,6 +16,19 @@ import { useContext } from 'react'
 import AuthContext from '@/context/AuthContext'
 import API_BASE from '@/config/api'
 
+const PREDEFINED_CATEGORIES = [
+  'Web, Mobile & Software Development',
+  'Content Writing',
+  'Data Analysis',
+  'Graphic Design',
+  'Marketing & Sales',
+  'Research & Analysis',
+  'Business & Finance',
+  'Video & Animation',
+  'Translation',
+  'Admin Support'
+];
+
 const PostJob = () => {
   const { jobId } = useParams(); // Check if we're editing
   const navigate = useNavigate();
@@ -31,6 +44,7 @@ const PostJob = () => {
   const [projectType, setProjectType] = useState("");
   const [projectLength, setProjectLength] = useState("");
   const [jobCategory, setJobCategory] = useState("");
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [tags, setTags] = useState([]);
   const [newTag, setNewTag] = useState("");
   const [educationLevels, setEducationLevels] = useState([]);
@@ -182,11 +196,17 @@ const PostJob = () => {
   };
 
   const nextStep = () => {
-    if (currentStep < 5) setCurrentStep(currentStep + 1);
+    if (currentStep < 5) {
+      setCurrentStep(currentStep + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const prevStep = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1);
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleSaveDraft = async () => {
@@ -339,18 +359,19 @@ const PostJob = () => {
       
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" asChild className="text-gray-700 hover:text-gray-900">
+        <div className="flex items-start sm:items-center justify-between mb-8 gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Button variant="ghost" size="icon" asChild className="text-gray-700 hover:text-gray-900 shrink-0">
               <Link to="/dashboard">
                 <ArrowLeft className="w-5 h-5" />
               </Link>
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                 {jobId && !isDraft ? 'Edit Job' : 'Post a Job'}
               </h1>
-              <div className="flex items-center gap-4 mt-2">
+              {/* Save as Draft - Desktop only */}
+              <div className="hidden sm:flex items-center gap-4 mt-2">
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -363,35 +384,48 @@ const PostJob = () => {
               </div>
             </div>
           </div>
-          <PostButton
-            disabled={currentStep < 5}
-            currentStep={currentStep}
-            jobId={jobId}
-            isDraft={isDraft}
-            showAlert={showAlert}
-            job={{ 
-              jobTitle, 
-              jobDescription, 
-              projectType, 
-              projectLength, 
-              jobCategory, 
-              tags, 
-              educationLevels,
-              workLocation,
-              studentCount,
-              weeklyHours,
-              startDate,
-              experienceLevel,
-              requiredSkills,
-              preferredMajors,
-              languages,
-              budgetType,
-              hourlyRateMin,
-              hourlyRateMax,
-              fixedBudget,
-              paymentSchedule
-            }}
-          />
+          {/* Buttons Container - Mobile: stacked, Desktop: side-by-side */}
+          <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 shrink-0">
+            {/* Save as Draft - Mobile only */}
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="sm:hidden text-gray-600 hover:text-gray-900 text-xs px-3 py-1.5"
+              onClick={handleSaveDraft}
+            >
+              <Save className="w-3 h-3 mr-1.5" />
+              Save Draft
+            </Button>
+            <PostButton
+              disabled={currentStep < 5}
+              currentStep={currentStep}
+              jobId={jobId}
+              isDraft={isDraft}
+              showAlert={showAlert}
+              job={{ 
+                jobTitle, 
+                jobDescription, 
+                projectType, 
+                projectLength, 
+                jobCategory, 
+                tags, 
+                educationLevels,
+                workLocation,
+                studentCount,
+                weeklyHours,
+                startDate,
+                experienceLevel,
+                requiredSkills,
+                preferredMajors,
+                languages,
+                budgetType,
+                hourlyRateMin,
+                hourlyRateMax,
+                fixedBudget,
+                paymentSchedule
+              }}
+            />
+          </div>
         </div>
 
         {/* Progress Steps */}
@@ -515,24 +549,49 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                       <label className="block text-sm font-medium text-gray-900 mb-2">
                         Job Category
                       </label>
-                      <Input
-                        list="job-categories"
-                        placeholder="Select or type a custom category"
-                        value={jobCategory}
-                        onChange={(e) => setJobCategory(e.target.value)}
-                      />
-                      <datalist id="job-categories">
-                        <option value="Web, Mobile & Software Development" />
-                        <option value="Content Writing" />
-                        <option value="Data Analysis" />
-                        <option value="Graphic Design" />
-                        <option value="Marketing & Sales" />
-                        <option value="Research & Analysis" />
-                        <option value="Business & Finance" />
-                        <option value="Video & Animation" />
-                        <option value="Translation" />
-                        <option value="Admin Support" />
-                      </datalist>
+                      <div className="relative">
+                        <Input
+                          placeholder="Select or type a custom category"
+                          value={jobCategory}
+                          onChange={(e) => {
+                            setJobCategory(e.target.value);
+                            setShowCategoryDropdown(true);
+                          }}
+                          onFocus={() => setShowCategoryDropdown(true)}
+                          onBlur={() => {
+                            // Delay to allow click on dropdown items
+                            setTimeout(() => setShowCategoryDropdown(false), 200);
+                          }}
+                        />
+                        {showCategoryDropdown && (
+                          <div className="absolute z-10 w-full mt-1 bg-white border-2 border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                            {PREDEFINED_CATEGORIES
+                              .filter(cat => 
+                                cat.toLowerCase().includes(jobCategory.toLowerCase())
+                              )
+                              .map((category) => (
+                                <button
+                                  key={category}
+                                  type="button"
+                                  className="w-full text-left px-4 py-2.5 hover:bg-purple-50 text-sm text-gray-900 transition-colors first:rounded-t-xl last:rounded-b-xl"
+                                  onClick={() => {
+                                    setJobCategory(category);
+                                    setShowCategoryDropdown(false);
+                                  }}
+                                >
+                                  {category}
+                                </button>
+                              ))}
+                            {PREDEFINED_CATEGORIES.filter(cat => 
+                              cat.toLowerCase().includes(jobCategory.toLowerCase())
+                            ).length === 0 && jobCategory && (
+                              <div className="px-4 py-2.5 text-sm text-gray-500 italic">
+                                No matching categories. Press Enter to use "{jobCategory}"
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                       <p className="text-xs text-gray-600 mt-1">
                         Choose from suggestions or type your own category
                       </p>
@@ -544,18 +603,19 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                       </label>
                       <div className="flex flex-wrap gap-2 mb-2">
                         {tags.map((tag) => (
-                          <Badge 
-                            key={tag} 
-                            variant="secondary" 
-                            className="cursor-pointer bg-gray-100 text-gray-700 border-gray-200 select-none active:scale-95 touch-manipulation" 
+                          <button
+                            key={tag}
+                            type="button"
                             onClick={() => removeTag(tag)}
-                            onTouchEnd={(e) => {
-                              e.preventDefault();
-                              removeTag(tag);
-                            }}
+                            className="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold
+                              transition-all duration-300 hover:scale-[1.02] active:scale-95
+                              bg-gradient-to-r from-purple-100 to-fuchsia-100 text-purple-700 
+                              border border-purple-300 shadow-sm
+                              bg-gray-100 text-gray-700 border-gray-200
+                              cursor-pointer select-none touch-manipulation"
                           >
                             {tag} ×
-                          </Badge>
+                          </button>
                         ))}
                       </div>
                       <div className="flex gap-2">
@@ -728,18 +788,18 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                       </label>
                       <div className="flex flex-wrap gap-2 mb-2">
                         {requiredSkills.map((skill) => (
-                          <Badge 
-                            key={skill} 
-                            variant="secondary" 
-                            className="cursor-pointer select-none active:scale-95 touch-manipulation" 
+                          <button
+                            key={skill}
+                            type="button"
                             onClick={() => removeSkill(skill)}
-                            onTouchEnd={(e) => {
-                              e.preventDefault();
-                              removeSkill(skill);
-                            }}
+                            className="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold
+                              transition-all duration-300 hover:scale-[1.02] active:scale-95
+                              bg-gradient-to-r from-purple-100 to-fuchsia-100 text-purple-700 
+                              border border-purple-300 shadow-sm
+                              cursor-pointer select-none touch-manipulation"
                           >
                             {skill} ×
-                          </Badge>
+                          </button>
                         ))}
                       </div>
                       <div className="flex gap-2">
@@ -1306,7 +1366,12 @@ function PostButton({ disabled, currentStep, job, jobId, isDraft, showAlert }){
   }
 
   return (
-    <Button size="lg" disabled={disabled} onClick={handlePost}>
+    <Button 
+      size="lg" 
+      disabled={disabled} 
+      onClick={handlePost}
+      className="text-xs sm:text-sm px-3 py-2 sm:px-6 sm:py-3"
+    >
       {jobId && !isDraft ? 'Save Changes' : (currentStep < 5 ? 'Review and Post' : 'Post Job')}
     </Button>
   )

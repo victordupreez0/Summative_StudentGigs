@@ -5,7 +5,7 @@ export const Textarea = ({ className = '', ...props }) => (
     className={`
       w-full px-5 py-3
       bg-white border-2 border-gray-200 rounded-xl
-      text-gray-900 text-sm font-medium
+      text-gray-900 text-base font-medium
       placeholder:text-gray-400
       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
       transition-all duration-300
