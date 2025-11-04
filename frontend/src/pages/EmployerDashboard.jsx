@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
+import { SecondaryNav } from "@/components/SecondaryNav";
 import { Footer } from "@/components/Footer";
 import AuthContext from '@/context/AuthContext';
 import API_BASE from '@/config/api';
@@ -401,48 +402,7 @@ const EmployerDashboard = () => {
   <Navbar />
       
       {/* Secondary Navigation */}
-      <div className="border-b border-gray-200 bg-gray-50 overflow-x-auto">
-        <div className="container mx-auto px-4">
-          <nav className="flex items-center gap-4 sm:gap-6 lg:gap-8 h-16 min-w-max sm:min-w-0">
-            <Link 
-              to="/browse-jobs" 
-              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
-            >
-              Browse Jobs
-            </Link>
-            <Link 
-              to="/employer-dashboard" 
-              className="text-xs sm:text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2 whitespace-nowrap"
-            >
-              Dashboard
-            </Link>
-            <Link 
-              to="/open-jobs" 
-              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
-            >
-              Open Jobs
-            </Link>
-            <Link 
-              to="/applicants" 
-              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
-            >
-              Applicants
-            </Link>
-            <Link 
-              to="/messages" 
-              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
-            >
-              Messages
-            </Link>
-            <Link 
-              to="/profile" 
-              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
-            >
-              Profile
-            </Link>
-          </nav>
-        </div>
-      </div>
+      <SecondaryNav />
 
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Section - Employer */}
