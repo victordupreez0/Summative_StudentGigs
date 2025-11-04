@@ -438,45 +438,30 @@ const EmployerDashboard = () => {
       <SecondaryNav />
 
       <div className="container mx-auto px-4 py-8">
-        {/* Quick Actions Section */}
-        <Card className="mb-8 border-gray-200 bg-white">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span className="text-gray-900">Quick Actions</span>
-              <Badge variant="secondary" className="bg-purple-100 text-purple-700">
-                {stats.applications} new applications
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-              {quickActions.map((action, index) => (
-                <Card 
-                  key={index}
-                  className={`relative cursor-pointer transition-all hover:shadow-md border-2 ${
-                    action.primary ? 'border-purple-200 bg-purple-50' : 'border-gray-200 hover:border-purple-200'
-                  }`}
-                  onClick={() => action.link.startsWith('#') ? document.querySelector(action.link)?.scrollIntoView({ behavior: 'smooth' }) : navigate(action.link)}
-                >
-                  <CardContent className="p-4">
-                    {action.badge && (
-                      <Badge 
-                        className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-0.5"
-                      >
-                        {action.badge}
-                      </Badge>
-                    )}
-                    <div className={`w-12 h-12 rounded-lg ${action.bgColor} flex items-center justify-center mb-3`}>
-                      <action.icon className={`w-6 h-6 ${action.color}`} />
-                    </div>
-                    <h3 className="font-semibold text-gray-900 mb-1">{action.title}</h3>
-                    <p className="text-xs text-gray-500">{action.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Stats Cards - Matching Student Dashboard */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-8">
+          {quickActions.slice(0, 4).map((action, index) => (
+            <Card 
+              key={index} 
+              hover={true} 
+              className="border-gray-200 bg-white cursor-pointer transition-all hover:shadow-lg"
+              onClick={() => action.link.startsWith('#') ? document.querySelector(action.link)?.scrollIntoView({ behavior: 'smooth' }) : navigate(action.link)}
+            >
+              <CardContent className="p-3 sm:p-4 md:p-6">
+                <div className="flex items-center justify-between">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">{action.title}</p>
+                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">{action.description.split(' ')[0]}</p>
+                    <p className="text-xs text-gray-500 mt-1 truncate">{action.description}</p>
+                  </div>
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${action.bgColor} flex items-center justify-center flex-shrink-0 ml-2`}>
+                    <action.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${action.color}`} />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
 
         {/* Welcome/Bio Section - Matching Student Dashboard Style */}
         <Card className="mb-8 border-gray-200 bg-white">

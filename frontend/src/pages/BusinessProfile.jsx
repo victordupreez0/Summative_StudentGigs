@@ -27,7 +27,12 @@ import {
   Award,
   Target,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Plus,
+  Edit,
+  Settings,
+  BarChart3,
+  Eye
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { SecondaryNav } from "@/components/SecondaryNav";
@@ -258,36 +263,36 @@ const BusinessProfile = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
       <SecondaryNav />
       
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header Section */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
-          {/* Cover Image/Banner */}
-          <div className="h-32 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
+        {/* Header Section - Compact Style */}
+        <Card className="mb-6 overflow-hidden">
+          {/* Cover Image/Banner - Smaller */}
+          <div className="h-24 sm:h-32 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
           
           {/* Profile Info */}
-          <div className="px-6 pb-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-end -mt-16 sm:-mt-12 mb-4">
-              <Avatar className="w-32 h-32 border-4 border-white shadow-xl">
+          <CardContent className="pt-0 pb-6 px-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-end -mt-12 sm:-mt-16 mb-4">
+              <Avatar className="w-24 h-24 sm:w-28 sm:h-28 border-4 border-white shadow-xl">
                 {profileData.avatar ? (
                   <AvatarImage src={profileData.avatar} alt={profileData.businessName} />
                 ) : (
                   <AvatarFallback 
                     style={{ backgroundColor: profileData.avatarColor }}
-                    className="text-white text-3xl font-bold"
+                    className="text-white text-2xl sm:text-3xl font-bold"
                   >
                     {getInitials(profileData.businessName)}
                   </AvatarFallback>
                 )}
               </Avatar>
               
-              <div className="flex-1 mt-4 sm:mt-0 sm:ml-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between">
-                  <div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-1">
+              <div className="flex-1 mt-4 sm:mt-0 sm:ml-6 w-full">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                  <div className="flex-1">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
                       {profileData.businessName}
                     </h1>
                     <p className="text-gray-600 flex items-center mb-2">
@@ -302,7 +307,7 @@ const BusinessProfile = () => {
                     )}
                   </div>
                   
-                  <div className="flex gap-2 mt-4 sm:mt-0">
+                  <div className="flex gap-2">
                     {!isOwnProfile && (
                       <Button 
                         onClick={() => navigate('/messages')}
@@ -320,6 +325,7 @@ const BusinessProfile = () => {
                           alert("Edit profile functionality coming soon!");
                         }}
                       >
+                        <Edit className="w-4 h-4 mr-2" />
                         Edit Profile
                       </Button>
                     )}
@@ -328,29 +334,29 @@ const BusinessProfile = () => {
               </div>
             </div>
 
-            {/* Quick Stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
-              <div className="text-center p-3 bg-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">{stats.totalJobsPosted}</div>
-                <div className="text-sm text-gray-600">Jobs Posted</div>
+            {/* Quick Stats - More Compact */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+              <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-100">
+                <div className="text-xl sm:text-2xl font-bold text-blue-600">{stats.totalJobsPosted}</div>
+                <div className="text-xs sm:text-sm text-gray-600">Jobs Posted</div>
               </div>
-              <div className="text-center p-3 bg-green-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">{stats.activeJobs}</div>
-                <div className="text-sm text-gray-600">Active Jobs</div>
+              <div className="text-center p-3 bg-green-50 rounded-lg border border-green-100">
+                <div className="text-xl sm:text-2xl font-bold text-green-600">{stats.activeJobs}</div>
+                <div className="text-xs sm:text-sm text-gray-600">Active Jobs</div>
               </div>
-              <div className="text-center p-3 bg-purple-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">{stats.totalHires}</div>
-                <div className="text-sm text-gray-600">Total Hires</div>
+              <div className="text-center p-3 bg-purple-50 rounded-lg border border-purple-100">
+                <div className="text-xl sm:text-2xl font-bold text-purple-600">{stats.totalHires}</div>
+                <div className="text-xs sm:text-sm text-gray-600">Total Hires</div>
               </div>
-              <div className="text-center p-3 bg-amber-50 rounded-lg">
-                <div className="text-2xl font-bold text-amber-600">
+              <div className="text-center p-3 bg-amber-50 rounded-lg border border-amber-100">
+                <div className="text-xl sm:text-2xl font-bold text-amber-600">
                   {stats.averageRating > 0 ? stats.averageRating.toFixed(1) : "N/A"}
                 </div>
-                <div className="text-sm text-gray-600">Rating</div>
+                <div className="text-xs sm:text-sm text-gray-600">Rating</div>
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Main Content */}
@@ -513,6 +519,70 @@ const BusinessProfile = () => {
 
           {/* Right Column - Sidebar */}
           <div className="space-y-6">
+            {/* Quick Actions - Only for own profile */}
+            {isOwnProfile && (
+              <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center">
+                    <Settings className="w-5 h-5 mr-2 text-purple-600" />
+                    Quick Actions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <Button 
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white justify-start"
+                    onClick={() => navigate('/post-job')}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Post New Job
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start border-purple-200 hover:bg-purple-50"
+                    onClick={() => navigate('/applicants')}
+                  >
+                    <Users className="w-4 h-4 mr-2" />
+                    Review Applications
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start border-purple-200 hover:bg-purple-50"
+                    onClick={() => navigate('/my-jobs')}
+                  >
+                    <Briefcase className="w-4 h-4 mr-2" />
+                    Manage Jobs
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start border-purple-200 hover:bg-purple-50"
+                    onClick={() => navigate('/messages')}
+                  >
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    Messages
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start border-purple-200 hover:bg-purple-50"
+                    onClick={() => navigate('/employer-dashboard')}
+                  >
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                    View Dashboard
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start border-purple-200 hover:bg-purple-50"
+                    onClick={() => {
+                      // TODO: Implement edit functionality
+                      alert("Edit profile functionality coming soon!");
+                    }}
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit Profile
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Contact Information */}
             <Card>
               <CardHeader>
