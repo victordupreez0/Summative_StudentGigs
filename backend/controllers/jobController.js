@@ -98,7 +98,10 @@ function getAllJobs(req, res) {
         return res.status(500).json({ error: 'db not initialized' });
     }
 
-    const sql = `
+    // Get query parameters for filtering
+    const employerId = req.query.employer;
+
+    let sql = `
         SELECT 
             j.id, j.user_id, j.title, j.description, 
             j.project_type AS projectType, 
@@ -127,11 +130,19 @@ function getAllJobs(req, res) {
         FROM jobs j
         LEFT JOIN users u ON j.user_id = u.id
         WHERE j.status != 'draft'
-        ORDER BY j.created_at DESC 
-        LIMIT 100
     `;
 
-    db.query(sql, [], (err, rows) => {
+    const queryParams = [];
+
+    // Add employer filter if provided
+    if (employerId) {
+        sql += ` AND j.user_id = ?`;
+        queryParams.push(employerId);
+    }
+
+    sql += ` ORDER BY j.created_at DESC LIMIT 100`;
+
+    db.query(sql, queryParams, (err, rows) => {
         if (err) {
             console.error('Error fetching jobs:', err);
             return res.status(500).json({ error: 'db error' });

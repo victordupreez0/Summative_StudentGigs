@@ -10,7 +10,7 @@ function getProfile(req, res) {
     const userId = req.params.userId;
 
     // Get basic user info
-    const userSql = 'SELECT id, name, email, user_type, profile_picture, avatar_color, created_at FROM users WHERE id = ?';
+    const userSql = 'SELECT id, name, email, user_type, business_name, profile_picture, avatar_color, created_at FROM users WHERE id = ?';
     
     db.query(userSql, [userId], (err, users) => {
         if (err) {
@@ -40,22 +40,35 @@ function getProfile(req, res) {
                 return res.status(500).json({ error: 'db error' });
             }
 
-            // Get completed jobs stats (just count accepted applications for now)
-            const statsSql = `
-                SELECT 
-                    COUNT(*) as totalCompletedJobs
-                FROM applications 
-                WHERE user_id = ? AND status = 'accepted'
-            `;
+            // Different stats for employers vs students
+            let statsSql;
+            if (user.user_type === 'employer') {
+                statsSql = `
+                    SELECT 
+                        (SELECT COUNT(*) FROM jobs WHERE user_id = ?) as totalJobsPosted,
+                        (SELECT COUNT(*) FROM jobs WHERE user_id = ? AND status = 'open') as activeJobs,
+                        (SELECT COUNT(*) FROM jobs WHERE user_id = ? AND status = 'closed') as completedJobs,
+                        (SELECT COUNT(*) FROM applications WHERE job_id IN (SELECT id FROM jobs WHERE user_id = ?) AND status = 'accepted') as totalHires
+                `;
+            } else {
+                statsSql = `
+                    SELECT 
+                        COUNT(*) as totalCompletedJobs
+                    FROM applications 
+                    WHERE user_id = ? AND status = 'accepted'
+                `;
+            }
 
-            db.query(statsSql, [userId], (statsErr, stats) => {
+            const statsParams = user.user_type === 'employer' ? [userId, userId, userId, userId] : [userId];
+
+            db.query(statsSql, statsParams, (statsErr, stats) => {
                 if (statsErr) {
                     console.error('Error fetching stats:', statsErr);
                     return res.status(500).json({ error: 'db error' });
                 }
 
                 const profile = profiles.length ? profiles[0] : null;
-                const userStats = stats[0] || { totalCompletedJobs: 0 };
+                const userStats = stats[0] || {};
 
                 // Parse JSON fields
                 if (profile) {
@@ -73,12 +86,27 @@ function getProfile(req, res) {
                     }
                 }
 
+                // Build response stats based on user type
+                const responseStats = user.user_type === 'employer' ? {
+                    totalJobsPosted: userStats.totalJobsPosted || 0,
+                    activeJobs: userStats.activeJobs || 0,
+                    completedJobs: userStats.completedJobs || 0,
+                    totalHires: userStats.totalHires || 0,
+                    averageRating: 0,
+                    responseRate: 0
+                } : {
+                    totalCompletedJobs: userStats.totalCompletedJobs || 0,
+                    averageRating: 0,
+                    totalEarnings: 0
+                };
+
                 res.json({
                     user: {
                         id: user.id,
                         name: user.name,
                         email: user.email,
                         userType: user.user_type,
+                        businessName: user.business_name,
                         profilePicture: user.profile_picture,
                         avatarColor: user.avatar_color,
                         memberSince: user.created_at
@@ -97,11 +125,7 @@ function getProfile(req, res) {
                         availability: {},
                         profile_views: 0
                     },
-                    stats: {
-                        totalCompletedJobs: userStats.totalCompletedJobs || 0,
-                        averageRating: 0,
-                        totalEarnings: 0
-                    }
+                    stats: responseStats
                 });
             });
         });

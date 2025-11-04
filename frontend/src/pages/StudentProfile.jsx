@@ -168,9 +168,10 @@ const StudentProfile = () => {
   useEffect(() => {
     if (isOwnProfile && user?.userType === 'employer') {
       setUserType('employer');
-      setLoading(false);
+      navigate('/business-profile');
+      return;
     }
-  }, [isOwnProfile, user]);
+  }, [isOwnProfile, user, navigate]);
 
   useEffect(() => {
     // Skip fetching if already determined to be employer viewing own profile
@@ -203,7 +204,7 @@ const StudentProfile = () => {
         // Check if this is an employer account
         if (data.user.userType === 'employer') {
           setUserType('employer');
-          setLoading(false);
+          navigate(`/business-profile/${targetUserId}`);
           return;
         }
         

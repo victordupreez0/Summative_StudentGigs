@@ -8,6 +8,7 @@ import JobDetails from './pages/JobDetails';
 import ApplyJob from './pages/ApplyJob';
 import StudentDashboard from './pages/StudentDashboard';
 import StudentProfile from './pages/StudentProfile';
+import BusinessProfile from './pages/BusinessProfile';
 import EmployerDashboard from './pages/EmployerDashboard.jsx';
 import Dashboard from './pages/Dashboard';
 import Applications from './pages/Applications';
@@ -61,6 +62,8 @@ const App = () => (
         <Route path="/student-dashboard" element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
         <Route path="/student-profile" element={<ProtectedRoute><StudentProfile /></ProtectedRoute>} />
         <Route path="/student-profile/:userId" element={<ProtectedRoute><StudentProfile /></ProtectedRoute>} />
+        <Route path="/business-profile" element={<ProtectedRoute><BusinessProfile /></ProtectedRoute>} />
+        <Route path="/business-profile/:userId" element={<ProtectedRoute><BusinessProfile /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><StudentProfile /></ProtectedRoute>} />
         <Route path="/profile/:userId" element={<ProtectedRoute><StudentProfile /></ProtectedRoute>} />
         <Route path="/employer-dashboard" element={<ProtectedRoute><EmployerDashboard /></ProtectedRoute>} />
