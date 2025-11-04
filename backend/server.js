@@ -30,9 +30,6 @@ app.use(cors({
 
 app.use(express.json());
 
-// Serve static files from frontend build (must be after JSON parser, before routes)
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
-
 // Health check endpoints
 app.get('/api/ping', (req, res) => {
     res.json({ ok: true });
@@ -96,7 +93,7 @@ const feedbackRoutes = require('./routes/feedbackRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 
-// Mount routes
+// Mount routes - MUST BE BEFORE static files
 app.use('/api', authRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/applications', applicationRoutes);
@@ -107,6 +104,9 @@ app.use('/api/interviews', interviewRoutes);
 app.use('/api', feedbackRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/reviews', reviewRoutes);
+
+// Serve static files from frontend build - MUST BE AFTER API routes
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
 // Catch-all handler for React Router (must be last)
 app.use((req, res) => {
