@@ -7,7 +7,12 @@ exports.getAllReviews = (req, res) => {
     return res.status(500).json({ error: 'Database not initialized' });
   }
 
-  const sql = 'SELECT * FROM reviews ORDER BY created_at DESC';
+  const sql = `
+    SELECT r.*, u.profile_picture as avatar 
+    FROM reviews r 
+    LEFT JOIN users u ON r.user_id = u.id 
+    ORDER BY r.created_at DESC
+  `;
   
   db.query(sql, (err, results) => {
     if (err) {
@@ -46,8 +51,13 @@ exports.createReview = (req, res) => {
       return res.status(500).json({ error: 'Failed to create review' });
     }
 
-    // Fetch the newly created review
-    const selectSql = 'SELECT * FROM reviews WHERE id = ?';
+    // Fetch the newly created review with user's profile picture
+    const selectSql = `
+      SELECT r.*, u.profile_picture as avatar 
+      FROM reviews r 
+      LEFT JOIN users u ON r.user_id = u.id 
+      WHERE r.id = ?
+    `;
     db.query(selectSql, [result.insertId], (err, rows) => {
       if (err) {
         console.error('Error fetching new review:', err);

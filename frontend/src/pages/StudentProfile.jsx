@@ -641,7 +641,7 @@ const StudentProfile = () => {
     setShowLanguageModal(true);
   };
 
-  const saveLanguage = () => {
+  const saveLanguage = async () => {
     const newLang = { ...languageForm, id: editingIndex !== null ? profileData.languages[editingIndex].id : Date.now() };
     let updated;
     if (editingIndex !== null) {
@@ -650,14 +650,18 @@ const StudentProfile = () => {
     } else {
       updated = [...profileData.languages, newLang];
     }
-    setProfileData({ ...profileData, languages: updated });
+    const updatedProfileData = { ...profileData, languages: updated };
+    setProfileData(updatedProfileData);
     setShowLanguageModal(false);
+    await autoSaveProfile(updatedProfileData);
   };
 
-  const deleteLanguage = (index) => {
-    showConfirmation("Are you sure you want to delete this language?", () => {
+  const deleteLanguage = async (index) => {
+    showConfirmation("Are you sure you want to delete this language?", async () => {
       const updated = profileData.languages.filter((_, i) => i !== index);
-      setProfileData({ ...profileData, languages: updated });
+      const updatedProfileData = { ...profileData, languages: updated };
+      setProfileData(updatedProfileData);
+      await autoSaveProfile(updatedProfileData);
     });
   };
 
@@ -674,7 +678,7 @@ const StudentProfile = () => {
     setShowPortfolioModal(true);
   };
 
-  const savePortfolio = () => {
+  const savePortfolio = async () => {
     const techArray = portfolioForm.technologies.split(",").map(t => t.trim()).filter(t => t);
     const newProj = { 
       ...portfolioForm, 
@@ -688,14 +692,18 @@ const StudentProfile = () => {
     } else {
       updated = [...profileData.portfolio, newProj];
     }
-    setProfileData({ ...profileData, portfolio: updated });
+    const updatedProfileData = { ...profileData, portfolio: updated };
+    setProfileData(updatedProfileData);
     setShowPortfolioModal(false);
+    await autoSaveProfile(updatedProfileData);
   };
 
-  const deletePortfolio = (index) => {
-    showConfirmation("Are you sure you want to delete this project?", () => {
+  const deletePortfolio = async (index) => {
+    showConfirmation("Are you sure you want to delete this project?", async () => {
       const updated = profileData.portfolio.filter((_, i) => i !== index);
-      setProfileData({ ...profileData, portfolio: updated });
+      const updatedProfileData = { ...profileData, portfolio: updated };
+      setProfileData(updatedProfileData);
+      await autoSaveProfile(updatedProfileData);
     });
   };
 
@@ -711,7 +719,7 @@ const StudentProfile = () => {
     setShowCertModal(true);
   };
 
-  const saveCert = () => {
+  const saveCert = async () => {
     const newCert = { ...certForm, id: editingIndex !== null ? profileData.certifications[editingIndex].id : Date.now() };
     let updated;
     if (editingIndex !== null) {
@@ -720,14 +728,18 @@ const StudentProfile = () => {
     } else {
       updated = [...profileData.certifications, newCert];
     }
-    setProfileData({ ...profileData, certifications: updated });
+    const updatedProfileData = { ...profileData, certifications: updated };
+    setProfileData(updatedProfileData);
     setShowCertModal(false);
+    await autoSaveProfile(updatedProfileData);
   };
 
-  const deleteCert = (index) => {
-    showConfirmation("Are you sure you want to delete this certification?", () => {
+  const deleteCert = async (index) => {
+    showConfirmation("Are you sure you want to delete this certification?", async () => {
       const updated = profileData.certifications.filter((_, i) => i !== index);
-      setProfileData({ ...profileData, certifications: updated });
+      const updatedProfileData = { ...profileData, certifications: updated };
+      setProfileData(updatedProfileData);
+      await autoSaveProfile(updatedProfileData);
     });
   };
 

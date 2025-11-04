@@ -545,10 +545,15 @@ const Landing = () => {
                     </div>
                     <p className="text-gray-600 mb-4">"{testimonial.content}"</p>
                     <div className="flex items-center">
-                      <Avatar className="w-10 h-10 mr-3 border border-gray-200">
-                        <AvatarImage src={testimonial.avatar} />
-                        <AvatarFallback className="bg-gray-100 text-gray-700">{testimonial.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                      </Avatar>
+                      <div className="mr-3">
+                        <UserAvatar 
+                          user={{
+                            name: testimonial.name,
+                            profilePicture: testimonial.avatar
+                          }}
+                          size="sm"
+                        />
+                      </div>
                       <div>
                         <p className="font-semibold text-gray-900">{testimonial.name}</p>
                         <p className="text-sm text-gray-600">{testimonial.title}</p>
