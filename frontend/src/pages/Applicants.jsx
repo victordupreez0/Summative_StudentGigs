@@ -280,58 +280,58 @@ const Applicants = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-8">
           <Card className="border-gray-200 bg-white">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Applications</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Total Applications</p>
+                  <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">{stats.total}</p>
                 </div>
-                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                  <Users className="w-6 h-6 text-blue-600" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 ml-2">
+                  <Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-gray-200 bg-white">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">New Applications</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.new}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">New Applications</p>
+                  <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">{stats.new}</p>
                 </div>
-                <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
-                  <Clock className="w-6 h-6 text-yellow-600" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0 ml-2">
+                  <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-gray-200 bg-white">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Accepted</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.accepted}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Accepted</p>
+                  <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">{stats.accepted}</p>
                 </div>
-                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                  <CheckCircle className="w-6 h-6 text-green-600" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 ml-2">
+                  <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-gray-200 bg-white">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Rejected</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.rejected}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Rejected</p>
+                  <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">{stats.rejected}</p>
                 </div>
-                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
-                  <XCircle className="w-6 h-6 text-gray-600" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 ml-2">
+                  <XCircle className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
                 </div>
               </div>
             </CardContent>

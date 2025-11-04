@@ -481,17 +481,17 @@ const EmployerDashboard = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-8">
           {statsDisplay.map((stat, index) => (
             <Card key={index} hover={true} className="border-gray-200 bg-white">
-              <CardContent className="p-6">
+              <CardContent className="p-3 sm:p-4 md:p-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">{stat.title}</p>
+                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">{stat.value}</p>
                   </div>
-                  <div className={`w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center`}>
-                    <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 ml-2`}>
+                    <stat.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${stat.color}`} />
                   </div>
                 </div>
               </CardContent>

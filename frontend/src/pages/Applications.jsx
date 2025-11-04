@@ -279,54 +279,54 @@ const Applications = () => {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Send className="w-5 h-5 text-purple-600" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-6">
+            <div className="bg-gray-50 rounded-lg p-3 sm:p-4 border border-gray-200">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Send className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">{applications.length}</p>
-                  <p className="text-sm text-gray-600">Total Applications</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">{applications.length}</p>
+                  <p className="text-xs sm:text-sm text-gray-600 truncate">Total Applications</p>
                 </div>
               </div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-                  <AlertCircle className="w-5 h-5 text-yellow-600" />
+            <div className="bg-gray-50 rounded-lg p-3 sm:p-4 border border-gray-200">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">
+                <div className="min-w-0 flex-1">
+                  <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                     {applications.filter(a => a.status === 'pending').length}
                   </p>
-                  <p className="text-sm text-gray-600">Pending Review</p>
+                  <p className="text-xs sm:text-sm text-gray-600 truncate">Pending Review</p>
                 </div>
               </div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
+            <div className="bg-gray-50 rounded-lg p-3 sm:p-4 border border-gray-200">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">
+                <div className="min-w-0 flex-1">
+                  <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                     {applications.filter(a => a.status === 'accepted').length}
                   </p>
-                  <p className="text-sm text-gray-600">Accepted</p>
+                  <p className="text-xs sm:text-sm text-gray-600 truncate">Accepted</p>
                 </div>
               </div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                  <XCircle className="w-5 h-5 text-red-600" />
+            <div className="bg-gray-50 rounded-lg p-3 sm:p-4 border border-gray-200">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">
+                <div className="min-w-0 flex-1">
+                  <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                     {applications.filter(a => a.status === 'rejected').length}
                   </p>
-                  <p className="text-sm text-gray-600">Not Selected</p>
+                  <p className="text-xs sm:text-sm text-gray-600 truncate">Not Selected</p>
                 </div>
               </div>
             </div>

@@ -28,6 +28,7 @@ const BrowseJobs = () => {
   const [experienceLevel, setExperienceLevel] = useState("all");
   const [duration, setDuration] = useState("all");
   const [sortBy, setSortBy] = useState("relevance");
+  const [showFilters, setShowFilters] = useState(false);
 
   // Helper function to format experience level
   const formatExperienceLevel = (level) => {
@@ -277,34 +278,103 @@ const BrowseJobs = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
+      
+      {/* Secondary Navigation */}
+      <div className="border-b border-gray-200 bg-gray-50 overflow-x-auto">
+        <div className="container mx-auto px-4">
+          <nav className="flex items-center gap-4 sm:gap-6 lg:gap-8 h-16 min-w-max sm:min-w-0">
+            <Link 
+              to="/browse-jobs" 
+              className="text-xs sm:text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2 whitespace-nowrap"
+            >
+              Browse Jobs
+            </Link>
+            <Link 
+              to={user?.userType === 'employer' ? '/employer-dashboard' : '/student-dashboard'} 
+              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
+            >
+              Dashboard
+            </Link>
+            <Link 
+              to="/open-jobs" 
+              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-5 whitespace-nowrap"
+            >
+              Open Jobs
+            </Link>
+            <Link 
+              to="/applicants" 
+              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-5 whitespace-nowrap"
+            >
+              Applicants
+            </Link>
+            {user?.userType === 'student' && (
+              <>
+                <Link 
+                  to="/my-jobs" 
+                  className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
+                >
+                  My Jobs
+                </Link>
+                <Link 
+                  to="/applications" 
+                  className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-5 whitespace-nowrap"
+                >
+                  Applications
+                </Link>
+              </>
+            )}
+            <Link 
+              to="/messages" 
+              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
+            >
+              Messages
+            </Link>
+            <Link 
+              to={user?.userType === 'employer' ? '/profile' : '/student-profile'} 
+              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
+            >
+              Profile
+            </Link>
+          </nav>
+        </div>
+      </div>
 
       <div className="container mx-auto px-4 py-8">
         {/* Search Section */}
-        <div className="bg-background-section rounded-lg p-6 mb-8">
-          <div className="flex gap-4">
+        <div className="bg-background-section rounded-lg p-4 sm:p-6 mb-6 sm:mb-8">
+          <div className="flex gap-2 sm:gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
               <Input
                 placeholder="Search for jobs, skills, or keywords"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12"
+                className="pl-9 sm:pl-10 h-10 sm:h-12 text-sm sm:text-base"
               />
             </div>
-            <Button size="lg" className="h-12 px-8">
+            <Button size="lg" className="h-10 sm:h-12 px-4 sm:px-8 text-sm sm:text-base">
               Search
+            </Button>
+            {/* Mobile Filter Toggle */}
+            <Button 
+              variant="outline"
+              size="lg" 
+              className="lg:hidden h-10 sm:h-12 px-3 sm:px-4"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <Filter className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
           {/* Filters Sidebar */}
-          <div className="lg:w-80">
-            <div className="space-y-6">
+          <div className={`lg:w-80 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+            <div className="space-y-4 sm:space-y-6 bg-white lg:bg-transparent p-4 lg:p-0 rounded-lg lg:rounded-none border lg:border-0 border-gray-200">
               {/* Filter Header */}
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-semibold">Filters:</h3>
-                <Filter className="w-5 h-5 text-muted-foreground" />
+                <h3 className="text-base sm:text-lg font-semibold">Filters:</h3>
+                <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
               </div>
 
               {/* Job Type Filter */}
@@ -413,14 +483,14 @@ const BrowseJobs = () => {
 
           {/* Job Listings */}
           <div className="flex-1">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold">
                 {searchQuery ? `Search Results (${sortedJobs.length})` : `Recommended Jobs (${sortedJobs.length})`}
               </h2>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Sort by:</span>
+                <span className="text-sm text-muted-foreground whitespace-nowrap">Sort By:</span>
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-40">
+                  <SelectTrigger className="w-36 sm:w-40 h-9 sm:h-10">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

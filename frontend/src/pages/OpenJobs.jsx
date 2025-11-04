@@ -276,44 +276,44 @@ const OpenJobs = () => {
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-8">
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="pt-3 sm:pt-4 md:pt-6 px-3 sm:px-4 md:px-6 pb-3 sm:pb-4 md:pb-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Total Jobs</p>
-                  <p className="text-3xl font-bold">{jobs.length}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-1 truncate">Total Jobs</p>
+                  <p className="text-xl sm:text-2xl md:text-3xl font-bold">{jobs.length}</p>
                 </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Briefcase className="w-6 h-6 text-blue-600" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
+                  <Briefcase className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
                 </div>
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="pt-3 sm:pt-4 md:pt-6 px-3 sm:px-4 md:px-6 pb-3 sm:pb-4 md:pb-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Total Applications</p>
-                  <p className="text-3xl font-bold">{applications.length}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-1 truncate">Total Applications</p>
+                  <p className="text-xl sm:text-2xl md:text-3xl font-bold">{applications.length}</p>
                 </div>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <Users className="w-6 h-6 text-green-600" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
+                  <Users className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
                 </div>
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="pt-3 sm:pt-4 md:pt-6 px-3 sm:px-4 md:px-6 pb-3 sm:pb-4 md:pb-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Avg Applications</p>
-                  <p className="text-3xl font-bold">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-1 truncate">Avg Applications</p>
+                  <p className="text-xl sm:text-2xl md:text-3xl font-bold">
                     {jobs.length > 0 ? Math.round(applications.length / jobs.length) : 0}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Calendar className="w-6 h-6 text-purple-600" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0 ml-2">
+                  <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
                 </div>
               </div>
             </CardContent>
