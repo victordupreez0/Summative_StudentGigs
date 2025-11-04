@@ -50,6 +50,17 @@ html, body, #root {
   height: 100%;
   background: #fafafa;
   background-attachment: fixed;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
 /* Modern Typography */
@@ -59,6 +70,33 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.03em;
   color: var(--color-gray-900);
   line-height: 1.2;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Prevent text overflow */
+p, span, div {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Ensure images and media are responsive */
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Prevent horizontal scroll on small screens */
+@media (max-width: 640px) {
+  h1 {
+    font-size: 1.875rem; /* 30px */
+  }
+  h2 {
+    font-size: 1.5rem; /* 24px */
+  }
+  h3 {
+    font-size: 1.25rem; /* 20px */
+  }
 }
 
 /* Refined link styles */

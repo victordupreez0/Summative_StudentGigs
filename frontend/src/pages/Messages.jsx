@@ -319,30 +319,30 @@ const Messages = () => {
       <Navbar />
       
       {/* Secondary Navigation */}
-      <div className="border-b border-gray-200 bg-gray-50 flex-shrink-0">
+      <div className="border-b border-gray-200 bg-gray-50 flex-shrink-0 overflow-x-auto">
         <div className="container mx-auto px-4">
-          <nav className="flex items-center gap-8 h-16">
+          <nav className="flex items-center gap-4 sm:gap-6 lg:gap-8 h-16 min-w-max sm:min-w-0">
             <Link 
               to="/browse-jobs" 
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-5 whitespace-nowrap"
             >
               Browse Jobs
             </Link>
             <Link 
               to={user?.userType === 'employer' ? '/employer-dashboard' : '/student-dashboard'} 
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-2"
+              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
             >
               Dashboard
             </Link>
             <Link 
               to="/open-jobs" 
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-5 whitespace-nowrap"
             >
               Open Jobs
             </Link>
             <Link 
               to="/applicants" 
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-5 whitespace-nowrap"
             >
               Applicants
             </Link>
@@ -350,13 +350,13 @@ const Messages = () => {
               <>
                 <Link 
                   to="/my-jobs" 
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900 py-2"
+                  className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
                 >
                   My Jobs
                 </Link>
                 <Link 
                   to="/applications" 
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+                  className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-5 whitespace-nowrap"
                 >
                   Applications
                 </Link>
@@ -364,13 +364,13 @@ const Messages = () => {
             )}
             <Link 
               to="/messages" 
-              className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2"
+              className="text-xs sm:text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2 whitespace-nowrap"
             >
               Messages
             </Link>
             <Link 
               to={user?.userType === 'employer' ? '/profile' : '/student-profile'} 
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-2"
+              className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 py-2 whitespace-nowrap"
             >
               Profile
             </Link>
@@ -380,26 +380,26 @@ const Messages = () => {
       
       <main className="flex-1 flex overflow-hidden">
         <Card className="flex-1 rounded-none border-0 m-0">
-          <div className="flex h-full">
-              {/* Sidebar - Conversations List */}
-              <div className="w-1/3 border-r border-gray-200 flex flex-col">
-                <div className="p-4 border-b border-gray-200 bg-gray-50">
-                  <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-                    <MessageSquare className="w-5 h-5 mr-2" />
+          <div className="flex h-full flex-col sm:flex-row">
+              {/* Sidebar - Conversations List - full width on mobile when no conversation selected */}
+              <div className={`${selectedConversation ? 'hidden sm:flex' : 'flex'} w-full sm:w-1/3 border-r border-gray-200 flex-col`}>
+                <div className="p-3 sm:p-4 border-b border-gray-200 bg-gray-50">
+                  <h2 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
+                    <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                     Conversations
                   </h2>
                 </div>
                 
                 <div className="flex-1 overflow-y-auto">
                   {loading ? (
-                    <div className="p-4 text-center text-gray-500">
+                    <div className="p-4 text-center text-gray-500 text-sm">
                       Loading conversations...
                     </div>
                   ) : conversations.length === 0 ? (
-                    <div className="p-8 text-center">
-                      <MessageSquare className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                      <p className="text-gray-500 mb-2">No conversations yet</p>
-                      <p className="text-sm text-gray-400">
+                    <div className="p-6 sm:p-8 text-center">
+                      <MessageSquare className="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-gray-300 mb-4" />
+                      <p className="text-sm sm:text-base text-gray-500 mb-2">No conversations yet</p>
+                      <p className="text-xs sm:text-sm text-gray-400 px-4">
                         {user?.userType === 'student' 
                           ? 'Apply to jobs to start messaging with employers'
                           : 'Wait for students to apply to your jobs'}
@@ -410,32 +410,33 @@ const Messages = () => {
                       <div
                         key={conversation.id}
                         onClick={() => handleConversationClick(conversation)}
-                        className={`p-4 border-b border-gray-100 cursor-pointer transition-all hover:bg-indigo-50 ${
+                        className={`p-3 sm:p-4 border-b border-gray-100 cursor-pointer transition-all hover:bg-indigo-50 ${
                           selectedConversation?.id === conversation.id ? 'bg-indigo-100' : ''
                         }`}
                       >
-                        <div className="flex items-start space-x-3">
+                        <div className="flex items-start space-x-2 sm:space-x-3">
                           <UserAvatar 
                             user={{
                               name: conversation.other_user_name,
                               avatarColor: getAvatarColor(conversation.other_user_name)
                             }}
                             userId={conversation.other_user_id}
-                            size="lg"
+                            size="md"
+                            className="flex-shrink-0"
                           />
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-1">
-                              <h3 className="font-semibold text-gray-900 truncate flex items-center">
-                                {conversation.other_user_name}
+                              <h3 className="text-sm sm:text-base font-semibold text-gray-900 truncate flex items-center">
+                                <span className="truncate">{conversation.other_user_name}</span>
                                 {user?.userType === 'student' ? (
-                                  <Building2 className="w-3 h-3 ml-1 text-gray-500" />
+                                  <Building2 className="w-3 h-3 ml-1 text-gray-500 flex-shrink-0" />
                                 ) : (
-                                  <User className="w-3 h-3 ml-1 text-gray-500" />
+                                  <User className="w-3 h-3 ml-1 text-gray-500 flex-shrink-0" />
                                 )}
                               </h3>
                               {conversation.last_message_time && (
-                                <span className="text-xs text-gray-500">
+                                <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
                                   {formatTime(conversation.last_message_time)}
                                 </span>
                               )}
@@ -448,7 +449,7 @@ const Messages = () => {
                             )}
                             
                             {conversation.last_message && (
-                              <p className="text-sm text-gray-600 truncate">
+                              <p className="text-xs sm:text-sm text-gray-600 truncate">
                                 {conversation.last_message}
                               </p>
                             )}
@@ -466,13 +467,22 @@ const Messages = () => {
                 </div>
               </div>
 
-              {/* Chat Area */}
-              <div className="flex-1 flex flex-col">
+              {/* Chat Area - hidden on mobile when no conversation selected */}
+              <div className={`${selectedConversation ? 'flex' : 'hidden sm:flex'} flex-1 flex-col w-full sm:w-auto`}>
                 {selectedConversation ? (
                   <>
                     {/* Chat Header */}
-                    <div className="p-4 border-b border-gray-200 bg-gray-50">
-                      <div className="flex items-center space-x-3">
+                    <div className="p-3 sm:p-4 border-b border-gray-200 bg-gray-50">
+                      <div className="flex items-center space-x-2 sm:space-x-3">
+                        {/* Back button for mobile */}
+                        <button
+                          onClick={() => setSelectedConversation(null)}
+                          className="sm:hidden p-2 hover:bg-gray-200 rounded-lg mr-2"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                          </svg>
+                        </button>
                         <UserAvatar 
                           user={{
                             name: selectedConversation.other_user_name,
@@ -480,13 +490,14 @@ const Messages = () => {
                           }}
                           userId={selectedConversation.other_user_id}
                           size="md"
+                          className="flex-shrink-0"
                         />
-                        <div>
-                          <h3 className="font-semibold text-gray-900">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-sm sm:text-base font-semibold text-gray-900 truncate">
                             {selectedConversation.other_user_name}
                           </h3>
                           {selectedConversation.job_title && (
-                            <p className="text-sm text-gray-600">
+                            <p className="text-xs sm:text-sm text-gray-600 truncate">
                               About: {selectedConversation.job_title}
                             </p>
                           )}
@@ -495,7 +506,7 @@ const Messages = () => {
                     </div>
 
                     {/* Messages */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                    <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
                       {messages.length === 0 ? (
                         <div className="flex items-center justify-center h-full">
                           <p className="text-gray-500">No messages yet. Start the conversation!</p>
