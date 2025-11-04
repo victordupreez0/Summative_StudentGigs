@@ -515,19 +515,27 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                       <label className="block text-sm font-medium text-gray-900 mb-2">
                         Job Category
                       </label>
-                      <Select value={jobCategory} onValueChange={setJobCategory}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="web-development">Web, Mobile & Software Development</SelectItem>
-                          <SelectItem value="content-writing">Content Writing</SelectItem>
-                          <SelectItem value="data-analysis">Data Analysis</SelectItem>
-                          <SelectItem value="graphic-design">Graphic Design</SelectItem>
-                          <SelectItem value="marketing">Marketing & Sales</SelectItem>
-                          <SelectItem value="research">Research & Analysis</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Input
+                        list="job-categories"
+                        placeholder="Select or type a custom category"
+                        value={jobCategory}
+                        onChange={(e) => setJobCategory(e.target.value)}
+                      />
+                      <datalist id="job-categories">
+                        <option value="Web, Mobile & Software Development" />
+                        <option value="Content Writing" />
+                        <option value="Data Analysis" />
+                        <option value="Graphic Design" />
+                        <option value="Marketing & Sales" />
+                        <option value="Research & Analysis" />
+                        <option value="Business & Finance" />
+                        <option value="Video & Animation" />
+                        <option value="Translation" />
+                        <option value="Admin Support" />
+                      </datalist>
+                      <p className="text-xs text-gray-600 mt-1">
+                        Choose from suggestions or type your own category
+                      </p>
                     </div>
 
                     <div>
@@ -536,7 +544,16 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                       </label>
                       <div className="flex flex-wrap gap-2 mb-2">
                         {tags.map((tag) => (
-                          <Badge key={tag} variant="secondary" className="cursor-pointer bg-gray-100 text-gray-700 border-gray-200" onClick={() => removeTag(tag)}>
+                          <Badge 
+                            key={tag} 
+                            variant="secondary" 
+                            className="cursor-pointer bg-gray-100 text-gray-700 border-gray-200 select-none active:scale-95 touch-manipulation" 
+                            onClick={() => removeTag(tag)}
+                            onTouchEnd={(e) => {
+                              e.preventDefault();
+                              removeTag(tag);
+                            }}
+                          >
                             {tag} ×
                           </Badge>
                         ))}
@@ -658,21 +675,6 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                         rows={4}
                       />
                     </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
-                        Attachments (Optional)
-                      </label>
-                      <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer">
-                        <div className="flex flex-col items-center gap-2">
-                          <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                            📎
-                          </div>
-                          <p className="text-sm font-medium">Upload project files or documents</p>
-                          <p className="text-xs text-muted-foreground">PDF, DOC, or images up to 10MB</p>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 )}
 
@@ -693,15 +695,15 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                             key={level.value}
                             className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
                               experienceLevel === level.value 
-                                ? 'border-primary bg-primary/10 shadow-sm' 
-                                : 'border-border hover:border-primary/50 hover:bg-gray-50'
+                                ? 'border-purple-600 bg-purple-50 shadow-sm' 
+                                : 'border-gray-200 hover:border-purple-300 hover:bg-gray-50'
                             }`}
                             onClick={() => setExperienceLevel(level.value)}
                           >
                             <div className="flex items-start gap-3">
                               <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center transition-all ${
                                 experienceLevel === level.value 
-                                  ? 'border-primary bg-primary' 
+                                  ? 'border-purple-600 bg-purple-600' 
                                   : 'border-gray-300'
                               }`}>
                                 {experienceLevel === level.value && (
@@ -709,7 +711,7 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                                 )}
                               </div>
                               <div className="flex-1">
-                                <p className={`font-medium ${experienceLevel === level.value ? 'text-primary' : 'text-foreground'}`}>
+                                <p className={`font-medium ${experienceLevel === level.value ? 'text-purple-600' : 'text-foreground'}`}>
                                   {level.label}
                                 </p>
                                 <p className="text-sm text-muted-foreground">{level.desc}</p>
@@ -726,7 +728,16 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                       </label>
                       <div className="flex flex-wrap gap-2 mb-2">
                         {requiredSkills.map((skill) => (
-                          <Badge key={skill} variant="secondary" className="cursor-pointer" onClick={() => removeSkill(skill)}>
+                          <Badge 
+                            key={skill} 
+                            variant="secondary" 
+                            className="cursor-pointer select-none active:scale-95 touch-manipulation" 
+                            onClick={() => removeSkill(skill)}
+                            onTouchEnd={(e) => {
+                              e.preventDefault();
+                              removeSkill(skill);
+                            }}
+                          >
                             {skill} ×
                           </Badge>
                         ))}
@@ -807,15 +818,15 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                         <div
                           className={`border-2 rounded-lg p-6 cursor-pointer transition-all ${
                             budgetType === 'hourly' 
-                              ? 'border-primary bg-primary/10 shadow-md' 
-                              : 'border-border hover:border-primary/50 hover:bg-gray-50'
+                              ? 'border-purple-600 bg-purple-50 shadow-md' 
+                              : 'border-gray-200 hover:border-purple-300 hover:bg-gray-50'
                           }`}
                           onClick={() => setBudgetType('hourly')}
                         >
                           <div className="flex items-start gap-3">
                             <div className={`w-5 h-5 rounded-full border-2 mt-1 flex items-center justify-center transition-all ${
                               budgetType === 'hourly' 
-                                ? 'border-primary bg-primary' 
+                                ? 'border-purple-600 bg-purple-600' 
                                 : 'border-gray-300'
                             }`}>
                               {budgetType === 'hourly' && (
@@ -824,8 +835,8 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                             </div>
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
-                                <Clock className={`w-5 h-5 ${budgetType === 'hourly' ? 'text-primary' : 'text-gray-500'}`} />
-                                <p className={`font-semibold ${budgetType === 'hourly' ? 'text-primary' : 'text-foreground'}`}>
+                                <Clock className={`w-5 h-5 ${budgetType === 'hourly' ? 'text-purple-600' : 'text-gray-500'}`} />
+                                <p className={`font-semibold ${budgetType === 'hourly' ? 'text-purple-600' : 'text-foreground'}`}>
                                   Hourly Rate
                                 </p>
                               </div>
@@ -839,15 +850,15 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                         <div
                           className={`border-2 rounded-lg p-6 cursor-pointer transition-all ${
                             budgetType === 'fixed' 
-                              ? 'border-primary bg-primary/10 shadow-md' 
-                              : 'border-border hover:border-primary/50 hover:bg-gray-50'
+                              ? 'border-purple-600 bg-purple-50 shadow-md' 
+                              : 'border-gray-200 hover:border-purple-300 hover:bg-gray-50'
                           }`}
                           onClick={() => setBudgetType('fixed')}
                         >
                           <div className="flex items-start gap-3">
                             <div className={`w-5 h-5 rounded-full border-2 mt-1 flex items-center justify-center transition-all ${
                               budgetType === 'fixed' 
-                                ? 'border-primary bg-primary' 
+                                ? 'border-purple-600 bg-purple-600' 
                                 : 'border-gray-300'
                             }`}>
                               {budgetType === 'fixed' && (
@@ -856,8 +867,8 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                             </div>
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
-                                <DollarSign className={`w-5 h-5 ${budgetType === 'fixed' ? 'text-primary' : 'text-gray-500'}`} />
-                                <p className={`font-semibold ${budgetType === 'fixed' ? 'text-primary' : 'text-foreground'}`}>
+                                <DollarSign className={`w-5 h-5 ${budgetType === 'fixed' ? 'text-purple-600' : 'text-gray-500'}`} />
+                                <p className={`font-semibold ${budgetType === 'fixed' ? 'text-purple-600' : 'text-foreground'}`}>
                                   Fixed Price
                                 </p>
                               </div>

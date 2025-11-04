@@ -5,6 +5,20 @@ export const Select = ({ children, className = '', value, onValueChange, ...prop
   const items = [];
   let placeholder = '';
   
+  // Recursively extract SelectItems from nested children (including fragments)
+  const extractItems = (children) => {
+    React.Children.forEach(children, (child) => {
+      if (!child) return;
+      
+      if (child.type === SelectItem) {
+        items.push(child);
+      } else if (child.props?.children) {
+        // Recursively search nested children (handles fragments and other wrappers)
+        extractItems(child.props.children);
+      }
+    });
+  };
+  
   React.Children.forEach(children, (child) => {
     if (child?.type === SelectTrigger) {
       React.Children.forEach(child.props.children, (triggerChild) => {
@@ -13,11 +27,7 @@ export const Select = ({ children, className = '', value, onValueChange, ...prop
         }
       });
     } else if (child?.type === SelectContent) {
-      React.Children.forEach(child.props.children, (contentChild) => {
-        if (contentChild?.type === SelectItem) {
-          items.push(contentChild);
-        }
-      });
+      extractItems(child.props.children);
     }
   });
 
