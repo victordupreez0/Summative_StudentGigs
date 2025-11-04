@@ -21,8 +21,11 @@ export const UserAvatar = ({ user, userId, className = '', size = 'md', onClick,
   };
 
   const sizeClass = sizeClasses[size] || sizeClasses.md;
-  const bgColor = user?.profilePicture ? 'transparent' : (user?.avatarColor || '#1e40af');
   const initials = user?.name?.charAt(0)?.toUpperCase() || 'U';
+  
+  // Only show background color if no profile picture
+  const hasProfilePicture = user?.profilePicture && user.profilePicture.trim() !== '';
+  const bgColor = hasProfilePicture ? 'transparent' : (user?.avatarColor || '#1e40af');
 
   // Determine if avatar should be clickable
   const isClickable = onClick || userId || clickable;
@@ -40,20 +43,20 @@ export const UserAvatar = ({ user, userId, className = '', size = 'md', onClick,
 
   return (
     <div 
-      className={`rounded-full flex items-center justify-center text-white font-bold ${sizeClass} ${cursorClass} ${className}`}
+      className={`rounded-full flex items-center justify-center overflow-hidden ${sizeClass} ${cursorClass} ${className}`}
       style={{ backgroundColor: bgColor }}
       onClick={isClickable ? handleClick : undefined}
       role={isClickable ? 'button' : undefined}
       tabIndex={isClickable ? 0 : undefined}
     >
-      {user?.profilePicture ? (
+      {hasProfilePicture ? (
         <img 
           src={user.profilePicture} 
           alt={user.name || 'User'} 
-          className="w-full h-full rounded-full object-cover" 
+          className="w-full h-full object-cover" 
         />
       ) : (
-        initials
+        <span className="text-white font-bold">{initials}</span>
       )}
     </div>
   );
