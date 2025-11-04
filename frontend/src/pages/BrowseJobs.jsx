@@ -433,7 +433,7 @@ const BrowseJobs = () => {
               </div>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {sortedJobs.length === 0 ? (
                 <Card className="p-8">
                   <div className="text-center text-gray-500">
@@ -448,8 +448,8 @@ const BrowseJobs = () => {
                   className="hover:shadow-md transition-shadow cursor-pointer"
                   onClick={() => window.location.href = `/jobs/${job.id}`}
                 >
-                  <CardContent className="p-6">
-                    <div className="flex items-start gap-4">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
                       {/* Company Icon/Avatar */}
                       <div className="flex-shrink-0">
                         <UserAvatar
@@ -464,13 +464,13 @@ const BrowseJobs = () => {
                         />
                       </div>
 
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h3 className="text-lg font-semibold text-foreground hover:text-primary">
+                      <div className="flex-1 w-full min-w-0">
+                        <div className="flex flex-col sm:flex-row justify-between items-start mb-2 gap-2">
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-base sm:text-lg font-semibold text-foreground hover:text-primary break-words">
                               {job.title}
                             </h3>
-                            <p className="text-muted-foreground">
+                            <p className="text-sm text-muted-foreground break-words">
                               {job.poster_business_name || job.poster_name || `User ${job.user_id}`}
                             </p>
                           </div>
@@ -478,7 +478,7 @@ const BrowseJobs = () => {
                             variant="ghost" 
                             size="icon"
                             onClick={(e) => handleSaveJob(e, job.id)}
-                            className={savedJobIds.has(job.id) ? 'text-primary' : ''}
+                            className={`flex-shrink-0 ${savedJobIds.has(job.id) ? 'text-primary' : ''}`}
                           >
                             <Bookmark className={`w-5 h-5 ${savedJobIds.has(job.id) ? 'fill-current' : ''}`} />
                           </Button>
@@ -493,47 +493,47 @@ const BrowseJobs = () => {
                           {job.projectType && <Badge variant="outline">{job.projectType}</Badge>}
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-3">
+                        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-3">
                           <div className="flex items-center gap-1">
-                            <MapPin className="w-4 h-4" />
-                            {job.workLocation || 'Remote'}
+                            <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                            <span className="truncate">{job.workLocation || 'Remote'}</span>
                           </div>
                           {job.budgetType === 'hourly' && job.hourlyRateMin && (
                             <div className="flex items-center gap-1">
-                              <DollarSign className="w-4 h-4" />
-                              ${job.hourlyRateMin}-${job.hourlyRateMax}/hr
+                              <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                              <span className="whitespace-nowrap">${job.hourlyRateMin}-${job.hourlyRateMax}/hr</span>
                             </div>
                           )}
                           {job.budgetType === 'fixed' && job.fixedBudget && (
                             <div className="flex items-center gap-1">
-                              <DollarSign className="w-4 h-4" />
-                              ${job.fixedBudget}
+                              <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                              <span className="whitespace-nowrap">${job.fixedBudget}</span>
                             </div>
                           )}
                           <div className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            {job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}
+                            <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                            <span className="whitespace-nowrap">{job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}</span>
                           </div>
                         </div>
 
-                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2 break-words">
                           {job.description}
                         </p>
 
                         <div className="flex flex-wrap gap-2 mb-4">
                           {(job.requiredSkills || job.tags || []).slice(0, 5).map((tag, index) => (
-                            <Badge key={index} variant="secondary">
+                            <Badge key={index} variant="secondary" className="text-xs">
                               {tag}
                             </Badge>
                           ))}
                         </div>
 
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            {job.experienceLevel && <span>{formatExperienceLevel(job.experienceLevel)}</span>}
-                            {job.weeklyHours && <span>{formatWeeklyHours(job.weeklyHours)}</span>}
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                          <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-muted-foreground">
+                            {job.experienceLevel && <span className="whitespace-nowrap">{formatExperienceLevel(job.experienceLevel)}</span>}
+                            {job.weeklyHours && <span className="whitespace-nowrap">{formatWeeklyHours(job.weeklyHours)}</span>}
                           </div>
-                          <div className="flex gap-2">
+                          <div className="flex gap-2 w-full sm:w-auto">
                             <Button 
                               variant="outline" 
                               size="sm"
@@ -541,6 +541,7 @@ const BrowseJobs = () => {
                                 e.stopPropagation();
                                 window.location.href = `/jobs/${job.id}`;
                               }}
+                              className="flex-1 sm:flex-initial text-xs sm:text-sm"
                             >
                               View Details
                             </Button>
@@ -549,6 +550,7 @@ const BrowseJobs = () => {
                               onClick={(e) => {
                                 handleApplyClick(e, job.id);
                               }}
+                              className="flex-1 sm:flex-initial text-xs sm:text-sm"
                             >
                               Apply Now
                             </Button>
