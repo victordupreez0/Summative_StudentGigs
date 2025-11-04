@@ -272,7 +272,8 @@ const EmployerDashboard = () => {
   const quickActions = [
     {
       title: "Profile Views",
-      description: `${stats.profileViews || 0}`,
+      description: `Last 30 days`,
+      value: stats.profileViews || 0,
       icon: Eye,
       color: "text-purple-600",
       bgColor: "bg-purple-50",
@@ -455,7 +456,9 @@ const EmployerDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div className="min-w-0 flex-1">
                     <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">{action.title}</p>
-                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">{action.description.split(' ')[0]}</p>
+                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
+                      {action.value !== undefined ? action.value : action.description.split(' ')[0]}
+                    </p>
                     <p className="text-xs text-gray-500 mt-1 truncate">{action.description}</p>
                   </div>
                   <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${action.bgColor} flex items-center justify-center flex-shrink-0 ml-2`}>
@@ -691,7 +694,11 @@ const EmployerDashboard = () => {
                   variant="link" 
                   size="sm" 
                   className="w-full mt-4"
-                  onClick={() => showAlert('Coming Soon', 'Detailed analytics will be available soon!')}
+                  onClick={() => showAlert({
+                    title: 'Coming Soon',
+                    message: 'Detailed analytics and insights will be available in a future update. This feature will include:\n\n• Application trends over time\n• Hiring conversion rates\n• Time-to-hire metrics\n• Popular job categories\n• Applicant demographics\n\nStay tuned!',
+                    type: 'info'
+                  })}
                 >
                   <BarChart3 className="w-4 h-4 mr-2" />
                   View detailed analytics
