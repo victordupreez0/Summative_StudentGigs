@@ -479,11 +479,21 @@ const BrowseJobs = () => {
                       </div>
 
                       <div className="flex-1 w-full min-w-0">
-                        <div className="flex flex-col sm:flex-row justify-between items-start mb-2 gap-2">
+                        <div className="flex justify-between items-start mb-2 gap-2">
                           <div className="min-w-0 flex-1">
-                            <h3 className="text-base sm:text-lg font-semibold text-foreground hover:text-primary break-words">
-                              {job.title}
-                            </h3>
+                            <div className="flex items-start justify-between gap-2">
+                              <h3 className="text-base sm:text-lg font-semibold text-foreground hover:text-primary break-words flex-1">
+                                {job.title}
+                              </h3>
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                onClick={(e) => handleSaveJob(e, job.id)}
+                                className={`flex-shrink-0 sm:hidden ${savedJobIds.has(job.id) ? 'text-primary' : ''}`}
+                              >
+                                <Bookmark className={`w-5 h-5 ${savedJobIds.has(job.id) ? 'fill-current' : ''}`} />
+                              </Button>
+                            </div>
                             <p className="text-sm text-muted-foreground break-words">
                               {job.poster_business_name || job.poster_name || `User ${job.user_id}`}
                             </p>
@@ -492,7 +502,7 @@ const BrowseJobs = () => {
                             variant="ghost" 
                             size="icon"
                             onClick={(e) => handleSaveJob(e, job.id)}
-                            className={`flex-shrink-0 ${savedJobIds.has(job.id) ? 'text-primary' : ''}`}
+                            className={`hidden sm:flex flex-shrink-0 ${savedJobIds.has(job.id) ? 'text-primary' : ''}`}
                           >
                             <Bookmark className={`w-5 h-5 ${savedJobIds.has(job.id) ? 'fill-current' : ''}`} />
                           </Button>
