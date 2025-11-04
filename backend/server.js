@@ -28,7 +28,9 @@ app.use(cors({
     credentials: true
 }));
 
-app.use(express.json());
+// Increase payload limit for profile pictures (base64 images can be large)
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Health check endpoints
 app.get('/api/ping', (req, res) => {
@@ -92,6 +94,7 @@ const interviewRoutes = require('./routes/interviewRoutes');
 const feedbackRoutes = require('./routes/feedbackRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const debugRoutes = require('./routes/debugRoutes');
 
 // Mount routes - MUST BE BEFORE static files
 app.use('/api', authRoutes);
@@ -104,6 +107,7 @@ app.use('/api/interviews', interviewRoutes);
 app.use('/api', feedbackRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/debug', debugRoutes);
 
 // Serve static files from frontend build - MUST BE AFTER API routes
 app.use(express.static(path.join(__dirname, '../frontend/dist')));

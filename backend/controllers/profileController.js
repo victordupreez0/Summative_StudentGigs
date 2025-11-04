@@ -149,12 +149,23 @@ function updateProfile(req, res) {
     console.log('Received profile update for user', userId);
     console.log('Bio value:', bio);
     console.log('Phone value:', phone);
+    console.log('Work experience:', work_experience);
 
     // Check if profile exists
     db.query('SELECT id FROM student_profiles WHERE user_id = ?', [userId], (err, results) => {
         if (err) {
             console.error('Error checking profile:', err);
-            return res.status(500).json({ error: 'db error' });
+            console.error('SQL Error code:', err.code);
+            console.error('SQL Error message:', err.sqlMessage);
+            
+            // Check if table doesn't exist
+            if (err.code === 'ER_NO_SUCH_TABLE') {
+                return res.status(500).json({ 
+                    error: 'student_profiles table does not exist. Please run database migrations.' 
+                });
+            }
+            
+            return res.status(500).json({ error: 'db error', details: err.message });
         }
 
         const profileData = {
@@ -198,9 +209,15 @@ function updateProfile(req, res) {
             db.query(insertSql, values, (insertErr) => {
                 if (insertErr) {
                     console.error('Error creating profile:', insertErr);
-                    return res.status(500).json({ error: 'db error' });
+                    console.error('Insert error code:', insertErr.code);
+                    console.error('Insert error message:', insertErr.sqlMessage);
+                    return res.status(500).json({ 
+                        error: 'Failed to create profile', 
+                        details: insertErr.message 
+                    });
                 }
 
+                console.log('Profile created successfully for user', userId);
                 res.json({ message: 'profile created successfully' });
             });
         } else {
@@ -229,16 +246,25 @@ function updateProfile(req, res) {
             ];
 
             console.log('Executing UPDATE with bio:', profileData.bio);
+            console.log('UPDATE SQL values:', values.map((v, i) => 
+                typeof v === 'string' && v.length > 50 ? v.substring(0, 50) + '...' : v
+            ));
 
             db.query(updateSql, values, (updateErr, result) => {
                 if (updateErr) {
                     console.error('Error updating profile:', updateErr);
-                    return res.status(500).json({ error: 'db error' });
+                    console.error('Update error code:', updateErr.code);
+                    console.error('Update error message:', updateErr.sqlMessage);
+                    return res.status(500).json({ 
+                        error: 'Failed to update profile', 
+                        details: updateErr.message 
+                    });
                 }
 
                 console.log('UPDATE result:', result);
                 console.log('Rows affected:', result.affectedRows);
-                res.json({ message: 'profile updated successfully' });
+                console.log('Profile updated successfully for user', userId);
+                res.json({ message: 'profile updated successfully', rowsAffected: result.affectedRows });
             });
         }
     });

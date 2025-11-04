@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useContext } from "react";
+﻿import { useState, useEffect, useContext, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import AuthContext from "@/context/AuthContext";
 import API_BASE from "@/config/api";
@@ -156,11 +156,12 @@ const StudentProfile = () => {
     responseRate: 0
   });
 
-  // Determine if viewing own profile
-  const isOwnProfile = !userId || (user && parseInt(userId) === parseInt(user.id));
+  // Determine if viewing own profile - memoize to prevent infinite loops
+  const isOwnProfile = useMemo(() => {
+    return !userId || (user && parseInt(userId) === parseInt(user.id));
+  }, [userId, user?.id]);
+  
   const targetUserId = userId || user?.id;
-
-  console.log('Profile check - userId:', userId, 'user.id:', user?.id, 'isOwnProfile:', isOwnProfile);
 
   // Check if the logged-in user is an employer viewing their own profile
   useEffect(() => {
@@ -270,7 +271,7 @@ const StudentProfile = () => {
           availability: parseAvailability(data.profile?.availability)
         });
 
-        console.log('Profile loaded. Avatar:', data.user.profilePicture ? data.user.profilePicture.substring(0, 100) + '...' : 'None');
+        console.log('Profile loaded. Avatar:', data.user.profilePicture ? 'Yes' : 'No');
 
         setStats({
           totalJobs: data.stats?.totalJobs || 0,
@@ -299,7 +300,50 @@ const StudentProfile = () => {
     };
 
     fetchProfile();
-  }, [targetUserId, isOwnProfile]);
+  }, [targetUserId, user?.userType]); // Removed isOwnProfile - it's derived from targetUserId
+
+  // Helper function to auto-save profile changes
+  const autoSaveProfile = async (updatedProfileData) => {
+    try {
+      const token = localStorage.getItem("token");
+      const payload = {
+        bio: updatedProfileData.bio,
+        phone: updatedProfileData.phone,
+        location: updatedProfileData.location,
+        education: updatedProfileData.education,
+        work_experience: updatedProfileData.workExperience,
+        skills: updatedProfileData.skills,
+        languages: updatedProfileData.languages,
+        portfolio: updatedProfileData.portfolio,
+        certifications: updatedProfileData.certifications,
+        social_links: updatedProfileData.socialLinks,
+        availability: updatedProfileData.availability
+      };
+      
+      const response = await fetch(`${API_BASE}/api/profiles/me`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Auto-save error:', errorData);
+        throw new Error(errorData.error || "Failed to auto-save");
+      }
+      
+      console.log('Auto-saved successfully');
+      return true;
+    } catch (err) {
+      console.error("Error auto-saving:", err);
+      setErrorMessage("Changes added but failed to save to server");
+      setShowErrorModal(true);
+      return false;
+    }
+  };
 
   const handleSave = async () => {
     try {
@@ -319,7 +363,11 @@ const StudentProfile = () => {
         availability: profileData.availability
       };
       
-      console.log('Saving profile with bio:', payload.bio);
+      console.log('=== SAVING PROFILE ===');
+      console.log('Bio:', payload.bio?.substring(0, 50));
+      console.log('Work Experience:', payload.work_experience);
+      console.log('Skills:', payload.skills);
+      console.log('Full payload:', payload);
       
       const response = await fetch(`${API_BASE}/api/profiles/me`, {
         method: 'PUT',
@@ -484,7 +532,7 @@ const StudentProfile = () => {
     setShowWorkModal(true);
   };
 
-  const saveWork = () => {
+  const saveWork = async () => {
     const newWork = { ...workForm, id: editingIndex !== null ? profileData.workExperience[editingIndex].id : Date.now() };
     let updated;
     if (editingIndex !== null) {
@@ -493,8 +541,13 @@ const StudentProfile = () => {
     } else {
       updated = [...profileData.workExperience, newWork];
     }
-    setProfileData({ ...profileData, workExperience: updated });
+    
+    const updatedProfileData = { ...profileData, workExperience: updated };
+    setProfileData(updatedProfileData);
     setShowWorkModal(false);
+    
+    // Auto-save to database
+    await autoSaveProfile(updatedProfileData);
   };
 
   const deleteWork = (index) => {
@@ -516,7 +569,7 @@ const StudentProfile = () => {
     setShowEducationModal(true);
   };
 
-  const saveEducation = () => {
+  const saveEducation = async () => {
     const newEdu = { ...educationForm, id: editingIndex !== null ? profileData.education[editingIndex].id : Date.now() };
     let updated;
     if (editingIndex !== null) {
@@ -525,14 +578,18 @@ const StudentProfile = () => {
     } else {
       updated = [...profileData.education, newEdu];
     }
-    setProfileData({ ...profileData, education: updated });
+    const updatedProfileData = { ...profileData, education: updated };
+    setProfileData(updatedProfileData);
     setShowEducationModal(false);
+    await autoSaveProfile(updatedProfileData);
   };
 
-  const deleteEducation = (index) => {
-    showConfirmation("Are you sure you want to delete this education entry?", () => {
+  const deleteEducation = async (index) => {
+    showConfirmation("Are you sure you want to delete this education entry?", async () => {
       const updated = profileData.education.filter((_, i) => i !== index);
-      setProfileData({ ...profileData, education: updated });
+      const updatedProfileData = { ...profileData, education: updated };
+      setProfileData(updatedProfileData);
+      await autoSaveProfile(updatedProfileData);
     });
   };
 
@@ -548,7 +605,7 @@ const StudentProfile = () => {
     setShowSkillModal(true);
   };
 
-  const saveSkill = () => {
+  const saveSkill = async () => {
     const newSkill = { ...skillForm, id: editingIndex !== null ? profileData.skills[editingIndex].id : Date.now() };
     let updated;
     if (editingIndex !== null) {
@@ -557,14 +614,18 @@ const StudentProfile = () => {
     } else {
       updated = [...profileData.skills, newSkill];
     }
-    setProfileData({ ...profileData, skills: updated });
+    const updatedProfileData = { ...profileData, skills: updated };
+    setProfileData(updatedProfileData);
     setShowSkillModal(false);
+    await autoSaveProfile(updatedProfileData);
   };
 
-  const deleteSkill = (index) => {
-    showConfirmation("Are you sure you want to delete this skill?", () => {
+  const deleteSkill = async (index) => {
+    showConfirmation("Are you sure you want to delete this skill?", async () => {
       const updated = profileData.skills.filter((_, i) => i !== index);
-      setProfileData({ ...profileData, skills: updated });
+      const updatedProfileData = { ...profileData, skills: updated };
+      setProfileData(updatedProfileData);
+      await autoSaveProfile(updatedProfileData);
     });
   };
 
@@ -854,14 +915,44 @@ const StudentProfile = () => {
       return;
     }
 
-    // Convert to base64
+    // Convert to base64 with compression
     const reader = new FileReader();
     reader.onloadend = () => {
-      setPhotoForm({
-        ...photoForm,
-        previewUrl: reader.result,
-        uploadMethod: "file"
-      });
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Resize to max 800x800
+        let width = img.width;
+        let height = img.height;
+        const maxDimension = 800;
+        
+        if (width > height && width > maxDimension) {
+          height = (height / width) * maxDimension;
+          width = maxDimension;
+        } else if (height > maxDimension) {
+          width = (width / height) * maxDimension;
+          height = maxDimension;
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Compress to JPEG at 80% quality
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+        
+        console.log('Original:', Math.round(file.size/1024), 'KB, Compressed:', Math.round(compressedBase64.length/1024), 'KB');
+        
+        setPhotoForm({
+          ...photoForm,
+          photoUrl: compressedBase64,
+          previewUrl: compressedBase64,
+          uploadMethod: "file"
+        });
+      };
+      img.src = reader.result;
     };
     reader.onerror = () => {
       setErrorMessage("Failed to read file");
