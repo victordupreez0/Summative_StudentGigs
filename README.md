@@ -173,7 +173,7 @@ cd ..
 
 **3. Set up MySQL database**
 
-Create a new database:
+Create a new database (or let the app create it automatically):
 
 ```sql
 CREATE DATABASE studentgigs;
@@ -181,30 +181,29 @@ CREATE DATABASE studentgigs;
 
 The application will automatically create all required tables on first run.
 
-**4. Configure environment variables**
+**4. Configure database connection (optional)**
 
-Create `.env` file in the `backend` directory:
+The application uses these default values for local MySQL:
+
+```
+Host: 127.0.0.1
+Port: 3306
+User: root
+Password: (empty)
+Database: studentgigs
+```
+
+If your MySQL setup is different, you can create a `.env` file in the `backend` directory:
 
 ```env
-# Database Configuration
-DB_HOST=localhost
+DB_HOST=127.0.0.1
+DB_PORT=3306
 DB_USER=root
-DB_PASSWORD=your_mysql_password
+DB_PASS=your_mysql_password
 DB_NAME=studentgigs
-
-# JWT Secret
-JWT_SECRET=your_jwt_secret_key_here
-
-# Server Configuration
-PORT=5000
-NODE_ENV=development
 ```
 
-Create `.env` file in the `frontend` directory:
-
-```env
-VITE_API_URL=http://localhost:5000
-```
+**Note:** No `.env` file is required if you're using the default MySQL configuration.
 
 **5. Start the development servers**
 
@@ -231,8 +230,27 @@ http://localhost:5173
 
 The backend API will be running on:
 ```
-http://localhost:5000
+http://localhost:4000
 ```
+
+### Default Configuration
+
+The application works out-of-the-box with these defaults:
+
+**Backend (can be customized via `.env` in `backend/` if needed)**
+- `DB_HOST`: `127.0.0.1`
+- `DB_PORT`: `3306`
+- `DB_USER`: `root`
+- `DB_PASS`: `` (empty)
+- `DB_NAME`: `studentgigs`
+- `PORT`: `4000`
+- `JWT_SECRET`: Auto-generated
+
+**Frontend**
+- `VITE_API_BASE`: `http://localhost:4000` (development)
+- Auto-detects production environment
+
+No configuration files are required for local development with default MySQL settings.
 
 ---
 
