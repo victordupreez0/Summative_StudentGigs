@@ -1,47 +1,640 @@
-# Student Gigs
+# StudentGigs
 
-A full-stack web application for connecting students with gig opportunities.
+> A full-stack marketplace platform connecting students with freelance opportunities and gig work.
 
-## Architecture
+<div align="center">
 
-- **Frontend**: React with Vite, TailwindCSS
-- **Backend**: Node.js, Express
-- **Database**: MySQL
+![React](https://img.shields.io/badge/React-18.3.1-61DAFB?style=for-the-badge&logo=react&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-20.x-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express-4.21.1-000000?style=for-the-badge&logo=express&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-5.4.10-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4.15-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 
-## Deployment
+</div>
 
-This application is configured for Heroku deployment with the following setup:
+---
 
-1. **Root package.json**: Handles build process and dependencies
-2. **Procfile**: Defines how Heroku should start the application
-3. **Build process**: 
-   - Installs backend dependencies
-   - Installs frontend dependencies  
-   - Builds frontend for production
-   - Serves frontend through Express backend
+## Table of Contents
 
-## Environment Variables
+- [Overview](#overview)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [API Documentation](#api-documentation)
+- [Database Schema](#database-schema)
+- [Contributing](#contributing)
 
-For production deployment, set these environment variables in Heroku:
+---
 
-- `DB_HOST`: MySQL database host
-- `DB_USER`: MySQL database username
-- `DB_PASS`: MySQL database password
-- `DB_NAME`: MySQL database name
-- `JWT_SECRET`: Secret key for JWT authentication
+## Overview
 
-## Local Development
+StudentGigs is a comprehensive web application designed to connect students with flexible work opportunities. The platform handles the complete job lifecycle including posting, applications, interviews, messaging, and reviews.
 
-1. Install dependencies:
+### Key Features
+
+**Authentication & Authorization**
+- JWT-based secure authentication
+- Role-based access control (Student, Employer, Admin)
+- Protected routes and API endpoints
+
+**Job Management**
+- Create, edit, and manage job postings
+- Advanced search and filtering
+- Category-based organization
+- Budget tracking (hourly/fixed rates)
+
+**Application System**
+- Apply with cover letters and portfolio links
+- Track application status
+- Interview scheduling
+- Feedback system
+
+**Communication**
+- Real-time messaging between users
+- Notification system
+- Interview coordination
+
+**Review & Rating**
+- Bilateral review system
+- Star ratings and written feedback
+- Reputation building
+
+**Localization**
+- South African Rand (ZAR) currency
+- Localized pricing and formatting
+
+---
+
+## Features
+
+### Student Features
+
+- Browse and search available jobs
+- Apply to jobs with custom cover letters
+- Track application status dashboard
+- Schedule and manage interviews
+- Direct messaging with employers
+- Receive and view reviews
+- Profile management with portfolio
+- Save jobs for later
+- Earnings tracking
+
+### Employer Features
+
+- Post detailed job listings
+- Hourly or fixed-price budgets
+- Review and manage applicants
+- Schedule interviews
+- Accept/reject applications
+- Direct messaging with students
+- Leave reviews for completed work
+- Active jobs dashboard
+
+### Admin Features
+
+- User management
+- Platform statistics
+- Job moderation
+- Application oversight
+- System monitoring
+
+---
+
+## Tech Stack
+
+### Frontend
+
+![React](https://img.shields.io/badge/React-18.3.1-61DAFB?style=flat-square&logo=react&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-5.4.10-646CFF?style=flat-square&logo=vite&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4.15-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
+![React Router](https://img.shields.io/badge/React_Router-7.0.1-CA4245?style=flat-square&logo=reactrouter&logoColor=white)
+
+- **React 18** - UI library with hooks and context
+- **Vite** - Fast build tool and dev server
+- **TailwindCSS** - Utility-first CSS framework
+- **React Router** - Client-side routing
+- **shadcn/ui** - Accessible component library
+- **Lucide Icons** - Icon library
+
+### Backend
+
+![Node.js](https://img.shields.io/badge/Node.js-20.x-339933?style=flat-square&logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express-4.21.1-000000?style=flat-square&logo=express&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat-square&logo=mysql&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-Authentication-000000?style=flat-square&logo=jsonwebtokens&logoColor=white)
+
+- **Node.js 20** - JavaScript runtime
+- **Express.js** - Web framework
+- **MySQL** - Relational database
+- **JWT** - Token-based authentication
+- **bcrypt** - Password hashing
+- **mysql2** - MySQL client with connection pooling
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+Ensure you have the following installed:
+
+```bash
+node --version  # v14.0.0 or higher
+npm --version   # v6.0.0 or higher
+mysql --version # v8.0 or higher
+```
+
+### Installation
+
+**1. Clone the repository**
+
+```bash
+git clone https://github.com/victordupreez0/Summative_StudentGigs.git
+cd Summative_StudentGigs
+```
+
+**2. Install dependencies**
+
+```bash
+# Install root dependencies
+npm install
+
+# Install frontend dependencies
+cd frontend
+npm install
+
+# Install backend dependencies
+cd ../backend
+npm install
+cd ..
+```
+
+**3. Set up MySQL database**
+
+Create a new database:
+
+```sql
+CREATE DATABASE studentgigs;
+```
+
+The application will automatically create all required tables on first run.
+
+**4. Configure environment variables**
+
+Create `.env` file in the `backend` directory:
+
+```env
+# Database Configuration
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_mysql_password
+DB_NAME=studentgigs
+
+# JWT Secret
+JWT_SECRET=your_jwt_secret_key_here
+
+# Server Configuration
+PORT=5000
+NODE_ENV=development
+```
+
+Create `.env` file in the `frontend` directory:
+
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+**5. Start the development servers**
+
+Open two terminal windows:
+
+**Terminal 1 - Backend:**
+```bash
+cd backend
+npm start
+```
+
+**Terminal 2 - Frontend:**
+```bash
+cd frontend
+npm run dev
+```
+
+**6. Access the application**
+
+Open your browser and navigate to:
+```
+http://localhost:5173
+```
+
+The backend API will be running on:
+```
+http://localhost:5000
+```
+
+---
+
+## Project Structure
+
+```
+StudentGigs/
+├── frontend/
+│   ├── src/
+│   │   ├── components/          # Reusable UI components
+│   │   │   ├── ui/             # shadcn/ui components
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── Footer.jsx
+│   │   │   └── ProtectedRoute.jsx
+│   │   ├── pages/              # Route pages
+│   │   │   ├── Landing.jsx
+│   │   │   ├── Login.jsx
+│   │   │   ├── Signup.jsx
+│   │   │   ├── BrowseJobs.jsx
+│   │   │   ├── JobDetails.jsx
+│   │   │   ├── PostJob.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   └── Messages.jsx
+│   │   ├── context/            # React Context
+│   │   │   └── AuthContext.jsx
+│   │   ├── config/             # Configuration
+│   │   │   └── api.js
+│   │   └── lib/                # Utilities
+│   │       └── utils.js
+│   └── public/                 # Static assets
+│
+├── backend/
+│   ├── controllers/            # Business logic
+│   │   ├── authController.js
+│   │   ├── jobController.js
+│   │   ├── applicationController.js
+│   │   ├── messageController.js
+│   │   └── profileController.js
+│   ├── routes/                 # API routes
+│   │   ├── authRoutes.js
+│   │   ├── jobRoutes.js
+│   │   ├── applicationRoutes.js
+│   │   └── messageRoutes.js
+│   ├── middleware/             # Middleware
+│   │   └── auth.js
+│   ├── config/                 # Configuration
+│   │   └── database.js
+│   └── server.js               # Entry point
+│
+└── package.json
+
+### Design Patterns
+- **MVC Pattern** - Separation of concerns
+- **RESTful API** - Standard HTTP methods
+- **JWT Authentication** - Stateless auth
+- **Context API** - Global state management
+- **Component-Based** - Reusable UI components
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (v14 or higher)
+- MySQL (v5.7 or higher)
+- npm or yarn
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/victordupreez0/Summative_StudentGigs.git
+   cd student_gigs
+   ```
+
+2. **Install all dependencies**
    ```bash
    npm run install:all
    ```
+   This installs both frontend and backend dependencies.
 
-2. Start both frontend and backend in development mode:
+3. **Set up environment variables**
+   
+   Create `.env` file in the `/backend` directory:
+   ```env
+   DB_HOST=localhost
+   DB_PORT=3306
+   DB_USER=root
+   DB_PASS=your_password
+   DB_NAME=studentgigs
+   JWT_SECRET=your_secret_key_here
+   PORT=4000
+   ```
+
+4. **Initialize the database**
+   
+   The application will automatically create the database and tables on first run.
+
+5. **Start development servers**
    ```bash
    npm run dev
    ```
+   This starts:
+   - Frontend dev server on `http://localhost:5173`
+   - Backend API server on `http://localhost:4000`
 
-## Production Build
+6. **Access the application**
+   
+   Open your browser and navigate to `http://localhost:5173`
 
-The application will automatically build during Heroku deployment via the `heroku-postbuild` script.
+---
+
+## 🔐 Environment Variables
+
+### Backend (.env)
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `DB_HOST` | MySQL database host | Yes |
+| `DB_PORT` | MySQL database port | Yes |
+| `DB_USER` | MySQL username | Yes |
+| `DB_PASS` | MySQL password | Yes |
+| `DB_NAME` | Database name | Yes |
+| `JWT_SECRET` | Secret key for JWT tokens | Yes |
+| `PORT` | Backend server port | No (default: 4000) |
+| `JAWSDB_URL` | JawsDB URL for Heroku | No (production only) |
+
+---
+
+## 📁 Project Structure
+
+### Frontend Structure
+```
+frontend/src/
+├── components/          # Reusable components
+│   ├── ui/             # Base UI components (buttons, cards, etc.)
+│   ├── Navbar.jsx      # Main navigation
+│   ├── Footer.jsx      # Footer component
+│   └── UserAvatar.jsx  # Profile picture component
+├── pages/              # Route pages
+│   ├── Landing.jsx     # Home page
+│   ├── BrowseJobs.jsx  # Job listings
+│   ├── PostJob.jsx     # Create job posting
+│   ├── JobDetails.jsx  # Individual job view
+│   └── ...             # Other pages
+├── context/            # Global state
+│   └── AuthContext.jsx # Authentication state
+└── config/             # Configuration
+    └── api.js          # API base URL
+```
+
+### Backend Structure
+```
+backend/
+├── controllers/        # Request handlers
+│   ├── authController.js        # Authentication logic
+│   ├── jobController.js         # Job CRUD operations
+│   ├── applicationController.js # Application management
+│   └── ...                      # Other controllers
+├── routes/            # API endpoints
+│   ├── authRoutes.js           # Auth routes
+│   ├── jobRoutes.js            # Job routes
+│   └── ...                     # Other routes
+├── middleware/        # Middleware functions
+│   └── auth.js                 # JWT verification
+└── config/            # Configuration
+    └── database.js             # MySQL connection
+```
+
+---
+
+## API Documentation
+
+### Authentication
+
+```http
+POST /api/register
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "password123",
+  "user_type": "student"
+}
+```
+
+```http
+POST /api/login
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+```
+
+### Jobs
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/jobs` | Get all active jobs | No |
+| GET | `/api/jobs/:id` | Get job details | No |
+| POST | `/api/jobs` | Create new job | Yes (Employer) |
+| PUT | `/api/jobs/:id` | Update job | Yes (Owner) |
+| DELETE | `/api/jobs/:id` | Delete job | Yes (Owner) |
+| GET | `/api/jobs/my-jobs` | Get user's jobs | Yes |
+
+### Applications
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/applications` | Submit application | Yes (Student) |
+| GET | `/api/applications/my-applications` | Get applications | Yes |
+| PUT | `/api/applications/:id/status` | Update status | Yes (Employer) |
+| GET | `/api/applications/job/:jobId` | Get job applicants | Yes (Owner) |
+
+### Messages
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/messages/conversations` | Get conversations | Yes |
+| GET | `/api/messages/:userId` | Get messages | Yes |
+| POST | `/api/messages` | Send message | Yes |
+
+### Profiles
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/profile/:id` | Get user profile | No |
+| PUT | `/api/profile` | Update profile | Yes |
+| POST | `/api/profile/photo` | Upload photo | Yes |
+
+---
+
+## Database Schema
+
+### Users Table
+```sql
+CREATE TABLE users (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  user_type ENUM('student', 'employer', 'admin') NOT NULL,
+  business_name VARCHAR(255),
+  profile_picture VARCHAR(255),
+  avatar_color VARCHAR(7),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### Jobs Table
+```sql
+CREATE TABLE jobs (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  category VARCHAR(100),
+  project_type VARCHAR(50),
+  budget_type ENUM('hourly', 'fixed') NOT NULL,
+  hourly_rate_min DECIMAL(10,2),
+  hourly_rate_max DECIMAL(10,2),
+  fixed_budget DECIMAL(10,2),
+  status ENUM('open', 'closed', 'completed') DEFAULT 'open',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+```
+
+### Applications Table
+```sql
+CREATE TABLE applications (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  job_id INT NOT NULL,
+  user_id INT NOT NULL,
+  cover_letter TEXT,
+  resume_url VARCHAR(500),
+  status ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (job_id) REFERENCES jobs(id),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+```
+
+See `backend/config/database.js` for complete schema.
+
+---
+
+## Testing Locally
+
+### Test Accounts
+
+Create test accounts using these credentials:
+
+**Student Account**
+```
+Email: student@test.com
+Password: student123
+```
+
+**Employer Account**
+```
+Email: employer@test.com
+Password: employer123
+```
+
+### Testing Workflow
+
+**1. Test Student Flow**
+```bash
+# Register as student
+# Browse jobs
+# Apply to a job
+# View application status
+# Check messages
+```
+
+**2. Test Employer Flow**
+```bash
+# Register as employer
+# Create a job posting
+# View applicants
+# Accept/reject applications
+# Send messages
+```
+
+**3. Test Communication**
+```bash
+# Login as employer
+# Message an applicant
+# Login as student
+# View and reply to message
+```
+
+### Troubleshooting
+
+**Database Connection Issues**
+```bash
+# Check MySQL is running
+mysql -u root -p
+
+# Verify database exists
+SHOW DATABASES;
+
+# Check user permissions
+SHOW GRANTS FOR 'root'@'localhost';
+```
+
+**Port Already in Use**
+```bash
+# Kill process on port 5000 (backend)
+npx kill-port 5000
+
+# Kill process on port 5173 (frontend)
+npx kill-port 5173
+```
+
+**Frontend Can't Connect to Backend**
+- Check `VITE_API_URL` in `frontend/.env`
+- Verify backend is running on correct port
+- Check for CORS errors in browser console
+
+---
+
+## Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/YourFeature`)
+3. Commit your changes (`git commit -m 'Add some feature'`)
+4. Push to the branch (`git push origin feature/YourFeature`)
+5. Open a Pull Request
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+## Author
+
+**Victor du Preez**
+
+- GitHub: [@victordupreez0](https://github.com/victordupreez0)
+- Repository: [Summative_StudentGigs](https://github.com/victordupreez0/Summative_StudentGigs)
+
+---
+
+## Acknowledgments
+
+- Built with modern web technologies
+- Designed for the South African student market
+- Inspired by freelance platforms like Upwork and Fiverr
+
+---
+
+<div align="center">
+
+**Built for students, by students**
+
+</div>
