@@ -18,7 +18,6 @@ import {
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { UserAvatar } from "@/components/UserAvatar";
-import SEO from "@/components/SEO";
 import AuthContext from '@/context/AuthContext';
 import API_BASE from '@/config/api';
 
