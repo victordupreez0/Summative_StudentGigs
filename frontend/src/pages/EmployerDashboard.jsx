@@ -84,7 +84,7 @@ const EmployerDashboard = () => {
             title: job.title,
             type: job.projectType || 'Remote',
             duration: job.projectLength || 'Not specified',
-            budget: '$20-30/hr', // TODO: Add budget field to database
+            budget: 'R360-540/hr', // TODO: Add budget field to database
             applicants: 0, // Will be updated when applications load
             posted: `Posted ${getTimeAgo(job.created_at)}`,
             tags: job.tags || []
