@@ -10,6 +10,7 @@ import { Star, Code, PenTool, BarChart3, Palette, Search, Users, DollarSign, Arr
 import { Link, useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import SEO from "@/components/SEO";
 import AuthContext from '@/context/AuthContext';
 import API_BASE from '@/config/api';
 
@@ -244,7 +245,13 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-  <Navbar />
+      <SEO 
+        title="StudentGigs - Connect Students with Flexible Part-Time Jobs & Gigs"
+        description="Discover flexible student jobs, part-time work, and freelance gigs. StudentGigs connects students with employers offering remote work, internships, and campus jobs that fit your schedule."
+        keywords="student jobs, part-time work, student gigs, flexible employment, college jobs, freelance work, remote student jobs, campus jobs, internships, work from home"
+        canonicalUrl="https://studentgigs.com/"
+      />
+      <Navbar />
       
       {/* Hero Section */}
       <section className="bg-gray-50 border-b border-gray-200">

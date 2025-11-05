@@ -1,6 +1,7 @@
 # StudentGigs
 
 > A full-stack marketplace platform connecting students with freelance opportunities and gig work.
+studentgigs.xyz
 
 <div align="center">
 
@@ -99,6 +100,16 @@ StudentGigs is a comprehensive web application designed to connect students with
 - Job moderation
 - Application oversight
 - System monitoring
+
+### SEO & Optimization
+
+- **Search Engine Optimized** - robots.txt, sitemap.xml, and meta tags
+- **Structured Data** - Schema.org JSON-LD for rich snippets
+- **Dynamic Meta Tags** - Page-specific SEO with Open Graph and Twitter Cards
+- **Social Media Ready** - Optimized sharing previews
+- **Performance Optimized** - Fast load times and responsive design
+
+📄 See [SEO_GUIDE.md](./SEO_GUIDE.md) for complete documentation
 
 ---
 
