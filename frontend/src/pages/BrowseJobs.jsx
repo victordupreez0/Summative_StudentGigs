@@ -10,7 +10,6 @@ import { useModal } from "@/components/ui/modal";
 import { Search, Filter, MapPin, Clock, DollarSign, Users, Bookmark } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
-import { SecondaryNav } from "@/components/SecondaryNav";
 import { Footer } from "@/components/Footer";
 import AuthContext from '@/context/AuthContext';
 import API_BASE from '@/config/api';
@@ -29,7 +28,6 @@ const BrowseJobs = () => {
   const [experienceLevel, setExperienceLevel] = useState("all");
   const [duration, setDuration] = useState("all");
   const [sortBy, setSortBy] = useState("relevance");
-  const [showFilters, setShowFilters] = useState(false);
 
   // Helper function to format experience level
   const formatExperienceLevel = (level) => {
@@ -279,46 +277,34 @@ const BrowseJobs = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      
-      {/* Secondary Navigation */}
-      <SecondaryNav />
 
       <div className="container mx-auto px-4 py-8">
         {/* Search Section */}
-        <div className="bg-background-section rounded-lg p-4 sm:p-6 mb-6 sm:mb-8">
-          <div className="flex gap-2 sm:gap-4">
+        <div className="bg-background-section rounded-lg p-6 mb-8">
+          <div className="flex gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
                 placeholder="Search for jobs, skills, or keywords"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 sm:pl-10 h-10 sm:h-12 text-sm sm:text-base"
+                className="pl-10 h-12"
               />
             </div>
-            <Button size="lg" className="h-10 sm:h-12 px-4 sm:px-8 text-sm sm:text-base">
+            <Button size="lg" className="h-12 px-8">
               Search
-            </Button>
-            {/* Mobile Filter Toggle */}
-            <Button 
-              variant="outline"
-              size="lg" 
-              className="lg:hidden h-10 sm:h-12 px-3 sm:px-4"
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              <Filter className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
+        <div className="flex flex-col lg:flex-row gap-8">
           {/* Filters Sidebar */}
-          <div className={`lg:w-80 ${showFilters ? 'block' : 'hidden lg:block'}`}>
-            <div className="space-y-4 sm:space-y-6 bg-white lg:bg-transparent p-4 lg:p-0 rounded-lg lg:rounded-none border lg:border-0 border-gray-200">
+          <div className="lg:w-80">
+            <div className="space-y-6">
               {/* Filter Header */}
               <div className="flex items-center gap-2">
-                <h3 className="text-base sm:text-lg font-semibold">Filters:</h3>
-                <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
+                <h3 className="text-lg font-semibold">Filters:</h3>
+                <Filter className="w-5 h-5 text-muted-foreground" />
               </div>
 
               {/* Job Type Filter */}
@@ -427,14 +413,14 @@ const BrowseJobs = () => {
 
           {/* Job Listings */}
           <div className="flex-1">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-              <h2 className="text-xl sm:text-2xl font-bold">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold">
                 {searchQuery ? `Search Results (${sortedJobs.length})` : `Recommended Jobs (${sortedJobs.length})`}
               </h2>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground whitespace-nowrap">Sort By:</span>
+                <span className="text-sm text-muted-foreground">Sort by:</span>
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-36 sm:w-40 h-9 sm:h-10">
+                  <SelectTrigger className="w-40">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -447,7 +433,7 @@ const BrowseJobs = () => {
               </div>
             </div>
 
-            <div className="space-y-4 sm:space-y-6">
+            <div className="space-y-6">
               {sortedJobs.length === 0 ? (
                 <Card className="p-8">
                   <div className="text-center text-gray-500">
@@ -462,8 +448,8 @@ const BrowseJobs = () => {
                   className="hover:shadow-md transition-shadow cursor-pointer"
                   onClick={() => window.location.href = `/jobs/${job.id}`}
                 >
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4">
                       {/* Company Icon/Avatar */}
                       <div className="flex-shrink-0">
                         <UserAvatar
@@ -478,23 +464,13 @@ const BrowseJobs = () => {
                         />
                       </div>
 
-                      <div className="flex-1 w-full min-w-0">
-                        <div className="flex justify-between items-start mb-2 gap-2">
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-start justify-between gap-2">
-                              <h3 className="text-base sm:text-lg font-semibold text-foreground hover:text-primary break-words flex-1">
-                                {job.title}
-                              </h3>
-                              <Button 
-                                variant="ghost" 
-                                size="icon"
-                                onClick={(e) => handleSaveJob(e, job.id)}
-                                className={`flex-shrink-0 sm:hidden ${savedJobIds.has(job.id) ? 'text-primary' : ''}`}
-                              >
-                                <Bookmark className={`w-5 h-5 ${savedJobIds.has(job.id) ? 'fill-current' : ''}`} />
-                              </Button>
-                            </div>
-                            <p className="text-sm text-muted-foreground break-words">
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h3 className="text-lg font-semibold text-foreground hover:text-primary">
+                              {job.title}
+                            </h3>
+                            <p className="text-muted-foreground">
                               {job.poster_business_name || job.poster_name || `User ${job.user_id}`}
                             </p>
                           </div>
@@ -502,7 +478,7 @@ const BrowseJobs = () => {
                             variant="ghost" 
                             size="icon"
                             onClick={(e) => handleSaveJob(e, job.id)}
-                            className={`hidden sm:flex flex-shrink-0 ${savedJobIds.has(job.id) ? 'text-primary' : ''}`}
+                            className={savedJobIds.has(job.id) ? 'text-primary' : ''}
                           >
                             <Bookmark className={`w-5 h-5 ${savedJobIds.has(job.id) ? 'fill-current' : ''}`} />
                           </Button>
@@ -517,47 +493,47 @@ const BrowseJobs = () => {
                           {job.projectType && <Badge variant="outline">{job.projectType}</Badge>}
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-3">
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-3">
                           <div className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                            <span className="truncate">{job.workLocation || 'Remote'}</span>
+                            <MapPin className="w-4 h-4" />
+                            {job.workLocation || 'Remote'}
                           </div>
                           {job.budgetType === 'hourly' && job.hourlyRateMin && (
                             <div className="flex items-center gap-1">
-                              <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                              <span className="whitespace-nowrap">${job.hourlyRateMin}-${job.hourlyRateMax}/hr</span>
+                              <DollarSign className="w-4 h-4" />
+                              ${job.hourlyRateMin}-${job.hourlyRateMax}/hr
                             </div>
                           )}
                           {job.budgetType === 'fixed' && job.fixedBudget && (
                             <div className="flex items-center gap-1">
-                              <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                              <span className="whitespace-nowrap">${job.fixedBudget}</span>
+                              <DollarSign className="w-4 h-4" />
+                              ${job.fixedBudget}
                             </div>
                           )}
                           <div className="flex items-center gap-1">
-                            <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                            <span className="whitespace-nowrap">{job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}</span>
+                            <Clock className="w-4 h-4" />
+                            {job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}
                           </div>
                         </div>
 
-                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2 break-words">
+                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
                           {job.description}
                         </p>
 
                         <div className="flex flex-wrap gap-2 mb-4">
                           {(job.requiredSkills || job.tags || []).slice(0, 5).map((tag, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs">
+                            <Badge key={index} variant="secondary">
                               {tag}
                             </Badge>
                           ))}
                         </div>
 
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                          <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-muted-foreground">
-                            {job.experienceLevel && <span className="whitespace-nowrap">{formatExperienceLevel(job.experienceLevel)}</span>}
-                            {job.weeklyHours && <span className="whitespace-nowrap">{formatWeeklyHours(job.weeklyHours)}</span>}
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            {job.experienceLevel && <span>{formatExperienceLevel(job.experienceLevel)}</span>}
+                            {job.weeklyHours && <span>{formatWeeklyHours(job.weeklyHours)}</span>}
                           </div>
-                          <div className="flex gap-2 w-full sm:w-auto">
+                          <div className="flex gap-2">
                             <Button 
                               variant="outline" 
                               size="sm"
@@ -565,7 +541,6 @@ const BrowseJobs = () => {
                                 e.stopPropagation();
                                 window.location.href = `/jobs/${job.id}`;
                               }}
-                              className="flex-1 sm:flex-initial text-xs sm:text-sm"
                             >
                               View Details
                             </Button>
@@ -574,7 +549,6 @@ const BrowseJobs = () => {
                               onClick={(e) => {
                                 handleApplyClick(e, job.id);
                               }}
-                              className="flex-1 sm:flex-initial text-xs sm:text-sm"
                             >
                               Apply Now
                             </Button>

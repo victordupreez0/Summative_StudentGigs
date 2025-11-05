@@ -18,18 +18,10 @@ import {
   BarChart3,
   Eye,
   CheckCircle,
-  RotateCcw,
-  Plus,
-  MessageSquare,
-  FileText,
-  Search,
-  Bell,
-  Settings,
-  TrendingUp
+  RotateCcw
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
-import { SecondaryNav } from "@/components/SecondaryNav";
 import { Footer } from "@/components/Footer";
 import AuthContext from '@/context/AuthContext';
 import API_BASE from '@/config/api';
@@ -49,15 +41,13 @@ const EmployerDashboard = () => {
     applications: 0,
     activeJobs: 0,
     interviews: 0,
-    hires: 0,
-    profileViews: 0
+    hires: 0
   });
   const [monthlyStats, setMonthlyStats] = useState({
     applications: 0,
     activeJobs: 0,
     interviews: 0,
-    hires: 0,
-    profileViews: 0
+    hires: 0
   });
   const [loadingStats, setLoadingStats] = useState(true);
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
@@ -252,15 +242,13 @@ const EmployerDashboard = () => {
         applications: data.overall.applications,
         activeJobs: data.overall.activeJobs,
         interviews: data.overall.interviews,
-        hires: data.overall.hires,
-        profileViews: data.overall.profileViews || 0
+        hires: data.overall.hires
       });
       setMonthlyStats({
         applications: data.monthly.applications,
         activeJobs: data.monthly.activeJobs,
         interviews: data.monthly.interviews,
-        hires: data.monthly.hires,
-        profileViews: data.monthly.profileViews || 0
+        hires: data.monthly.hires
       });
       setLoadingStats(false);
     } catch (err) {
@@ -269,57 +257,30 @@ const EmployerDashboard = () => {
     }
   };
 
-  const quickActions = [
+  const statsDisplay = [
     {
-      title: "Profile Views",
-      description: `Last 30 days`,
-      value: stats.profileViews || 0,
-      icon: Eye,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
-      link: "/business-profile",
-      primary: false
-    },
-    {
-      title: "Review Applications",
-      description: `${stats.applications} pending`,
+      title: "Applications",
+      value: stats.applications.toString(),
       icon: Users,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-      link: "/applicants",
-      badge: stats.applications > 0 ? stats.applications : null
+      color: "text-gray-600"
     },
     {
-      title: "Manage Jobs",
-      description: `${stats.activeJobs} active`,
+      title: "Active jobs",
+      value: stats.activeJobs.toString(),
       icon: Briefcase,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-      link: "/my-jobs"
+      color: "text-gray-600"
     },
     {
-      title: "Schedule Interview",
-      description: `${stats.interviews} scheduled`,
+      title: "Interviews",
+      value: stats.interviews.toString(),
       icon: Calendar,
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-      link: "#interviews"
+      color: "text-purple-600"
     },
     {
-      title: "Messages",
-      description: "Chat with applicants",
-      icon: MessageSquare,
-      color: "text-indigo-600",
-      bgColor: "bg-indigo-50",
-      link: "/messages"
-    },
-    {
-      title: "View Profile",
-      description: "Edit your business profile",
-      icon: Eye,
-      color: "text-gray-600",
-      bgColor: "bg-gray-50",
-      link: "/business-profile"
+      title: "Hires",
+      value: stats.hires.toString(),
+      icon: Star,
+      color: "text-amber-500"
     }
   ];
 
@@ -440,75 +401,103 @@ const EmployerDashboard = () => {
   <Navbar />
       
       {/* Secondary Navigation */}
-      <SecondaryNav />
+      <div className="border-b border-gray-200">
+        <div className="container mx-auto px-4">
+          <nav className="flex items-center gap-8 h-16">
+            <Link 
+              to="/browse-jobs" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Browse Jobs
+            </Link>
+            <Link 
+              to="/employer-dashboard" 
+              className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2"
+            >
+              Dashboard
+            </Link>
+            <Link 
+              to="/open-jobs" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Open Jobs
+            </Link>
+            <Link 
+              to="/applicants" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Applicants
+            </Link>
+            <Link 
+              to="/messages" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Messages
+            </Link>
+            <Link 
+              to="/profile" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Profile
+            </Link>
+          </nav>
+        </div>
+      </div>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Stats Cards - Matching Student Dashboard */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-8">
-          {quickActions.slice(0, 4).map((action, index) => (
-            <Card 
-              key={index} 
-              hover={true} 
-              className="border-gray-200 bg-white cursor-pointer transition-all hover:shadow-lg"
-              onClick={() => action.link.startsWith('#') ? document.querySelector(action.link)?.scrollIntoView({ behavior: 'smooth' }) : navigate(action.link)}
-            >
-              <CardContent className="p-3 sm:p-4 md:p-6">
+        {/* Welcome Section - Employer */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-6">
+            <UserAvatar user={user} userId={user?.id} size="lg" />
+            <div>
+              <h1 className="text-2xl font-bold flex items-center gap-2">
+                Welcome back, {user?.name || 'User'} 👋
+              </h1>
+              <p className="text-gray-600">{user?.businessName || 'Your Business'} • Employer Account</p>
+            </div>
+          </div>
+
+          <div className="bg-gradient-hero rounded-lg p-6 text-primary-foreground">
+            <div className="flex flex-col lg:flex-row items-center justify-between">
+              <div className="mb-4 lg:mb-0">
+                <h2 className="text-xl font-semibold mb-2">Find talented students for your projects</h2>
+                <p className="text-charcoal">
+                  Post jobs, review applications, and hire the best students for your team.
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <Button className="bg-purple-600 hover:bg-purple-700 text-white" asChild>
+                  <Link to="/post-job">+ Post a Job</Link>
+                </Button>
+                <Button variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900" asChild>
+                  <Link to="/browse-talent">
+                    <Users className="w-4 h-4 mr-2" />
+                    Browse Students
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          {statsDisplay.map((stat, index) => (
+            <Card key={index} hover={true} className="border-gray-200 bg-white">
+              <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">{action.title}</p>
-                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
-                      {action.value !== undefined ? action.value : action.description.split(' ')[0]}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1 truncate">{action.description}</p>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
                   </div>
-                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${action.bgColor} flex items-center justify-center flex-shrink-0 ml-2`}>
-                    <action.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${action.color}`} />
+                  <div className={`w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center`}>
+                    <stat.icon className={`w-6 h-6 ${stat.color}`} />
                   </div>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
-
-        {/* Welcome/Bio Section - Matching Student Dashboard Style */}
-        <Card className="mb-8 border-gray-200 bg-white">
-          <CardContent className="p-6">
-            <div className="flex items-start gap-4 mb-4">
-              <UserAvatar user={user} userId={user?.id} size="lg" />
-              <div className="flex-1">
-                <h1 className="text-2xl font-bold text-gray-900 mb-1">
-                  Welcome back, {user?.name || 'User'} 👋
-                </h1>
-                <p className="text-gray-600">
-                  {user?.businessName || 'Your Business'} • Employer Account
-                </p>
-              </div>
-            </div>
-            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-4 border border-purple-100">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900 mb-1">
-                    Find talented students for your projects
-                  </h2>
-                  <p className="text-gray-600 text-sm">
-                    Post jobs, review applications, and hire the best students for your team.
-                  </p>
-                </div>
-                <div className="flex gap-2 flex-shrink-0">
-                  <Button className="bg-purple-600 hover:bg-purple-700 text-white" asChild>
-                    <Link to="/post-job">+ Post a Job</Link>
-                  </Button>
-                  <Button variant="outline" className="border-gray-300" asChild>
-                    <Link to="/applicants">
-                      <Users className="w-4 h-4 mr-2" />
-                      View Applicants
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
@@ -694,11 +683,7 @@ const EmployerDashboard = () => {
                   variant="link" 
                   size="sm" 
                   className="w-full mt-4"
-                  onClick={() => showAlert({
-                    title: 'Coming Soon',
-                    message: 'Detailed analytics and insights will be available in a future update. This feature will include:\n\n• Application trends over time\n• Hiring conversion rates\n• Time-to-hire metrics\n• Popular job categories\n• Applicant demographics\n\nStay tuned!',
-                    type: 'info'
-                  })}
+                  onClick={() => showAlert('Coming Soon', 'Detailed analytics will be available soon!')}
                 >
                   <BarChart3 className="w-4 h-4 mr-2" />
                   View detailed analytics

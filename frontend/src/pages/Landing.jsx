@@ -248,19 +248,19 @@ const Landing = () => {
       
       {/* Hero Section */}
       <section className="bg-gray-50 border-b border-gray-200">
-        <div className="container mx-auto px-4 py-12 sm:py-16 lg:py-20">
+        <div className="container mx-auto px-4 py-20">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-gray-900 leading-tight">
+            <h1 className="text-5xl font-bold mb-6 text-gray-900">
               Find the perfect student talent for your projects
             </h1>
-            <p className="text-base sm:text-lg lg:text-xl mb-6 sm:mb-8 text-gray-600 px-4">
+            <p className="text-xl mb-8 text-gray-600">
               Connect with skilled students for your short-term projects, research assistance, or part-time roles.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
-              <Button className="text-white shadow-lg font-semibold w-full sm:w-auto" size="lg" asChild>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button className="text-white shadow-lg font-semibold" size="lg" asChild>
                 <Link to="/post-job">Post a Job</Link>
               </Button>
-              <Button variant="outline" size="lg" className="border-gray-300 text-gray-700 hover:bg-gray-50 w-full sm:w-auto" asChild>
+              <Button variant="outline" size="lg" className="border-gray-300 text-gray-700 hover:bg-gray-50" asChild>
                 <Link to="/browse-jobs">Find Work</Link>
               </Button>
             </div>
@@ -269,24 +269,24 @@ const Landing = () => {
       </section>
 
       {/* Popular Categories */}
-      <section className="py-12 sm:py-16 bg-white">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Popular Categories</h2>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Popular Categories</h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {categories.map((category, index) => (
               <Card key={index} className="hover:shadow-md transition-shadow cursor-pointer group border-gray-200 bg-white">
-                <CardContent className="p-4 sm:p-6 text-center">
-                  <div className="mb-3 sm:mb-4">
-                    <category.icon className={`w-10 h-10 sm:w-12 sm:h-12 mx-auto ${category.color}`} />
+                <CardContent className="p-6 text-center">
+                  <div className="mb-4">
+                    <category.icon className={`w-12 h-12 mx-auto ${category.color}`} />
                   </div>
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">{category.title}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{category.title}</h3>
                   <p className="text-gray-600 text-sm mb-3">{category.description}</p>
                   <p className="text-purple-600 text-sm font-medium">
                     {categoryCounts[category.categoryKey] || 0} job{categoryCounts[category.categoryKey] !== 1 ? 's' : ''} available
                   </p>
-                  <Button variant="link" className="mt-2 text-gray-700 hover:text-purple-600 text-sm">
+                  <Button variant="link" className="mt-2 text-gray-700 hover:text-purple-600">
                     View Jobs <ArrowRight className="w-4 h-4 ml-1" />
                   </Button>
                 </CardContent>
@@ -299,42 +299,42 @@ const Landing = () => {
       {/* How It Works */}
 
       {/* How It Works */}
-      <section className="py-12 sm:py-16 bg-gray-50">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">How It Works</h2>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">How It Works</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-7 h-7 sm:w-8 sm:h-8 text-purple-600" />
+              <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-8 h-8 text-purple-600" />
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Create Your Profile</h3>
-              <p className="text-sm sm:text-base text-gray-600 px-4">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Create Your Profile</h3>
+              <p className="text-gray-600">
                 Sign up and create a detailed profile showcasing your skills, education and experience to stand out to potential employers.
               </p>
             </div>
             <div className="text-center">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Search className="w-7 h-7 sm:w-8 sm:h-8 text-purple-600" />
+              <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="w-8 h-8 text-purple-600" />
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Find Opportunities</h3>
-              <p className="text-sm sm:text-base text-gray-600 px-4">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Find Opportunities</h3>
+              <p className="text-gray-600">
                 Browse through available jobs that match your interests, or post your own job if you're looking for student talent.
               </p>
             </div>
             <div className="text-center">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <DollarSign className="w-7 h-7 sm:w-8 sm:h-8 text-purple-600" />
+              <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <DollarSign className="w-8 h-8 text-purple-600" />
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Collaborate & Earn</h3>
-              <p className="text-sm sm:text-base text-gray-600 px-4">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Collaborate & Earn</h3>
+              <p className="text-gray-600">
                 Connect with employers, complete projects, build your portfolio, and earn money while gaining valuable professional experience.
               </p>
             </div>
           </div>
           <div className="text-center mt-8">
-            <Button className="bg-gray-900 hover:bg-gray-800 text-white w-full sm:w-auto" size="lg" asChild>
+            <Button className="bg-gray-900 hover:bg-gray-800 text-white" size="lg" asChild>
               <Link to="/signup">Get Started Today</Link>
             </Button>
           </div>
@@ -342,23 +342,23 @@ const Landing = () => {
       </section>
 
       {/* Recent Jobs */}
-      <section className="py-12 sm:py-16 bg-white">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Recent Jobs</h2>
-            <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50 w-full sm:w-auto" asChild>
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900">Recent Jobs</h2>
+            <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50" asChild>
               <Link to="/browse-jobs">View All Jobs</Link>
             </Button>
           </div>
-          <div className="space-y-4 sm:space-y-6">
-            {jobs.slice(0, 3).map((job) => (
+          <div className="space-y-6">
+            {jobs.slice(0, 5).map((job) => (
               <Card 
                 key={job.id} 
                 className="hover:shadow-md transition-shadow cursor-pointer border-gray-200 bg-white"
                 onClick={() => window.location.href = `/jobs/${job.id}`}
               >
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
                     {/* Company Icon/Avatar */}
                     <div className="flex-shrink-0">
                       <UserAvatar
@@ -371,13 +371,13 @@ const Landing = () => {
                       />
                     </div>
 
-                    <div className="flex-1 w-full min-w-0">
-                      <div className="flex flex-col sm:flex-row justify-between items-start mb-2 gap-2">
-                        <div className="min-w-0 flex-1">
-                          <h3 className="text-base sm:text-lg font-semibold text-foreground hover:text-primary break-words">
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h3 className="text-lg font-semibold text-foreground hover:text-primary">
                             {job.title}
                           </h3>
-                          <p className="text-sm text-muted-foreground break-words">
+                          <p className="text-muted-foreground">
                             {job.poster_business_name || job.poster_name || `User ${job.user_id}`}
                           </p>
                         </div>
@@ -385,7 +385,6 @@ const Landing = () => {
                           variant="ghost" 
                           size="icon"
                           onClick={(e) => e.stopPropagation()}
-                          className="flex-shrink-0"
                         >
                           <Bookmark className="w-5 h-5" />
                         </Button>
@@ -400,47 +399,47 @@ const Landing = () => {
                         {job.projectType && <Badge variant="outline">{job.projectType}</Badge>}
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-3">
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-3">
                         <div className="flex items-center gap-1">
-                          <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                          <span className="truncate">{job.workLocation || 'Remote'}</span>
+                          <MapPin className="w-4 h-4" />
+                          {job.workLocation || 'Remote'}
                         </div>
                         {job.budgetType === 'hourly' && job.hourlyRateMin && (
                           <div className="flex items-center gap-1">
-                            <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                            <span className="whitespace-nowrap">${job.hourlyRateMin}-${job.hourlyRateMax}/hr</span>
+                            <DollarSign className="w-4 h-4" />
+                            ${job.hourlyRateMin}-${job.hourlyRateMax}/hr
                           </div>
                         )}
                         {job.budgetType === 'fixed' && job.fixedBudget && (
                           <div className="flex items-center gap-1">
-                            <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                            <span className="whitespace-nowrap">${job.fixedBudget}</span>
+                            <DollarSign className="w-4 h-4" />
+                            ${job.fixedBudget}
                           </div>
                         )}
                         <div className="flex items-center gap-1">
-                          <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                          <span className="whitespace-nowrap">{job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}</span>
+                          <Clock className="w-4 h-4" />
+                          {job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}
                         </div>
                       </div>
 
-                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2 break-words">
+                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
                         {job.description}
                       </p>
 
                       <div className="flex flex-wrap gap-2 mb-4">
                         {(job.requiredSkills || job.tags || []).slice(0, 5).map((tag, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
+                          <Badge key={index} variant="secondary">
                             {tag}
                           </Badge>
                         ))}
                       </div>
 
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-muted-foreground">
-                          {job.experienceLevel && <span className="whitespace-nowrap">{formatExperienceLevel(job.experienceLevel)}</span>}
-                          {job.weeklyHours && <span className="whitespace-nowrap">{formatWeeklyHours(job.weeklyHours)}</span>}
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          {job.experienceLevel && <span>{formatExperienceLevel(job.experienceLevel)}</span>}
+                          {job.weeklyHours && <span>{formatWeeklyHours(job.weeklyHours)}</span>}
                         </div>
-                        <div className="flex gap-2 w-full sm:w-auto">
+                        <div className="flex gap-2">
                           <Button 
                             variant="outline" 
                             size="sm"
@@ -448,7 +447,6 @@ const Landing = () => {
                               e.stopPropagation();
                               window.location.href = `/jobs/${job.id}`;
                             }}
-                            className="flex-1 sm:flex-initial text-xs sm:text-sm"
                           >
                             View Details
                           </Button>
@@ -458,7 +456,6 @@ const Landing = () => {
                               e.stopPropagation();
                               window.location.href = `/jobs/${job.id}/apply`;
                             }}
-                            className="flex-1 sm:flex-initial text-xs sm:text-sm"
                           >
                             Apply Now
                           </Button>
@@ -470,8 +467,8 @@ const Landing = () => {
               </Card>
             ))}
           </div>
-          <div className="text-center mt-6 sm:mt-8">
-            <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50 w-full sm:w-auto" asChild>
+          <div className="text-center mt-8">
+            <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50" asChild>
               <Link to="/browse-jobs">View All Jobs</Link>
             </Button>
           </div>
@@ -479,41 +476,41 @@ const Landing = () => {
       </section>
 
       {/* Top Rated Students */}
-      <section className="py-12 sm:py-16 bg-gray-50">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Top Rated Students</h2>
-            <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50 w-full sm:w-auto" asChild>
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900">Top Rated Students</h2>
+            <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50" asChild>
               <Link to="/browse-talent">View All Students</Link>
             </Button>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {students.map((student, index) => (
               <Card key={index} className="hover:shadow-md transition-shadow border-gray-200 bg-white">
-                <CardContent className="p-4 sm:p-6">
+                <CardContent className="p-6">
                   <div className="flex items-center mb-4">
-                    <Avatar className="w-10 h-10 sm:w-12 sm:h-12 mr-3 border border-gray-200 flex-shrink-0">
+                    <Avatar className="w-12 h-12 mr-3 border border-gray-200">
                       <AvatarImage src={student.avatar} />
-                      <AvatarFallback className="bg-gray-100 text-gray-700 text-sm">{student.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                      <AvatarFallback className="bg-gray-100 text-gray-700">{student.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">{student.name}</h3>
-                      <p className="text-xs sm:text-sm text-gray-600 truncate">{student.title}</p>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{student.name}</h3>
+                      <p className="text-sm text-gray-600">{student.title}</p>
                     </div>
-                    <div className="ml-2 flex items-center flex-shrink-0">
+                    <div className="ml-auto flex items-center">
                       <Star className="w-4 h-4 fill-amber-400 text-amber-400 mr-1" />
                       <span className="text-sm font-medium text-gray-900">{student.rating}</span>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-3">{student.description}</p>
+                  <p className="text-sm text-gray-600 mb-4">{student.description}</p>
                   <div className="flex flex-wrap gap-2 mb-4">
                     {student.skills.map((skill, skillIndex) => (
-                      <Badge key={skillIndex} variant="outline" className="border-gray-300 text-gray-700 text-xs">{skill}</Badge>
+                      <Badge key={skillIndex} variant="outline" className="border-gray-300 text-gray-700">{skill}</Badge>
                     ))}
                   </div>
-                  <div className="flex justify-between items-center gap-2">
-                    <span className="text-xs sm:text-sm text-gray-600 truncate">{student.jobs} jobs completed</span>
-                    <Button size="sm" variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50 text-xs flex-shrink-0">View Profile</Button>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">{student.jobs} jobs completed</span>
+                    <Button size="sm" variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">View Profile</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -523,32 +520,32 @@ const Landing = () => {
       </section>
 
       {/* Testimonials */}
-      <section className="py-12 sm:py-16 bg-white">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
               {testimonials.length === 0 ? "No reviews yet, be the first!" : "What People Are Saying"}
             </h2>
             <Button 
               onClick={handleLeaveReviewClick}
-              className="mt-4 w-full sm:w-auto"
+              className="mt-4"
             >
               Leave a Review
             </Button>
           </div>
           {testimonials.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {testimonials.map((testimonial, index) => (
                 <Card key={index} className="border-gray-200 bg-white">
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="flex items-center mb-3 sm:mb-4">
+                  <CardContent className="p-6">
+                    <div className="flex items-center mb-4">
                       {[...Array(testimonial.rating)].map((_, i) => (
                         <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
                       ))}
                     </div>
-                    <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4 break-words">"{testimonial.content}"</p>
+                    <p className="text-gray-600 mb-4">"{testimonial.content}"</p>
                     <div className="flex items-center">
-                      <div className="mr-3 flex-shrink-0">
+                      <div className="mr-3">
                         <UserAvatar 
                           user={{
                             name: testimonial.name,
@@ -557,9 +554,9 @@ const Landing = () => {
                           size="sm"
                         />
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-gray-900 text-sm sm:text-base truncate">{testimonial.name}</p>
-                        <p className="text-xs sm:text-sm text-gray-600 truncate">{testimonial.title}</p>
+                      <div>
+                        <p className="font-semibold text-gray-900">{testimonial.name}</p>
+                        <p className="text-sm text-gray-600">{testimonial.title}</p>
                       </div>
                     </div>
                   </CardContent>

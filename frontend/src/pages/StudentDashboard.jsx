@@ -26,7 +26,6 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
-import { SecondaryNav } from "@/components/SecondaryNav";
 import { Footer } from "@/components/Footer";
 import AuthContext from '@/context/AuthContext';
 import API_BASE from '@/config/api';
@@ -682,11 +681,64 @@ const StudentDashboard = () => {
   <Navbar />
       
       {/* Secondary Navigation */}
-      <SecondaryNav />
+      <div className="border-b border-gray-200">
+        <div className="container mx-auto px-4">
+          <nav className="flex items-center gap-8 h-16">
+            <Link 
+              to="/browse-jobs" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Browse Jobs
+            </Link>
+            <Link 
+              to="/student-dashboard" 
+              className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2"
+            >
+              Dashboard
+            </Link>
+            <Link 
+              to="/open-jobs" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Open Jobs
+            </Link>
+            <Link 
+              to="/applicants" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Applicants
+            </Link>
+            <Link 
+              to="/my-jobs" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-2"
+            >
+              My Jobs
+            </Link>
+            <Link 
+              to="/applications" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Applications
+            </Link>
+            <Link 
+              to="/messages" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Messages
+            </Link>
+            <Link 
+              to="/student-profile" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-2"
+            >
+              Profile
+            </Link>
+          </nav>
+        </div>
+      </div>
 
       <div className="container mx-auto px-4 py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           {stats.map((stat, index) => (
             <Card 
               key={index} 
@@ -694,15 +746,15 @@ const StudentDashboard = () => {
               className="border-gray-200 bg-white cursor-pointer transition-all hover:shadow-lg"
               onClick={() => navigate(stat.link)}
             >
-              <CardContent className="p-3 sm:p-4 md:p-6">
+              <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">{stat.title}</p>
-                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">{stat.value}</p>
-                    <p className="text-xs text-gray-500 mt-1 truncate">{stat.change}</p>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                    <p className="text-xs text-gray-500 mt-1">{stat.change}</p>
                   </div>
-                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 ml-2`}>
-                    <stat.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${stat.color}`} />
+                  <div className={`w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center`}>
+                    <stat.icon className={`w-6 h-6 ${stat.color}`} />
                   </div>
                 </div>
               </CardContent>
@@ -725,15 +777,15 @@ const StudentDashboard = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4 sm:space-y-6">
+                <div className="space-y-6">
                   {recommendedJobs.map((job) => (
                     <Card 
                       key={job.id} 
                       className="hover:shadow-md transition-shadow cursor-pointer"
                       onClick={() => navigate(`/jobs/${job.id}`)}
                     >
-                      <CardContent className="p-4 sm:p-6">
-                        <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+                      <CardContent className="p-6">
+                        <div className="flex items-start gap-4">
                           {/* Company Icon/Avatar */}
                           <div className="flex-shrink-0">
                             <UserAvatar
@@ -746,13 +798,13 @@ const StudentDashboard = () => {
                             />
                           </div>
 
-                          <div className="flex-1 w-full min-w-0">
-                            <div className="flex flex-col sm:flex-row justify-between items-start mb-2 gap-2">
-                              <div className="min-w-0 flex-1">
-                                <h3 className="text-base sm:text-lg font-semibold text-foreground hover:text-primary break-words">
+                          <div className="flex-1">
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <h3 className="text-lg font-semibold text-foreground hover:text-primary">
                                   {job.title}
                                 </h3>
-                                <p className="text-sm text-muted-foreground break-words">
+                                <p className="text-muted-foreground">
                                   {job.poster_business_name || job.poster_name || `User ${job.user_id}`}
                                 </p>
                               </div>
@@ -760,7 +812,7 @@ const StudentDashboard = () => {
                                 variant="ghost" 
                                 size="icon"
                                 onClick={(e) => handleSaveJob(e, job.id)}
-                                className={`flex-shrink-0 ${savedJobIds.has(job.id) ? 'text-primary' : ''}`}
+                                className={savedJobIds.has(job.id) ? 'text-primary' : ''}
                               >
                                 <Bookmark className={`w-5 h-5 ${savedJobIds.has(job.id) ? 'fill-current' : ''}`} />
                               </Button>
@@ -775,47 +827,47 @@ const StudentDashboard = () => {
                               {job.projectType && <Badge variant="outline">{job.projectType}</Badge>}
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-3">
+                            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-3">
                               <div className="flex items-center gap-1">
-                                <MapPin className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                                <span className="truncate">{job.workLocation || 'Remote'}</span>
+                                <MapPin className="w-4 h-4" />
+                                {job.workLocation || 'Remote'}
                               </div>
                               {job.budgetType === 'hourly' && job.hourlyRateMin && (
                                 <div className="flex items-center gap-1">
-                                  <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                                  <span className="whitespace-nowrap">${job.hourlyRateMin}-${job.hourlyRateMax}/hr</span>
+                                  <DollarSign className="w-4 h-4" />
+                                  ${job.hourlyRateMin}-${job.hourlyRateMax}/hr
                                 </div>
                               )}
                               {job.budgetType === 'fixed' && job.fixedBudget && (
                                 <div className="flex items-center gap-1">
-                                  <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                                  <span className="whitespace-nowrap">${job.fixedBudget}</span>
+                                  <DollarSign className="w-4 h-4" />
+                                  ${job.fixedBudget}
                                 </div>
                               )}
                               <div className="flex items-center gap-1">
-                                <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                                <span className="whitespace-nowrap">{job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}</span>
+                                <Clock className="w-4 h-4" />
+                                {job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}
                               </div>
                             </div>
 
-                            <p className="text-sm text-muted-foreground mb-4 line-clamp-2 break-words">
+                            <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
                               {job.description}
                             </p>
 
                             <div className="flex flex-wrap gap-2 mb-4">
                               {(job.requiredSkills || job.tags || []).slice(0, 5).map((tag, index) => (
-                                <Badge key={index} variant="secondary" className="text-xs">
+                                <Badge key={index} variant="secondary">
                                   {tag}
                                 </Badge>
                               ))}
                             </div>
 
-                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                              <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-muted-foreground">
-                                {job.experienceLevel && <span className="whitespace-nowrap">{formatExperienceLevel(job.experienceLevel)}</span>}
-                                {job.weeklyHours && <span className="whitespace-nowrap">{formatWeeklyHours(job.weeklyHours)}</span>}
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                {job.experienceLevel && <span>{formatExperienceLevel(job.experienceLevel)}</span>}
+                                {job.weeklyHours && <span>{formatWeeklyHours(job.weeklyHours)}</span>}
                               </div>
-                              <div className="flex gap-2 w-full sm:w-auto">
+                              <div className="flex gap-2">
                                 <Button 
                                   variant="outline" 
                                   size="sm"
@@ -823,7 +875,6 @@ const StudentDashboard = () => {
                                     e.stopPropagation();
                                     navigate(`/jobs/${job.id}`);
                                   }}
-                                  className="flex-1 sm:flex-initial text-xs sm:text-sm"
                                 >
                                   View Details
                                 </Button>
@@ -833,7 +884,6 @@ const StudentDashboard = () => {
                                     e.stopPropagation();
                                     handleApplyClick(job.id);
                                   }}
-                                  className="flex-1 sm:flex-initial text-xs sm:text-sm"
                                 >
                                   Apply Now
                                 </Button>

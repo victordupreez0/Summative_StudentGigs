@@ -1,4 +1,4 @@
-import { Search, Bell, Mail, User, Settings, LogOut, LayoutDashboard, MessageSquare, AlertCircle, AlertTriangle, Menu, X } from "lucide-react";
+import { Search, Bell, Mail, User, Settings, LogOut, LayoutDashboard, MessageSquare, AlertCircle, AlertTriangle } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +24,6 @@ export const Navbar = () => {
   const [recentMessages, setRecentMessages] = useState([])
   const [loadingMessages, setLoadingMessages] = useState(false)
   const [navSearchQuery, setNavSearchQuery] = useState("")
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   
   const isActive = (path) => {
     try {
@@ -104,13 +103,13 @@ export const Navbar = () => {
   
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
-      <div className="container mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
+      <div className="container mx-auto px-6 h-20 flex items-center justify-between">
         {/* Demo Warning Banner and Logo Container */}
-        <div className="flex items-center gap-2 sm:gap-4">
-          {/* Demo Warning Banner - hidden on small screens */}
+        <div className="flex items-center">
+          {/* Demo Warning Banner - positioned much farther left */}
           <Link 
             to="/demo-disclaimer" 
-            className="hidden xl:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-lg hover:border-amber-400 transition-all duration-300 shadow-sm hover:shadow-md group"
+            className="hidden lg:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-lg hover:border-amber-400 transition-all duration-300 shadow-sm hover:shadow-md group -ml-16 mr-16"
           >
             <AlertTriangle className="w-5 h-5 text-amber-600 animate-pulse flex-shrink-0" />
             <div className="flex flex-col">
@@ -128,16 +127,16 @@ export const Navbar = () => {
             <img 
               src="/logo.png" 
               alt="StudentGigs Logo" 
-              className="h-8 sm:h-10 w-auto max-h-8 sm:max-h-10 max-w-[120px] sm:max-w-[150px] object-contain transition-transform duration-200 group-hover:scale-105 pr-0 md:pr-4 lg:pr-6"
+              className="h-10 w-auto transition-transform duration-200 group-hover:scale-105"
             />
           </Link>
         </div>
         
         {/* Navigation - Modern Typography with Better Spacing */}
-        <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+        <nav className="hidden md:flex items-center gap-8">
           <Link 
             to="/browse-jobs" 
-            className={`text-sm font-medium transition-all duration-300 whitespace-nowrap ${
+            className={`text-sm font-medium transition-all duration-300 ${
               isActive('/browse-jobs') 
                 ? 'text-gray-900' 
                 : 'text-gray-600 hover:text-gray-900'
@@ -147,7 +146,7 @@ export const Navbar = () => {
           </Link>
           <Link 
             to="/post-job" 
-            className={`text-sm font-medium transition-all duration-300 whitespace-nowrap ${
+            className={`text-sm font-medium transition-all duration-300 ${
               isActive('/post-job') 
                 ? 'text-gray-900' 
                 : 'text-gray-600 hover:text-gray-900'
@@ -157,7 +156,7 @@ export const Navbar = () => {
           </Link>
           <Link 
             to="/browse-talent" 
-            className={`text-sm font-medium transition-all duration-300 whitespace-nowrap ${
+            className={`text-sm font-medium transition-all duration-300 ${
               isActive('/browse-talent') 
                 ? 'text-gray-900' 
                 : 'text-gray-600 hover:text-gray-900'
@@ -168,7 +167,7 @@ export const Navbar = () => {
           {user && (
             <Link 
               to={user.userType === 'employer' ? '/employer-dashboard' : '/student-dashboard'} 
-              className={`text-sm font-medium transition-all duration-300 whitespace-nowrap ${
+              className={`text-sm font-medium transition-all duration-300 ${
                 isActive('/student-dashboard') || isActive('/employer-dashboard')
                   ? 'text-gray-900' 
                   : 'text-gray-600 hover:text-gray-900'
@@ -179,7 +178,7 @@ export const Navbar = () => {
           )}
           <Link 
             to="/resources" 
-            className={`text-sm font-medium transition-all duration-300 whitespace-nowrap ${
+            className={`text-sm font-medium transition-all duration-300 ${
               isActive('/resources') 
                 ? 'text-gray-900' 
                 : 'text-gray-600 hover:text-gray-900'
@@ -189,8 +188,8 @@ export const Navbar = () => {
           </Link>
         </nav>
         
-        {/* Search - Compact Modern Input - hidden on mobile */}
-        <div className="hidden xl:flex items-center gap-2 flex-1 max-w-xs ml-4">
+        {/* Search - Compact Modern Input */}
+        <div className="hidden lg:flex items-center gap-2 flex-1 max-w-xs">
           <form onSubmit={handleNavSearch} className="relative flex-1">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             <Input 
@@ -203,22 +202,22 @@ export const Navbar = () => {
         </div>
         
         {/* Right side actions */}
-        <div className="flex items-center gap-2 sm:gap-4">
-          {/* Show notifications and messages only when user is logged in - always visible */}
+        <div className="flex items-center gap-4">
+          {/* Show notifications and messages only when user is logged in */}
           {user && (
             <>
-              {/* Notifications Dropdown - always visible */}
+              {/* Notifications Dropdown */}
               <NotificationDropdown user={user} token={token} />
               
-              {/* Messages Dropdown - always visible */}
+              {/* Messages Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button 
-                    className={`w-8 h-8 sm:w-10 sm:h-10 p-0 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors ${
+                    className={`w-10 h-10 p-0 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors ${
                       isActive('/messages') ? 'bg-gray-100' : ''
                     }`}
                   >
-                    <Mail className="w-4 h-4 sm:w-5 sm:h-5" style={{ stroke: '#374151', strokeWidth: 2 }} />
+                    <Mail className="w-5 h-5" style={{ stroke: '#374151', strokeWidth: 2 }} />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-80">
@@ -339,9 +338,9 @@ export const Navbar = () => {
             </DropdownMenu>
           )}
           
-          {/* Auth buttons - Modern Styling - hidden on mobile when logged in */}
+          {/* Auth buttons - Modern Styling */}
           {!user && (
-            <div className="hidden sm:flex items-center gap-3 ml-2">
+            <div className="hidden md:flex items-center gap-3 ml-2">
               <Button variant="ghost" asChild className="font-medium">
                 <Link to="/login">Log in</Link>
               </Button>
@@ -350,129 +349,8 @@ export const Navbar = () => {
               </Button>
             </div>
           )}
-          
-          {/* Mobile Menu Button - only show when user is logged out or on smaller screens */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? (
-              <X className="w-6 h-6 text-gray-700" />
-            ) : (
-              <Menu className="w-6 h-6 text-gray-700" />
-            )}
-          </button>
         </div>
       </div>
-      
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-gray-200 bg-white">
-          <div className="container mx-auto px-4 py-4 space-y-4">
-            {/* Demo Warning in Mobile Menu */}
-            <Link 
-              to="/demo-disclaimer" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-lg hover:border-amber-400 transition-all duration-300"
-            >
-              <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
-              <div className="flex flex-col">
-                <span className="text-sm font-bold text-amber-800 leading-tight">
-                  Demo App
-                </span>
-                <span className="text-xs text-amber-700 leading-tight">
-                  Click to learn more
-                </span>
-              </div>
-            </Link>
-            
-            {/* Mobile Search */}
-            <form onSubmit={handleNavSearch} className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-              <Input 
-                placeholder="Search jobs..." 
-                className="pl-10 py-2.5 bg-gray-50 border-gray-200 text-sm w-full"
-                value={navSearchQuery}
-                onChange={(e) => setNavSearchQuery(e.target.value)}
-              />
-            </form>
-            
-            {/* Mobile Navigation Links */}
-            <nav className="flex flex-col space-y-2">
-              <Link 
-                to="/browse-jobs" 
-                onClick={() => setMobileMenuOpen(false)}
-                className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                  isActive('/browse-jobs') 
-                    ? 'bg-gray-100 text-gray-900' 
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                }`}
-              >
-                Find Work
-              </Link>
-              <Link 
-                to="/post-job" 
-                onClick={() => setMobileMenuOpen(false)}
-                className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                  isActive('/post-job') 
-                    ? 'bg-gray-100 text-gray-900' 
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                }`}
-              >
-                Post a Job
-              </Link>
-              <Link 
-                to="/browse-talent" 
-                onClick={() => setMobileMenuOpen(false)}
-                className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                  isActive('/browse-talent') 
-                    ? 'bg-gray-100 text-gray-900' 
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                }`}
-              >
-                Browse Talent
-              </Link>
-              {user && (
-                <Link 
-                  to={user.userType === 'employer' ? '/employer-dashboard' : '/student-dashboard'} 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                    isActive('/student-dashboard') || isActive('/employer-dashboard')
-                      ? 'bg-gray-100 text-gray-900' 
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                >
-                  Dashboard
-                </Link>
-              )}
-              <Link 
-                to="/resources" 
-                onClick={() => setMobileMenuOpen(false)}
-                className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                  isActive('/resources') 
-                    ? 'bg-gray-100 text-gray-900' 
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                }`}
-              >
-                Resources
-              </Link>
-              
-              {/* Mobile Auth Buttons */}
-              {!user && (
-                <div className="flex flex-col gap-2 pt-2 border-t border-gray-200 mt-2">
-                  <Button variant="ghost" asChild className="font-medium w-full justify-center">
-                    <Link to="/login" onClick={() => setMobileMenuOpen(false)}>Log in</Link>
-                  </Button>
-                  <Button asChild className="bg-gray-900 hover:bg-gray-800 shadow-sm w-full justify-center">
-                    <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>Sign up</Link>
-                  </Button>
-                </div>
-              )}
-            </nav>
-          </div>
-        </div>
-      )}
     </header>
   );
 };

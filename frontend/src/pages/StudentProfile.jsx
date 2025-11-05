@@ -42,7 +42,6 @@ import {
   Check
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
-import { SecondaryNav } from "@/components/SecondaryNav";
 import { Footer } from "@/components/Footer";
 
 const StudentProfile = () => {
@@ -168,10 +167,9 @@ const StudentProfile = () => {
   useEffect(() => {
     if (isOwnProfile && user?.userType === 'employer') {
       setUserType('employer');
-      navigate('/business-profile');
-      return;
+      setLoading(false);
     }
-  }, [isOwnProfile, user, navigate]);
+  }, [isOwnProfile, user]);
 
   useEffect(() => {
     // Skip fetching if already determined to be employer viewing own profile
@@ -204,7 +202,7 @@ const StudentProfile = () => {
         // Check if this is an employer account
         if (data.user.userType === 'employer') {
           setUserType('employer');
-          navigate(`/business-profile/${targetUserId}`);
+          setLoading(false);
           return;
         }
         
@@ -1097,20 +1095,73 @@ const StudentProfile = () => {
       <Navbar />
       
       {/* Secondary Navigation */}
-      <SecondaryNav />
+      <div className="border-b border-gray-200">
+        <div className="container mx-auto px-4">
+          <nav className="flex items-center gap-8 h-16">
+            <Link 
+              to="/browse-jobs" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Browse Jobs
+            </Link>
+            <Link 
+              to="/student-dashboard" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Dashboard
+            </Link>
+            <Link 
+              to="/open-jobs" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Open Jobs
+            </Link>
+            <Link 
+              to="/applicants" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Applicants
+            </Link>
+            <Link 
+              to="/my-jobs" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-2"
+            >
+              My Jobs
+            </Link>
+            <Link 
+              to="/applications" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Applications
+            </Link>
+            <Link 
+              to="/messages" 
+              className="text-sm font-medium text-gray-600 hover:text-gray-900 py-5"
+            >
+              Messages
+            </Link>
+            <Link 
+              to="/student-profile" 
+              className="text-sm font-medium text-gray-900 border-b-2 border-purple-600 py-2"
+            >
+              Profile
+            </Link>
+          </nav>
+        </div>
+      </div>
       
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header Section */}
-        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 sm:p-8 mb-8">
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-8 mb-8">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full md:w-auto">
-              <div className="relative flex-shrink-0">
+            <div className="flex items-start gap-6">
+              <div className="relative">
                 <Avatar 
-                  className="w-20 h-20 sm:w-24 sm:h-24 border-2 border-gray-200 shadow-sm bg-transparent"
+                  className="w-24 h-24 border-2 border-gray-200 shadow-sm bg-transparent"
                 >
                   <AvatarImage src={profileData.avatar} />
                   <AvatarFallback 
-                    className="text-white text-xl sm:text-2xl font-medium"
+                    className="text-white text-2xl font-medium"
                     style={{ backgroundColor: profileData.avatarColor }}
                   >
                     {profileData.firstName[0]}{profileData.lastName[0]}
@@ -1119,20 +1170,20 @@ const StudentProfile = () => {
                 {isOwnProfile && user && isEditing && (
                   <Button
                     size="sm"
-                    className="absolute bottom-0 right-0 rounded-full w-8 h-8 sm:w-10 sm:h-10 p-0 shadow-md hover:shadow-lg transition-shadow z-20 bg-purple-600 hover:bg-purple-700 text-white"
+                    className="absolute bottom-0 right-0 rounded-full w-10 h-10 p-0 shadow-md hover:shadow-lg transition-shadow z-20 bg-purple-600 hover:bg-purple-700 text-white"
                     onClick={() => {
                       console.log('Edit button clicked, opening photo modal');
                       setShowPhotoModal(true);
                     }}
                   >
-                    <Edit2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <Edit2 className="w-4 h-4" />
                   </Button>
                 )}
               </div>
               
-              <div className="flex-1 text-center sm:text-left w-full">
-                <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-3 mb-2">
-                  <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <h1 className="text-2xl font-semibold text-gray-900">
                     {profileData.firstName} {profileData.lastName}
                   </h1>
                   <Badge variant="secondary" className="bg-green-50 text-green-700 border border-green-200">
@@ -1141,14 +1192,14 @@ const StudentProfile = () => {
                   </Badge>
                 </div>
                 
-                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-sm mb-4 text-gray-600">
-                  <div className="flex items-center justify-center sm:justify-start gap-1">
-                    <Mail className="w-4 h-4 flex-shrink-0" />
-                    <span className="break-all">{profileData.email}</span>
+                <div className="flex flex-wrap gap-4 text-sm mb-4 text-gray-600">
+                  <div className="flex items-center gap-1">
+                    <Mail className="w-4 h-4" />
+                    {profileData.email}
                   </div>
                   {profileData.phone ? (
-                    <div className="flex items-center justify-center sm:justify-start gap-2">
-                      <Phone className="w-4 h-4 flex-shrink-0" />
+                    <div className="flex items-center gap-2">
+                      <Phone className="w-4 h-4" />
                       <span>{profileData.phone}</span>
                       {isEditing && isOwnProfile && (
                         <Button 
@@ -1167,7 +1218,7 @@ const StudentProfile = () => {
                       <Button 
                         size="sm" 
                         variant="outline" 
-                        className="h-7 text-xs mx-auto sm:mx-0"
+                        className="h-7 text-xs"
                         onClick={openPhoneModal}
                       >
                         <Plus className="w-3 h-3 mr-1" />
@@ -1176,22 +1227,22 @@ const StudentProfile = () => {
                     )
                   )}
                   {profileData.location && (
-                    <div className="flex items-center justify-center sm:justify-start gap-1">
+                    <div className="flex items-center gap-1">
                       {profileData.location}
                     </div>
                   )}
                 </div>
                 
                 {profileData.bio ? (
-                  <div className="flex flex-col sm:flex-row items-start gap-2">
-                    <p className="text-gray-700 max-w-2xl text-sm flex-1 text-center sm:text-left">
+                  <div className="flex items-start gap-2">
+                    <p className="text-gray-700 max-w-2xl text-sm flex-1">
                       {profileData.bio}
                     </p>
                     {isEditing && isOwnProfile && (
                       <Button 
                         size="sm" 
                         variant="outline" 
-                        className="h-7 px-2 border-gray-300 hover:bg-gray-100 mx-auto sm:mx-0"
+                        className="h-7 px-2 border-gray-300 hover:bg-gray-100"
                         onClick={openBioModal}
                       >
                         <Edit2 className="w-3.5 h-3.5 mr-1" />
@@ -1204,7 +1255,7 @@ const StudentProfile = () => {
                     <Button 
                       size="sm" 
                       variant="outline" 
-                      className="mb-4 mx-auto sm:mx-0"
+                      className="mb-4"
                       onClick={openBioModal}
                     >
                       <Plus className="w-4 h-4 mr-2" />
@@ -1214,7 +1265,7 @@ const StudentProfile = () => {
                 )}
                 
                 {/* Social Links */}
-                <div className="flex justify-center sm:justify-start gap-3 mt-4">
+                <div className="flex gap-3 mt-4">
                   {profileData.socialLinks.github && (
                     <a href={profileData.socialLinks.github} target="_blank" rel="noopener noreferrer" 
                        className="text-gray-600 hover:text-gray-900 transition">
@@ -1271,7 +1322,7 @@ const StudentProfile = () => {
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
           <Card className="hover:shadow-sm transition border-gray-200">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
