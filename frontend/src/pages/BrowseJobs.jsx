@@ -351,10 +351,10 @@ const BrowseJobs = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Rates</SelectItem>
-                    <SelectItem value="10-20">$10-20/hr</SelectItem>
-                    <SelectItem value="20-30">$20-30/hr</SelectItem>
-                    <SelectItem value="30-50">$30-50/hr</SelectItem>
-                    <SelectItem value="50+">$50+/hr</SelectItem>
+                    <SelectItem value="10-20">R180-360/hr</SelectItem>
+                    <SelectItem value="20-30">R360-540/hr</SelectItem>
+                    <SelectItem value="30-50">R540-900/hr</SelectItem>
+                    <SelectItem value="50+">R900+/hr</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -501,13 +501,13 @@ const BrowseJobs = () => {
                           {job.budgetType === 'hourly' && job.hourlyRateMin && (
                             <div className="flex items-center gap-1">
                               <DollarSign className="w-4 h-4" />
-                              ${job.hourlyRateMin}-${job.hourlyRateMax}/hr
+                              R{job.hourlyRateMin}-R{job.hourlyRateMax}/hr
                             </div>
                           )}
                           {job.budgetType === 'fixed' && job.fixedBudget && (
                             <div className="flex items-center gap-1">
                               <DollarSign className="w-4 h-4" />
-                              ${job.fixedBudget}
+                              R{job.fixedBudget}
                             </div>
                           )}
                           <div className="flex items-center gap-1">

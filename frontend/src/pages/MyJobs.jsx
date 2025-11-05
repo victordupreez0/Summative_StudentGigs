@@ -210,9 +210,9 @@ const MyJobs = () => {
 
   const getBudgetDisplay = (job) => {
     if (job.budgetType === 'hourly' && job.hourlyRateMin && job.hourlyRateMax) {
-      return `$${job.hourlyRateMin}-$${job.hourlyRateMax}/hr`;
+      return `R${job.hourlyRateMin}-R${job.hourlyRateMax}/hr`;
     } else if (job.budgetType === 'fixed' && job.fixedBudget) {
-      return `$${job.fixedBudget} fixed`;
+      return `R${job.fixedBudget} fixed`;
     }
     return 'Budget TBD';
   };

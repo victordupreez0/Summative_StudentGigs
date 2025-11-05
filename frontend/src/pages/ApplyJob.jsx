@@ -296,7 +296,7 @@ const ApplyJob = () => {
                     <Input
                       id="expectedRate"
                       name="expectedRate"
-                      placeholder="e.g., $25/hour, $500/project, Negotiable"
+                      placeholder="e.g., R450/hour, R9000/project, Negotiable"
                       value={formData.expectedRate}
                       onChange={handleChange}
                       required
@@ -374,7 +374,7 @@ const ApplyJob = () => {
                       <div>
                         <p className="font-medium">Hourly Rate</p>
                         <p className="text-muted-foreground">
-                          ${job.hourlyRateMin}-${job.hourlyRateMax}/hr
+                          R{job.hourlyRateMin}-R{job.hourlyRateMax}/hr
                         </p>
                       </div>
                     </div>
@@ -385,7 +385,7 @@ const ApplyJob = () => {
                       <DollarSign className="w-4 h-4 mt-0.5 text-muted-foreground" />
                       <div>
                         <p className="font-medium">Project Budget</p>
-                        <p className="text-muted-foreground">${job.fixedBudget}</p>
+                        <p className="text-muted-foreground">R{job.fixedBudget}</p>
                       </div>
                     </div>
                   )}

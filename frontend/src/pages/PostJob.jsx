@@ -949,33 +949,33 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <label className="block text-xs text-muted-foreground mb-1">
-                              Minimum ($/hr)
+                              Minimum (R/hr)
                             </label>
                             <Input
                               type="number"
-                              placeholder="15"
+                              placeholder="270"
                               value={hourlyRateMin}
                               onChange={(e) => setHourlyRateMin(e.target.value)}
                               min="0"
-                              step="0.50"
+                              step="10"
                             />
                           </div>
                           <div>
                             <label className="block text-xs text-muted-foreground mb-1">
-                              Maximum ($/hr)
+                              Maximum (R/hr)
                             </label>
                             <Input
                               type="number"
-                              placeholder="30"
+                              placeholder="540"
                               value={hourlyRateMax}
                               onChange={(e) => setHourlyRateMax(e.target.value)}
                               min="0"
-                              step="0.50"
+                              step="10"
                             />
                           </div>
                         </div>
                         <p className="text-xs text-muted-foreground mt-2">
-                          💡 Average student hourly rate is $15-25/hr depending on skills and experience
+                          💡 Average student hourly rate is R270-450/hr depending on skills and experience
                         </p>
                       </div>
                     )}
@@ -987,11 +987,11 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                         </label>
                         <div className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                            $
+                            R
                           </span>
                           <Input
                             type="number"
-                            placeholder="500"
+                            placeholder="9000"
                             value={fixedBudget}
                             onChange={(e) => setFixedBudget(e.target.value)}
                             min="0"
@@ -1038,9 +1038,9 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                           <p className="font-medium text-foreground mb-1">Budget Tips</p>
                           <ul className="text-sm text-muted-foreground space-y-1">
                             <li>• Consider the student's skill level when setting rates</li>
-                            <li>• Entry-level students: $12-18/hr</li>
-                            <li>• Intermediate students: $18-25/hr</li>
-                            <li>• Advanced students: $25-40/hr</li>
+                            <li>• Entry-level students: R216-324/hr</li>
+                            <li>• Intermediate students: R324-450/hr</li>
+                            <li>• Advanced students: R450-720/hr</li>
                             <li>• Include a small buffer for revisions or adjustments</li>
                           </ul>
                         </div>
@@ -1110,11 +1110,11 @@ Be clear about deliverables, timeline, and what you're looking for in an applica
                             <DollarSign className="w-5 h-5 text-green-600" />
                             {budgetType === 'hourly' ? (
                               <p className="text-lg font-medium">
-                                ${hourlyRateMin || '0'} - ${hourlyRateMax || '0'} /hr
+                                R{hourlyRateMin || '0'} - R{hourlyRateMax || '0'} /hr
                               </p>
                             ) : (
                               <p className="text-lg font-medium">
-                                ${fixedBudget || '0'} (Fixed Price)
+                                R{fixedBudget || '0'} (Fixed Price)
                               </p>
                             )}
                           </div>

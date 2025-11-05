@@ -408,7 +408,7 @@ const JobDetails = () => {
                 {job.budgetType === 'hourly' ? (
                   <div>
                     <p className="text-2xl font-bold">
-                      ${job.hourlyRateMin} - ${job.hourlyRateMax}/hr
+                      R{job.hourlyRateMin} - R{job.hourlyRateMax}/hr
                     </p>
                     {job.paymentSchedule && (
                       <p className="text-sm text-muted-foreground mt-1">
@@ -418,7 +418,7 @@ const JobDetails = () => {
                   </div>
                 ) : job.fixedBudget ? (
                   <div>
-                    <p className="text-2xl font-bold">${job.fixedBudget}</p>
+                    <p className="text-2xl font-bold">R{job.fixedBudget}</p>
                     <p className="text-sm text-muted-foreground">Fixed Price</p>
                     {job.paymentSchedule && (
                       <p className="text-sm text-muted-foreground mt-1">
