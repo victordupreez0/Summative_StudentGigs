@@ -530,19 +530,3 @@ Contributions are welcome! Please follow these steps:
 
 - GitHub: [@victordupreez0](https://github.com/victordupreez0)
 - Repository: [Summative_StudentGigs](https://github.com/victordupreez0/Summative_StudentGigs)
-
----
-
-## Acknowledgments
-
-- Built with modern web technologies
-- Designed for the South African student market
-- Inspired by freelance platforms like Upwork and Fiverr
-
----
-
-<div align="center">
-
-**Built for students, by students**
-
-</div>
