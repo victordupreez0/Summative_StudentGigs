@@ -794,6 +794,7 @@ const StudentDashboard = () => {
                                 profilePicture: job.poster_profile_picture,
                                 avatarColor: job.poster_avatar_color
                               }}
+                              userId={job.user_id}
                               size="lg"
                             />
                           </div>

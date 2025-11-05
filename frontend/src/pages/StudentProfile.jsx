@@ -1352,7 +1352,7 @@ const StudentProfile = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Earnings</p>
-                  <p className="text-xl font-semibold text-gray-900">${stats.totalEarnings}</p>
+                  <p className="text-xl font-semibold text-gray-900">R{stats.totalEarnings}</p>
                 </div>
                 <DollarSign className="w-7 h-7 text-gray-400" />
               </div>

@@ -10,6 +10,7 @@ import { useModal } from "@/components/ui/modal";
 import { Search, Filter, MapPin, Clock, DollarSign, Users, Bookmark } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
+import { SecondaryNav } from "@/components/SecondaryNav";
 import { Footer } from "@/components/Footer";
 import AuthContext from '@/context/AuthContext';
 import API_BASE from '@/config/api';
@@ -277,6 +278,7 @@ const BrowseJobs = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
+      <SecondaryNav />
 
       <div className="container mx-auto px-4 py-8">
         {/* Search Section */}
