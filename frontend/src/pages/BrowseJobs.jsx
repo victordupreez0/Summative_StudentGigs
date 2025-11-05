@@ -12,7 +12,6 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { SecondaryNav } from "@/components/SecondaryNav";
 import { Footer } from "@/components/Footer";
-import SEO from "@/components/SEO";
 import AuthContext from '@/context/AuthContext';
 import API_BASE from '@/config/api';
 
@@ -278,12 +277,6 @@ const BrowseJobs = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <SEO 
-        title="Browse Student Jobs - Find Part-Time Work & Gigs | StudentGigs"
-        description="Browse hundreds of student-friendly jobs, gigs, and part-time opportunities. Filter by category, pay rate, and experience level. Apply today and start earning while studying."
-        keywords="browse student jobs, find part-time work, student gig opportunities, college job search, flexible employment, remote student work"
-        canonicalUrl="https://studentgigs.com/browse-jobs"
-      />
       <Navbar />
       <SecondaryNav />
 

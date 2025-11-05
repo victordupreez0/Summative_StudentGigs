@@ -193,14 +193,6 @@ const JobDetails = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {job && (
-        <SEO 
-          title={`${job.title} - Student Job | StudentGigs`}
-          description={job.description ? job.description.substring(0, 155) + '...' : 'Apply for this student job opportunity on StudentGigs'}
-          keywords={`${job.title}, student job, ${job.category || 'gig'}, part-time work, ${job.work_location || 'flexible'} work`}
-          canonicalUrl={`https://studentgigs.com/jobs/${jobId}`}
-        />
-      )}
       <Navbar />
 
       <div className="container mx-auto px-4 py-8">
