@@ -407,13 +407,13 @@ const Landing = () => {
                         {job.budgetType === 'hourly' && job.hourlyRateMin && (
                           <div className="flex items-center gap-1">
                             <DollarSign className="w-4 h-4" />
-                            ${job.hourlyRateMin}-${job.hourlyRateMax}/hr
+                            R{job.hourlyRateMin}-R{job.hourlyRateMax}/hr
                           </div>
                         )}
                         {job.budgetType === 'fixed' && job.fixedBudget && (
                           <div className="flex items-center gap-1">
                             <DollarSign className="w-4 h-4" />
-                            ${job.fixedBudget}
+                            R{job.fixedBudget}
                           </div>
                         )}
                         <div className="flex items-center gap-1">
