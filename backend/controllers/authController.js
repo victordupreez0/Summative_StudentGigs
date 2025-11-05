@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const { getDb } = require('../config/database');
 const { JWT_SECRET } = require('../middleware/auth');
 
-// Register a new user
+// Register a new user - hashes passwords with bcrypt (10 rounds) and issues JWT tokens upon successful login
 async function register(req, res) {
     const db = getDb();
     if (!db) {

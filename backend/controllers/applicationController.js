@@ -1,7 +1,7 @@
 const { getDb } = require('../config/database');
 const { createNotification } = require('./notificationController');
 
-// Apply to a job
+// Apply to a job - students submit applications with cover letters, portfolio links, expected pay, and availability
 function applyToJob(req, res) {
     const db = getDb();
     if (!db) {

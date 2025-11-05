@@ -265,13 +265,11 @@ const StudentProfile = () => {
           skills: parseJsonField(data.profile?.skills),
           languages: parseJsonField(data.profile?.languages),
           portfolio: parseJsonField(data.profile?.portfolio),
-          completedJobs: [], // TODO: Fetch from completed applications
+          completedJobs: [],
           certifications: parseJsonField(data.profile?.certifications),
           socialLinks: parseSocialLinks(data.profile?.social_links),
           availability: parseAvailability(data.profile?.availability)
         });
-
-        console.log('Profile loaded. Avatar:', data.user.profilePicture ? 'Yes' : 'No');
 
         setStats({
           totalJobs: data.stats?.totalJobs || 0,
@@ -279,7 +277,7 @@ const StudentProfile = () => {
           totalEarnings: data.stats?.totalEarnings || 0,
           averageRating: data.stats?.averageRating || 0,
           profileViews: data.profile?.profile_views || 0,
-          responseRate: 0 // TODO: Calculate based on messages
+          responseRate: 0
         });
 
         // Track profile view if viewing someone else's profile
@@ -300,7 +298,7 @@ const StudentProfile = () => {
     };
 
     fetchProfile();
-  }, [targetUserId, user?.userType]); // Removed isOwnProfile - it's derived from targetUserId
+  }, [targetUserId, user?.userType]);
 
   // Helper function to auto-save profile changes
   const autoSaveProfile = async (updatedProfileData) => {
@@ -335,7 +333,6 @@ const StudentProfile = () => {
         throw new Error(errorData.error || "Failed to auto-save");
       }
       
-      console.log('Auto-saved successfully');
       return true;
     } catch (err) {
       console.error("Error auto-saving:", err);
@@ -363,12 +360,6 @@ const StudentProfile = () => {
         availability: profileData.availability
       };
       
-      console.log('=== SAVING PROFILE ===');
-      console.log('Bio:', payload.bio?.substring(0, 50));
-      console.log('Work Experience:', payload.work_experience);
-      console.log('Skills:', payload.skills);
-      console.log('Full payload:', payload);
-      
       const response = await fetch(`${API_BASE}/api/profiles/me`, {
         method: 'PUT',
         headers: {
@@ -385,7 +376,6 @@ const StudentProfile = () => {
       }
 
       const result = await response.json();
-      console.log('Save successful:', result);
 
       // Refetch the profile to ensure we have the latest data
       const profileResponse = await fetch(`${API_BASE}/api/profiles/${targetUserId}`, {
@@ -394,7 +384,6 @@ const StudentProfile = () => {
       
       if (profileResponse.ok) {
         const data = await profileResponse.json();
-        console.log('Refetched profile, bio:', data.profile.bio);
         
         // Update profileData with the fresh data from server
         const parseJsonField = (field) => {
@@ -469,7 +458,6 @@ const StudentProfile = () => {
 
   const handleCancel = () => {
     setIsEditing(false);
-    // TODO: Revert changes
   };
 
   // Handle message button click
@@ -750,7 +738,6 @@ const StudentProfile = () => {
   };
 
   const saveBio = async () => {
-    console.log('Saving bio to state:', bioForm.bio);
     const updatedProfileData = { ...profileData, bio: bioForm.bio };
     setProfileData(updatedProfileData);
     setShowBioModal(false);
@@ -785,7 +772,6 @@ const StudentProfile = () => {
         throw new Error(errorData.error || "Failed to update bio");
       }
 
-      console.log('Bio saved successfully to database');
       setShowSuccessModal(true);
     } catch (err) {
       console.error("Error saving bio:", err);
@@ -801,7 +787,6 @@ const StudentProfile = () => {
   };
 
   const savePhone = async () => {
-    console.log('Saving phone to state:', phoneForm.phone);
     const updatedProfileData = { ...profileData, phone: phoneForm.phone };
     setProfileData(updatedProfileData);
     setShowPhoneModal(false);
@@ -854,7 +839,6 @@ const StudentProfile = () => {
       return;
     }
 
-    console.log('Saving photo:', photoToSave.substring(0, 100) + '...');
     setPhotoForm({ ...photoForm, uploading: true });
 
     try {
@@ -876,16 +860,13 @@ const StudentProfile = () => {
       }
 
       const result = await response.json();
-      console.log('Photo save result:', result);
       
       // Update local state with new profile picture
       setProfileData({ ...profileData, avatar: photoToSave });
-      console.log('Updated profileData.avatar to:', photoToSave.substring(0, 100) + '...');
       
       // Refresh user context so the photo shows everywhere (navbar, etc.)
       if (refreshUser) {
         await refreshUser();
-        console.log('User context refreshed');
       }
       
       // Close modal and reset form
@@ -954,8 +935,6 @@ const StudentProfile = () => {
         
         // Compress to JPEG at 80% quality
         const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
-        
-        console.log('Original:', Math.round(file.size/1024), 'KB, Compressed:', Math.round(compressedBase64.length/1024), 'KB');
         
         setPhotoForm({
           ...photoForm,
@@ -1171,10 +1150,7 @@ const StudentProfile = () => {
                   <Button
                     size="sm"
                     className="absolute bottom-0 right-0 rounded-full w-10 h-10 p-0 shadow-md hover:shadow-lg transition-shadow z-20 bg-purple-600 hover:bg-purple-700 text-white"
-                    onClick={() => {
-                      console.log('Edit button clicked, opening photo modal');
-                      setShowPhotoModal(true);
-                    }}
+                    onClick={() => setShowPhotoModal(true)}
                   >
                     <Edit2 className="w-4 h-4" />
                   </Button>

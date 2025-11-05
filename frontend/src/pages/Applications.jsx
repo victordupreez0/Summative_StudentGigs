@@ -44,16 +44,11 @@ const Applications = () => {
 
   const fetchApplications = async () => {
     try {
-      console.log('Fetching applications from:', `${API_BASE}/api/applications/my-applications`);
-      console.log('Token:', token ? 'Present' : 'Missing');
-      
       const res = await fetch(`${API_BASE}/api/applications/my-applications`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
-      console.log('Response status:', res.status);
       
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
@@ -62,8 +57,6 @@ const Applications = () => {
       }
       
       const data = await res.json();
-      console.log('Applications fetched:', data.length, 'applications');
-      console.log('Applications data:', data);
       setApplications(data);
     } catch (err) {
       console.error('Failed to load applications', err);

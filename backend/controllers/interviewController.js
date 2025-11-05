@@ -1,6 +1,6 @@
 const { getDb } = require('../config/database');
 
-// Schedule a new interview
+// Schedule a new interview (employer only)
 exports.scheduleInterview = async (req, res) => {
     try {
         const db = getDb();
@@ -78,16 +78,6 @@ exports.scheduleInterview = async (req, res) => {
                     meetingLink || null,
                     notes || null
                 ];
-
-                console.log('Inserting interview with values:', {
-                    applicationId,
-                    job_id: application.job_id,
-                    employerId,
-                    student_id: application.student_id,
-                    scheduledDate,
-                    scheduledTime,
-                    status: 'scheduled'
-                });
 
                 db.query(insertSql, values, (insertErr, result) => {
                     if (insertErr) {
@@ -393,11 +383,6 @@ exports.getUpcomingInterviews = async (req, res) => {
                 console.error('Error fetching upcoming interviews:', err);
                 return res.status(500).json({ error: 'Failed to fetch upcoming interviews' });
             }
-
-            console.log('Found interviews:', interviews.length);
-            if (interviews.length > 0) {
-                console.log('Interview details:', interviews);
-            }
             
             res.json({ interviews: interviews || [] });
         });
@@ -432,7 +417,6 @@ exports.getAllInterviewsDebug = async (req, res) => {
                 return res.status(500).json({ error: 'Failed to fetch interviews' });
             }
 
-            console.log('DEBUG: Total interviews in database:', interviews.length);
             res.json({ interviews: interviews || [], count: interviews.length });
         });
     } catch (error) {

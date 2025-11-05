@@ -35,8 +35,6 @@ const StudentDashboard = () => {
   const navigate = useNavigate();
   const { showAlert, ModalComponent } = useModal();
   
-  console.log('StudentDashboard rendering, user:', user ? 'logged in' : 'not logged in');
-  
   // Helper function to format experience level
   const formatExperienceLevel = (level) => {
     const levels = {

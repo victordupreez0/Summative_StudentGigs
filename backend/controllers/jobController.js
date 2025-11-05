@@ -1,7 +1,7 @@
 const { getDb } = require('../config/database');
 const { createNotification } = require('./notificationController');
 
-// Create a job post
+// Create a job post - handles creating/updating job postings, searching/filtering jobs, and managing job status (open/closed/completed)
 function createJob(req, res) {
     const db = getDb();
     if (!db) {

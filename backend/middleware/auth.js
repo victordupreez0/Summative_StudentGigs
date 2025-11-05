@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_change_me';
 
-// Middleware: authenticate JWT token from Authorization header
+// Authentication middleware - verifies JWT tokens from Authorization header (format: "Bearer <token>")
 function authenticateToken(req, res, next) {
     const auth = req.headers['authorization'] || '';
     const parts = auth.split(' ');

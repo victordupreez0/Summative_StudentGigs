@@ -1,5 +1,9 @@
 const mysql = require('mysql');
 
+// Database configuration and auto-initialization - handles local MySQL or Heroku JawsDB connections,
+// automatically creates database and tables on first run, and manages schema migrations.
+// No manual database setup required - just ensure MySQL is running with default credentials (root, no password) or set environment variables.
+
 // Parse database configuration from JAWSDB_URL or individual env vars
 let DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME;
 

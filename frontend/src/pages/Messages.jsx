@@ -190,7 +190,6 @@ const Messages = () => {
         throw new Error('Failed to fetch conversations');
       }
       const data = await res.json();
-      console.log('Conversations loaded:', data);
       setConversations(data);
       setLoading(false);
     } catch (error) {
@@ -462,20 +461,6 @@ const Messages = () => {
                           const isCompletion = isCompletionRequest(message);
                           const isStudentReceiving = !isOwnMessage && user?.userType === 'student';
                           const showCompletionCard = isCompletion && isStudentReceiving;
-                          
-                          // Debug the newest message
-                          if (message.content.includes('🎉')) {
-                            console.log('🎉 Completion message found:', {
-                              messageId: message.id,
-                              senderId: message.sender_id,
-                              userId: user?.id,
-                              userType: user?.userType,
-                              isOwnMessage,
-                              isCompletion,
-                              isStudentReceiving,
-                              showCompletionCard
-                            });
-                          }
                           
                           return (
                             <div

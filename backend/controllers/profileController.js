@@ -146,11 +146,6 @@ function updateProfile(req, res) {
         availability
     } = req.body;
 
-    console.log('Received profile update for user', userId);
-    console.log('Bio value:', bio);
-    console.log('Phone value:', phone);
-    console.log('Work experience:', work_experience);
-
     // Check if profile exists
     db.query('SELECT id FROM student_profiles WHERE user_id = ?', [userId], (err, results) => {
         if (err) {
@@ -217,7 +212,6 @@ function updateProfile(req, res) {
                     });
                 }
 
-                console.log('Profile created successfully for user', userId);
                 res.json({ message: 'profile created successfully' });
             });
         } else {
@@ -245,11 +239,6 @@ function updateProfile(req, res) {
                 userId
             ];
 
-            console.log('Executing UPDATE with bio:', profileData.bio);
-            console.log('UPDATE SQL values:', values.map((v, i) => 
-                typeof v === 'string' && v.length > 50 ? v.substring(0, 50) + '...' : v
-            ));
-
             db.query(updateSql, values, (updateErr, result) => {
                 if (updateErr) {
                     console.error('Error updating profile:', updateErr);
@@ -261,9 +250,6 @@ function updateProfile(req, res) {
                     });
                 }
 
-                console.log('UPDATE result:', result);
-                console.log('Rows affected:', result.affectedRows);
-                console.log('Profile updated successfully for user', userId);
                 res.json({ message: 'profile updated successfully', rowsAffected: result.affectedRows });
             });
         }
@@ -352,7 +338,6 @@ function checkBioInDatabase(req, res) {
             return res.status(500).json({ error: 'db error' });
         }
         
-        console.log('Raw DB query result:', results);
         res.json({ 
             userId,
             result: results.length ? results[0] : null 
