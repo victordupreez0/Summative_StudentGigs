@@ -1,7 +1,6 @@
 # StudentGigs
 
 > A full-stack marketplace platform connecting students with freelance opportunities and gig work.
-studentgigs.xyz
 
 <div align="center">
 
@@ -11,6 +10,7 @@ studentgigs.xyz
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-5.4.10-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4.15-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+Live Demo: studentgigs.xyz
 
 </div>
 
