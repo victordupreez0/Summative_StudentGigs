@@ -301,122 +301,6 @@ StudentGigs/
 │   └── server.js               # Entry point
 │
 └── package.json
-
-### Design Patterns
-- **MVC Pattern** - Separation of concerns
-- **RESTful API** - Standard HTTP methods
-- **JWT Authentication** - Stateless auth
-- **Context API** - Global state management
-- **Component-Based** - Reusable UI components
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js (v14 or higher)
-- MySQL (v5.7 or higher)
-- npm or yarn
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/victordupreez0/Summative_StudentGigs.git
-   cd student_gigs
-   ```
-
-2. **Install all dependencies**
-   ```bash
-   npm run install:all
-   ```
-   This installs both frontend and backend dependencies.
-
-3. **Set up environment variables**
-   
-   Create `.env` file in the `/backend` directory:
-   ```env
-   DB_HOST=localhost
-   DB_PORT=3306
-   DB_USER=root
-   DB_PASS=your_password
-   DB_NAME=studentgigs
-   JWT_SECRET=your_secret_key_here
-   PORT=4000
-   ```
-
-4. **Initialize the database**
-   
-   The application will automatically create the database and tables on first run.
-
-5. **Start development servers**
-   ```bash
-   npm run dev
-   ```
-   This starts:
-   - Frontend dev server on `http://localhost:5173`
-   - Backend API server on `http://localhost:4000`
-
-6. **Access the application**
-   
-   Open your browser and navigate to `http://localhost:5173`
-
----
-
-## 🔐 Environment Variables
-
-### Backend (.env)
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `DB_HOST` | MySQL database host | Yes |
-| `DB_PORT` | MySQL database port | Yes |
-| `DB_USER` | MySQL username | Yes |
-| `DB_PASS` | MySQL password | Yes |
-| `DB_NAME` | Database name | Yes |
-| `JWT_SECRET` | Secret key for JWT tokens | Yes |
-| `PORT` | Backend server port | No (default: 4000) |
-| `JAWSDB_URL` | JawsDB URL for Heroku | No (production only) |
-
----
-
-## 📁 Project Structure
-
-### Frontend Structure
-```
-frontend/src/
-├── components/          # Reusable components
-│   ├── ui/             # Base UI components (buttons, cards, etc.)
-│   ├── Navbar.jsx      # Main navigation
-│   ├── Footer.jsx      # Footer component
-│   └── UserAvatar.jsx  # Profile picture component
-├── pages/              # Route pages
-│   ├── Landing.jsx     # Home page
-│   ├── BrowseJobs.jsx  # Job listings
-│   ├── PostJob.jsx     # Create job posting
-│   ├── JobDetails.jsx  # Individual job view
-│   └── ...             # Other pages
-├── context/            # Global state
-│   └── AuthContext.jsx # Authentication state
-└── config/             # Configuration
-    └── api.js          # API base URL
-```
-
-### Backend Structure
-```
-backend/
-├── controllers/        # Request handlers
-│   ├── authController.js        # Authentication logic
-│   ├── jobController.js         # Job CRUD operations
-│   ├── applicationController.js # Application management
-│   └── ...                      # Other controllers
-├── routes/            # API endpoints
-│   ├── authRoutes.js           # Auth routes
-│   ├── jobRoutes.js            # Job routes
-│   └── ...                     # Other routes
-├── middleware/        # Middleware functions
-│   └── auth.js                 # JWT verification
-└── config/            # Configuration
-    └── database.js             # MySQL connection
 ```
 
 ---
@@ -602,17 +486,17 @@ SHOW GRANTS FOR 'root'@'localhost';
 
 **Port Already in Use**
 ```bash
-# Kill process on port 5000 (backend)
-npx kill-port 5000
+# Kill process on port 4000 (backend)
+npx kill-port 4000
 
 # Kill process on port 5173 (frontend)
 npx kill-port 5173
 ```
 
 **Frontend Can't Connect to Backend**
-- Check `VITE_API_URL` in `frontend/.env`
-- Verify backend is running on correct port
+- Verify backend is running on `http://localhost:4000`
 - Check for CORS errors in browser console
+- Ensure MySQL is running and database is created
 
 ---
 
