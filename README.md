@@ -283,14 +283,14 @@ Unit Tests were conducted to establish working functionality. Here are all the t
 
 ### Mockups
 
-![Mockup 1](<img width="1000" height="1000" alt="Image" src="https://github.com/user-attachments/assets/e255e4bc-5dce-4afa-b517-169050fc6d3c" />)
-![Mockup 2](<img width="1000" height="1000" alt="Image" src="https://github.com/user-attachments/assets/1377c44a-8a4e-4825-9426-ee5014c8efd6" />)
+![Mockup 1]([<img width="1000" height="1000" alt="Image" src="https://github.com/user-attachments/assets/e255e4bc-5dce-4afa-b517-169050fc6d3c" />](https://private-user-images.githubusercontent.com/177611165/514891335-e255e4bc-5dce-4afa-b517-169050fc6d3c.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjMzMDgwNzUsIm5iZiI6MTc2MzMwNzc3NSwicGF0aCI6Ii8xNzc2MTExNjUvNTE0ODkxMzM1LWUyNTVlNGJjLTVkY2UtNGFmYS1iNTE3LTE2OTA1MGZjNmQzYy5wbmc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjUxMTE2JTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI1MTExNlQxNTQyNTVaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT1hNmE4NjIxM2Y3MTZlNDIwOTFhYmIwNjg1NjA0YjM4YTU4ZTViODlkZmVkNGYxYzQ0NjczMzIxZWJhMmIxOTZkJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCJ9.7TLye0cdHS4Xd_u_j1uXFPAkiXz4ryNOXY3gipzWGr4))
+![Mockup 2]([<img width="1000" height="1000" alt="Image" src="https://github.com/user-attachments/assets/1377c44a-8a4e-4825-9426-ee5014c8efd6" />](https://private-user-images.githubusercontent.com/177611165/514891342-1377c44a-8a4e-4825-9426-ee5014c8efd6.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjMzMDgwNzUsIm5iZiI6MTc2MzMwNzc3NSwicGF0aCI6Ii8xNzc2MTExNjUvNTE0ODkxMzQyLTEzNzdjNDRhLThhNGUtNDgyNS05NDI2LWVlNTAxNGM4ZWZkNi5wbmc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjUxMTE2JTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI1MTExNlQxNTQyNTVaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT1hY2YzZjFhYjk1NWRiZDYwNzBmNWFhNjA3MTNhMTUyZTgyYjU0YzA1Yjc2Y2Y1MWQwNTU0Y2MxMmY0MGE4NTg2JlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCJ9.U0WyoqPO-f_BcMiqV8Ozuembn-UOxfiqI-2OPBCw7p8))
 
 ### Video Demonstration
 
 To see a run through of the application, click below:
 
-[[View Demonstration](https://studentgigs.xyz)](https://drive.google.com/file/d/1bg0EgrScTQsC_hhLZr84fIuw3z3930fP/view?usp=sharing)
+[[View Demonstration]([https://studentgigs.xyz](https://drive.google.com/file/d/1bg0EgrScTQsC_hhLZr84fIuw3z3930fP/view?usp=sharing))]
 
 ---
 
