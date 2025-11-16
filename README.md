@@ -13,162 +13,93 @@
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 
+[Explore the docs »](https://github.com/victordupreez0/Summative_StudentGigs)
+
+[View Demo](https://studentgigs.xyz) · [Report Bug](https://github.com/victordupreez0/Summative_StudentGigs/issues) · [Request Feature](https://github.com/victordupreez0/Summative_StudentGigs/issues)
+
 </div>
 
 ---
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
+- [About the Project](#about-the-project)
+  - [Project Description](#project-description)
+  - [Built With](#built-with)
 - [Getting Started](#getting-started)
-- [Project Structure](#project-structure)
-- [API Documentation](#api-documentation)
-- [Database Schema](#database-schema)
+  - [Prerequisites](#prerequisites)
+  - [How to Install](#how-to-install)
+- [Features and Functionality](#features-and-functionality)
+- [Concept Process](#concept-process)
+  - [Ideation](#ideation)
+  - [Wireframes](#wireframes)
+  - [User Flow](#user-flow)
+- [Development Process](#development-process)
+  - [Implementation Process](#implementation-process)
+  - [Highlights](#highlights)
+  - [Challenges](#challenges)
+- [Reviews and Testing](#reviews-and-testing)
+  - [Feedback from Reviews](#feedback-from-reviews)
+  - [Unit Tests](#unit-tests)
+- [Future Implementation](#future-implementation)
+- [Final Outcome](#final-outcome)
+  - [Mockups](#mockups)
+  - [Video Demonstration](#video-demonstration)
+- [Conclusion](#conclusion)
+- [Roadmap](#roadmap)
 - [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
+- [Acknowledgements](#acknowledgements)
 
 ---
 
-## Overview
+## About the Project
 
-StudentGigs is a comprehensive web application designed to connect students with flexible work opportunities. The platform handles the complete job lifecycle including posting, applications, interviews, messaging, and reviews.
+![StudentGigs Overview](image1)
 
-### Key Features
+### Project Description
 
-**Authentication & Authorization**
-- JWT-based secure authentication
-- Role-based access control (Student, Employer, Admin)
-- Protected routes and API endpoints
+StudentGigs is a comprehensive web application designed to connect students with flexible work opportunities. The platform handles the complete job lifecycle including posting, applications, interviews, messaging, and reviews. Built with modern web technologies, it provides a seamless experience for both students seeking gigs and employers looking to hire talented students.
 
-**Job Management**
-- Create, edit, and manage job postings
-- Advanced search and filtering
-- Category-based organization
-- Budget tracking (hourly/fixed rates)
+### Built With
 
-**Application System**
-- Apply with cover letters and portfolio links
-- Track application status
-- Interview scheduling
-- Feedback system
-
-**Communication**
-- Real-time messaging between users
-- Notification system
-- Interview coordination
-
-**Review & Rating**
-- Bilateral review system
-- Star ratings and written feedback
-- Reputation building
-
-**Localization**
-- South African Rand (ZAR) currency
-- Localized pricing and formatting
-
----
-
-## Features
-
-### Student Features
-
-- Browse and search available jobs
-- Apply to jobs with custom cover letters
-- Track application status dashboard
-- Schedule and manage interviews
-- Direct messaging with employers
-- Receive and view reviews
-- Profile management with portfolio
-- Save jobs for later
-- Earnings tracking
-
-### Employer Features
-
-- Post detailed job listings
-- Hourly or fixed-price budgets
-- Review and manage applicants
-- Schedule interviews
-- Accept/reject applications
-- Direct messaging with students
-- Leave reviews for completed work
-- Active jobs dashboard
-
-### Admin Features
-
-- User management
-- Platform statistics
-- Job moderation
-- Application oversight
-- System monitoring
-
-### SEO & Optimization
-
-- **Search Engine Optimized** - robots.txt, sitemap.xml, and meta tags
-- **Structured Data** - Schema.org JSON-LD for rich snippets
-- **Dynamic Meta Tags** - Page-specific SEO with Open Graph and Twitter Cards
-- **Social Media Ready** - Optimized sharing previews
-- **Performance Optimized** - Fast load times and responsive design
-
-📄 See [SEO_GUIDE.md](./SEO_GUIDE.md) for complete documentation
-
----
-
-## Tech Stack
-
-### Frontend
-
-![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)
-![TailwindCSS](https://img.shields.io/badge/Tailwind-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
-![React Router](https://img.shields.io/badge/React_Router-CA4245?style=flat-square&logo=reactrouter&logoColor=white)
-
-- **React 18** - UI library with hooks and context
-- **Vite** - Fast build tool and dev server
-- **TailwindCSS** - Utility-first CSS framework
-- **React Router** - Client-side routing
-- **shadcn/ui** - Accessible component library
-- **Lucide Icons** - Icon library
-
-### Backend
-
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white)
-![Express](https://img.shields.io/badge/Express-000000?style=flat-square&logo=express&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white)
-![JWT](https://img.shields.io/badge/JWT-000000?style=flat-square&logo=jsonwebtokens&logoColor=white)
-
-- **Node.js 20** - JavaScript runtime
-- **Express.js** - Web framework
-- **MySQL** - Relational database
-- **JWT** - Token-based authentication
-- **bcrypt** - Password hashing
-- **mysql2** - MySQL client with connection pooling
+* ![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=white) - React 18 with hooks and context
+* ![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white) - Fast build tool and dev server
+* ![TailwindCSS](https://img.shields.io/badge/Tailwind-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white) - Utility-first CSS framework
+* ![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white) - JavaScript runtime
+* ![Express](https://img.shields.io/badge/Express-000000?style=flat-square&logo=express&logoColor=white) - Web framework
+* ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white) - Relational database
+* ![JWT](https://img.shields.io/badge/JWT-000000?style=flat-square&logo=jsonwebtokens&logoColor=white) - Token-based authentication
 
 ---
 
 ## Getting Started
 
+The following instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+
 ### Prerequisites
 
-Ensure you have the following installed:
-
+Ensure that you have the latest version of Node.js and MySQL installed on your machine.
 ```bash
 node --version  # v14.0.0 or higher
 npm --version   # v6.0.0 or higher
 mysql --version # v8.0 or higher
 ```
 
-### Installation
+### How to Install
 
-**1. Clone the repository**
+#### Clone Repository
 
+Run the following in the command-line to clone the project:
 ```bash
 git clone https://github.com/victordupreez0/Summative_StudentGigs.git
 cd Summative_StudentGigs
 ```
 
-**2. Install dependencies**
+#### Install Dependencies
 
+Run the following in the command-line to install all the required dependencies:
 ```bash
 # Install root dependencies
 npm install
@@ -183,30 +114,25 @@ npm install
 cd ..
 ```
 
-**3. Set up MySQL database**
+#### Set up MySQL Database
 
 Create a new database (or let the app create it automatically):
-
 ```sql
 CREATE DATABASE studentgigs;
 ```
 
 The application will automatically create all required tables on first run.
 
-**4. Configure database connection (optional)**
+#### Configure Database Connection (Optional)
 
 The application uses these default values for local MySQL:
+- Host: 127.0.0.1
+- Port: 3306
+- User: root
+- Password: (empty)
+- Database: studentgigs
 
-```
-Host: 127.0.0.1
-Port: 3306
-User: root
-Password: (empty)
-Database: studentgigs
-```
-
-If your MySQL setup is different, you can create a `.env` file in the `backend` directory:
-
+If your MySQL setup is different, you can create a `.env` file in the backend directory:
 ```env
 DB_HOST=127.0.0.1
 DB_PORT=3306
@@ -215,9 +141,7 @@ DB_PASS=your_mysql_password
 DB_NAME=studentgigs
 ```
 
-**Note:** No `.env` file is required if you're using the default MySQL configuration.
-
-**5. Start the development servers**
+#### Start the Development Servers
 
 Open two terminal windows:
 
@@ -233,300 +157,198 @@ cd frontend
 npm run dev
 ```
 
-**6. Access the application**
+#### Access the Application
 
-Open your browser and navigate to:
-```
-http://localhost:5173
-```
+Open your browser and navigate to: `http://localhost:5173`
 
-The backend API will be running on:
-```
-http://localhost:4000
-```
-
-### Default Configuration
-
-The application works out-of-the-box with these defaults:
-
-**Backend (can be customized via `.env` in `backend/` if needed)**
-- `DB_HOST`: `127.0.0.1`
-- `DB_PORT`: `3306`
-- `DB_USER`: `root`
-- `DB_PASS`: `` (empty)
-- `DB_NAME`: `studentgigs`
-- `PORT`: `4000`
-- `JWT_SECRET`: Auto-generated
-
-**Frontend**
-- `VITE_API_BASE`: `http://localhost:4000` (development)
-- Auto-detects production environment
-
-No configuration files are required for local development with default MySQL settings.
+The backend API will be running on: `http://localhost:4000`
 
 ---
 
-## Project Structure
+## Features and Functionality
 
-```
-StudentGigs/
-├── frontend/
-│   ├── src/
-│   │   ├── components/          # Reusable UI components
-│   │   │   ├── ui/             # shadcn/ui components
-│   │   │   ├── Navbar.jsx
-│   │   │   ├── Footer.jsx
-│   │   │   └── ProtectedRoute.jsx
-│   │   ├── pages/              # Route pages
-│   │   │   ├── Landing.jsx
-│   │   │   ├── Login.jsx
-│   │   │   ├── Signup.jsx
-│   │   │   ├── BrowseJobs.jsx
-│   │   │   ├── JobDetails.jsx
-│   │   │   ├── PostJob.jsx
-│   │   │   ├── Dashboard.jsx
-│   │   │   └── Messages.jsx
-│   │   ├── context/            # React Context
-│   │   │   └── AuthContext.jsx
-│   │   ├── config/             # Configuration
-│   │   │   └── api.js
-│   │   └── lib/                # Utilities
-│   │       └── utils.js
-│   └── public/                 # Static assets
-│
-├── backend/
-│   ├── controllers/            # Business logic
-│   │   ├── authController.js
-│   │   ├── jobController.js
-│   │   ├── applicationController.js
-│   │   ├── messageController.js
-│   │   └── profileController.js
-│   ├── routes/                 # API routes
-│   │   ├── authRoutes.js
-│   │   ├── jobRoutes.js
-│   │   ├── applicationRoutes.js
-│   │   └── messageRoutes.js
-│   ├── middleware/             # Middleware
-│   │   └── auth.js
-│   ├── config/                 # Configuration
-│   │   └── database.js
-│   └── server.js               # Entry point
-│
-└── package.json
-```
+### Authentication & Authorization
+![Feature Image](image2)
+
+JWT-based secure authentication with role-based access control for Students, Employers, and Admins. Protected routes and API endpoints ensure secure access throughout the platform.
+
+### Job Management
+![Feature Image](image3)
+
+Create, edit, and manage job postings with advanced search and filtering capabilities. Category-based organization with budget tracking for both hourly and fixed rates.
+
+### Application System
+![Feature Image](image4)
+
+Apply to jobs with cover letters and portfolio links. Track application status, schedule interviews, and receive feedback throughout the process.
+
+### Communication & Reviews
+![Feature Image](image5)
+
+Real-time messaging between users with notification system. Bilateral review system with star ratings and written feedback for reputation building.
 
 ---
 
-## API Documentation
+## Concept Process
 
-### Authentication
+The Conceptual Process is the set of actions, activities and research that was done when starting this project.
 
-```http
-POST /api/register
-Content-Type: application/json
+### Ideation
 
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "password123",
-  "user_type": "student"
-}
-```
+![Ideation](image5)
+![Ideation](image6)
 
-```http
-POST /api/login
-Content-Type: application/json
+The ideation phase focused on identifying the gap in the student job market and creating a platform that would streamline the connection between students and employers. Research was conducted on existing freelance platforms to understand pain points and opportunities for improvement.
 
-{
-  "email": "john@example.com",
-  "password": "password123"
-}
-```
+### Wireframes
 
-### Jobs
+![Wireframes](image7)
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/jobs` | Get all active jobs | No |
-| GET | `/api/jobs/:id` | Get job details | No |
-| POST | `/api/jobs` | Create new job | Yes (Employer) |
-| PUT | `/api/jobs/:id` | Update job | Yes (Owner) |
-| DELETE | `/api/jobs/:id` | Delete job | Yes (Owner) |
-| GET | `/api/jobs/my-jobs` | Get user's jobs | Yes |
+Wireframes were created to map out the user interface and ensure an intuitive flow for both students and employers. Key screens included job browsing, application submission, messaging, and dashboard views.
 
-### Applications
+### User Flow
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/applications` | Submit application | Yes (Student) |
-| GET | `/api/applications/my-applications` | Get applications | Yes |
-| PUT | `/api/applications/:id/status` | Update status | Yes (Employer) |
-| GET | `/api/applications/job/:jobId` | Get job applicants | Yes (Owner) |
+![User Flow](image8)
 
-### Messages
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/messages/conversations` | Get conversations | Yes |
-| GET | `/api/messages/:userId` | Get messages | Yes |
-| POST | `/api/messages` | Send message | Yes |
-
-### Profiles
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/api/profile/:id` | Get user profile | No |
-| PUT | `/api/profile` | Update profile | Yes |
-| POST | `/api/profile/photo` | Upload photo | Yes |
+The user flow diagram illustrates the complete journey from registration through job discovery, application, communication, and review completion. Separate flows were designed for student and employer experiences.
 
 ---
 
-## Database Schema
+## Development Process
 
-### Users Table
-```sql
-CREATE TABLE users (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  name VARCHAR(255) NOT NULL,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  password VARCHAR(255) NOT NULL,
-  user_type ENUM('student', 'employer', 'admin') NOT NULL,
-  business_name VARCHAR(255),
-  profile_picture VARCHAR(255),
-  avatar_color VARCHAR(7),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
+The Development Process is the technical implementations and functionality done in the frontend and backend of the application.
 
-### Jobs Table
-```sql
-CREATE TABLE jobs (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  user_id INT NOT NULL,
-  title VARCHAR(255) NOT NULL,
-  description TEXT,
-  category VARCHAR(100),
-  project_type VARCHAR(50),
-  budget_type ENUM('hourly', 'fixed') NOT NULL,
-  hourly_rate_min DECIMAL(10,2),
-  hourly_rate_max DECIMAL(10,2),
-  fixed_budget DECIMAL(10,2),
-  status ENUM('open', 'closed', 'completed') DEFAULT 'open',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
-);
-```
+### Implementation Process
 
-### Applications Table
-```sql
-CREATE TABLE applications (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  job_id INT NOT NULL,
-  user_id INT NOT NULL,
-  cover_letter TEXT,
-  resume_url VARCHAR(500),
-  status ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (job_id) REFERENCES jobs(id),
-  FOREIGN KEY (user_id) REFERENCES users(id)
-);
-```
+* **RESTful API Architecture** - Implemented Express.js backend with organized controller and route structure for scalable API development
+* **JWT Authentication** - Secure token-based authentication system with protected routes and middleware
+* **React Context API** - Centralized state management for user authentication and global app state
+* **MySQL Database Design** - Relational database with normalized tables for users, jobs, applications, messages, and reviews
+* **Component-Based UI** - Reusable React components with shadcn/ui for consistent design system
+* **Real-time Features** - Messaging system with conversation threading and notification handling
+* **SEO Optimization** - Implemented meta tags, structured data, sitemap.xml, and robots.txt for search engine visibility
 
-See `backend/config/database.js` for complete schema.
+### Highlights
+
+* **Seamless User Experience** - Intuitive interface that makes job discovery and application process effortless for students
+* **Robust Authentication** - Secure JWT implementation with role-based access control
+* **Real-time Communication** - Messaging system enables direct connection between students and employers
+* **Comprehensive Dashboard** - Users can track all their activities in one centralized location
+* **Performance Optimization** - Fast load times with Vite build tool and efficient database queries
+* **Localization** - South African Rand (ZAR) currency support with proper formatting
+
+### Challenges
+
+* **Database Connection Pooling** - Managing MySQL connections efficiently required implementing connection pooling to handle concurrent requests
+* **State Management Complexity** - Coordinating authentication state across protected routes and API calls required careful context design
+* **Real-time Messaging** - Implementing a reliable messaging system without WebSockets required polling strategies and careful state updates
+* **Cross-Origin Resource Sharing** - Configuring CORS properly for development and production environments
+* **File Upload Handling** - Managing profile pictures and resume uploads with proper validation and storage
 
 ---
 
-## Testing Locally
+## Reviews and Testing
 
-### Test Accounts
+### Feedback from Reviews
 
-Create test accounts using these credentials:
+Peer Reviews were conducted by fellow students and lecturer. The following feedback was found useful:
 
-**Student Account**
-```
-Email: student@test.com
-Password: student123
-```
+* **Improve Mobile Responsiveness** - Several screens needed better mobile optimization, particularly the dashboard and messaging interface
+* **Enhanced Search Functionality** - Users requested more filtering options and the ability to save searches
+* **Notification System** - Feedback suggested adding email notifications for important events like application status changes
+* **Portfolio Integration** - Students wanted better ways to showcase their work within their profiles
 
-**Employer Account**
-```
-Email: employer@test.com
-Password: employer123
-```
+### Unit Tests
 
-### Testing Workflow
+Unit Tests were conducted to establish working functionality. Here are all the tests that were run:
 
-**1. Test Student Flow**
-```bash
-# Register as student
-# Browse jobs
-# Apply to a job
-# View application status
-# Check messages
-```
+* **Authentication Flow** - Testing user registration, login, token generation, and protected route access
+* **Job CRUD Operations** - Testing create, read, update, and delete functionality for job postings
+* **Application Submission** - Testing the complete application flow from submission to status updates
+* **Messaging System** - Testing message sending, conversation retrieval, and read status updates
+* **Database Queries** - Testing all SQL queries for proper results and handling edge cases
 
-**2. Test Employer Flow**
-```bash
-# Register as employer
-# Create a job posting
-# View applicants
-# Accept/reject applications
-# Send messages
-```
+---
 
-**3. Test Communication**
-```bash
-# Login as employer
-# Message an applicant
-# Login as student
-# View and reply to message
-```
+## Future Implementation
 
-### Troubleshooting
+* **WebSocket Integration** - Implement real-time messaging using Socket.io for instant communication
+* **Payment Integration** - Add Stripe/PayPal integration for secure payment processing
+* **Advanced Analytics** - Employer dashboard with detailed analytics on job performance and applicant insights
+* **Mobile Application** - Develop native iOS and Android apps using React Native
+* **AI-Powered Matching** - Implement machine learning algorithms to match students with relevant jobs
+* **Video Interviews** - Integrate video calling functionality for remote interviews
+* **Skill Verification** - Add certification and skill verification system
+* **Email Notifications** - Complete email notification system for all major events
 
-**Database Connection Issues**
-```bash
-# Check MySQL is running
-mysql -u root -p
+---
 
-# Verify database exists
-SHOW DATABASES;
+## Final Outcome
 
-# Check user permissions
-SHOW GRANTS FOR 'root'@'localhost';
-```
+### Mockups
 
-**Port Already in Use**
-```bash
-# Kill process on port 4000 (backend)
-npx kill-port 4000
+![Mockup 1](image9)
+![Mockup 2](image10)
 
-# Kill process on port 5173 (frontend)
-npx kill-port 5173
-```
+### Video Demonstration
 
-**Frontend Can't Connect to Backend**
-- Verify backend is running on `http://localhost:4000`
-- Check for CORS errors in browser console
-- Ensure MySQL is running and database is created
+To see a run through of the application, click below:
+
+[View Demonstration](https://studentgigs.xyz)
+
+---
+
+## Conclusion
+
+StudentGigs successfully bridges the gap between students seeking flexible work and employers looking for talented help. The platform provides a complete solution for the freelance gig economy with robust features including authentication, job management, applications, messaging, and reviews. Built with modern technologies and best practices, the application is scalable, secure, and user-friendly.
+
+---
+
+## Roadmap
+
+See the [open issues](https://github.com/victordupreez0/Summative_StudentGigs/issues) for a list of proposed features (and known issues).
 
 ---
 
 ## Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions are what makes the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/YourFeature`)
-3. Commit your changes (`git commit -m 'Add some feature'`)
-4. Push to the branch (`git push origin feature/YourFeature`)
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
 ---
 
-## Author
+## Authors
+
+**Victor du Preez** - [victordupreez0](https://github.com/victordupreez0)
+
+---
+
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+
+## Contact
 
 **Victor du Preez**
+* Email: 
+* GitHub: [@victordupreez0](https://github.com/victordupreez0)
+* Project Link: [https://github.com/victordupreez0/Summative_StudentGigs](https://github.com/victordupreez0/Summative_StudentGigs)
 
-- GitHub: [@victordupreez0](https://github.com/victordupreez0)
-- Repository: [Summative_StudentGigs](https://github.com/victordupreez0/Summative_StudentGigs)
+---
+
+## Acknowledgements
+
+* [React Documentation](https://react.dev/)
+* [Node.js Documentation](https://nodejs.org/)
+* [Express.js Documentation](https://expressjs.com/)
+* [MySQL Documentation](https://dev.mysql.com/doc/)
+* [TailwindCSS Documentation](https://tailwindcss.com/)
+* [shadcn/ui Components](https://ui.shadcn.com/)
+* [Vite Documentation](https://vitejs.dev/)
