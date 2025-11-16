@@ -283,14 +283,14 @@ Unit Tests were conducted to establish working functionality. Here are all the t
 
 ### Mockups
 
-![Mockup 1](image9)
-![Mockup 2](image10)
+![Mockup 1](<img width="1000" height="1000" alt="Image" src="https://github.com/user-attachments/assets/e255e4bc-5dce-4afa-b517-169050fc6d3c" />)
+![Mockup 2](<img width="1000" height="1000" alt="Image" src="https://github.com/user-attachments/assets/1377c44a-8a4e-4825-9426-ee5014c8efd6" />)
 
 ### Video Demonstration
 
 To see a run through of the application, click below:
 
-[View Demonstration](https://studentgigs.xyz)
+[[View Demonstration](https://studentgigs.xyz)](https://drive.google.com/file/d/1bg0EgrScTQsC_hhLZr84fIuw3z3930fP/view?usp=sharing)
 
 ---
 
