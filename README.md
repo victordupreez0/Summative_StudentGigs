@@ -164,22 +164,37 @@ The backend API will be running on: `http://localhost:4000`
 ## Features and Functionality
 
 ### Authentication & Authorization
-![Feature Image](image2)
+
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/6f63de08-f15b-4550-a1f5-ac059bb3a3ae" alt="Authentication Feature" width="45%" />
+  <img src="https://github.com/user-attachments/assets/f8a61d86-65bd-4ec5-b850-1ecbdea9e2e8" alt="Authorization Feature" width="45%" />
+</div>
 
 JWT-based secure authentication with role-based access control for Students, Employers, and Admins. Protected routes and API endpoints ensure secure access throughout the platform.
 
 ### Job Management
-![Feature Image](image3)
+
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/82dc1732-33cf-4bec-87eb-188497113119" alt="Job Management 1" width="45%" />
+  <img src="https://github.com/user-attachments/assets/922d870e-34ef-4503-8e81-fb0973cd02dd" alt="Job Management 2" width="45%" />
+</div>
 
 Create, edit, and manage job postings with advanced search and filtering capabilities. Category-based organization with budget tracking for both hourly and fixed rates.
 
 ### Application System
-![Feature Image](image4)
+
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/0928a7bd-4bd0-4999-9e12-00363ef550d7" alt="Application System 1" width="45%" />
+  <img src="https://github.com/user-attachments/assets/6e65814f-7d33-44de-8485-97130a43abda" alt="Application System 2" width="45%" />
+</div>
 
 Apply to jobs with cover letters and portfolio links. Track application status, schedule interviews, and receive feedback throughout the process.
 
 ### Communication & Reviews
-![Feature Image](image5)
+
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/a28845f3-e609-4867-a49b-ba58c616c075" alt="Messaging System" width="70%" />
+</div>
 
 Real-time messaging between users with notification system. Bilateral review system with star ratings and written feedback for reputation building.
 
@@ -187,26 +202,11 @@ Real-time messaging between users with notification system. Bilateral review sys
 
 ## Concept Process
 
-The Conceptual Process is the set of actions, activities and research that was done when starting this project.
-
-### Ideation
-
-![Ideation](image5)
-![Ideation](image6)
-
-The ideation phase focused on identifying the gap in the student job market and creating a platform that would streamline the connection between students and employers. Research was conducted on existing freelance platforms to understand pain points and opportunities for improvement.
-
 ### Wireframes
 
 ![Wireframes](image7)
 
 Wireframes were created to map out the user interface and ensure an intuitive flow for both students and employers. Key screens included job browsing, application submission, messaging, and dashboard views.
-
-### User Flow
-
-![User Flow](image8)
-
-The user flow diagram illustrates the complete journey from registration through job discovery, application, communication, and review completion. Separate flows were designed for student and employer experiences.
 
 ---
 
@@ -299,12 +299,6 @@ StudentGigs successfully bridges the gap between students seeking flexible work 
 
 ---
 
-## Roadmap
-
-See the [open issues](https://github.com/victordupreez0/Summative_StudentGigs/issues) for a list of proposed features (and known issues).
-
----
-
 ## Contributing
 
 Contributions are what makes the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
@@ -323,16 +317,10 @@ Contributions are what makes the open-source community such an amazing place to 
 
 ---
 
-## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
----
-
 ## Contact
 
 **Victor du Preez**
-* Email: 
+* Email: victor.dupreez0@gmail.com
 * GitHub: [@victordupreez0](https://github.com/victordupreez0)
 * Project Link: [https://github.com/victordupreez0/Summative_StudentGigs](https://github.com/victordupreez0/Summative_StudentGigs)
 
