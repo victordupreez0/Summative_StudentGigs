@@ -54,8 +54,6 @@
 
 ## About the Project
 
-![StudentGigs Overview](image1)
-
 ### Project Description
 
 StudentGigs is a comprehensive web application designed to connect students with flexible work opportunities. The platform handles the complete job lifecycle including posting, applications, interviews, messaging, and reviews. Built with modern web technologies, it provides a seamless experience for both students seeking gigs and employers looking to hire talented students.
