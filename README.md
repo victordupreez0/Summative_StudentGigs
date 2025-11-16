@@ -1,4 +1,5 @@
 <div align="center">
+  
 # StudentGigs
 
 > A full-stack marketplace platform connecting students with freelance opportunities and gig work.
