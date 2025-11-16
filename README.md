@@ -190,13 +190,13 @@ Create, edit, and manage job postings with advanced search and filtering capabil
 
 Apply to jobs with cover letters and portfolio links. Track application status, schedule interviews, and receive feedback throughout the process.
 
-### Communication & Reviews
+### Communication
 
 <div align="center">
   <img src="https://github.com/user-attachments/assets/a28845f3-e609-4867-a49b-ba58c616c075" alt="Messaging System" width="70%" />
 </div>
 
-Real-time messaging between users with notification system. Bilateral review system with star ratings and written feedback for reputation building.
+Real-time messaging between users with notification system. 
 
 ---
 
