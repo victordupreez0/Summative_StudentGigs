@@ -200,16 +200,6 @@ Real-time messaging between users with notification system. Bilateral review sys
 
 ---
 
-## Concept Process
-
-### Wireframes
-
-![Wireframes](image7)
-
-Wireframes were created to map out the user interface and ensure an intuitive flow for both students and employers. Key screens included job browsing, application submission, messaging, and dashboard views.
-
----
-
 ## Development Process
 
 The Development Process is the technical implementations and functionality done in the frontend and backend of the application.
