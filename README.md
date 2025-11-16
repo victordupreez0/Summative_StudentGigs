@@ -1,8 +1,8 @@
+<div align="center">
 # StudentGigs
 
 > A full-stack marketplace platform connecting students with freelance opportunities and gig work.
 
-<div align="center">
 
 **Live Demo:** [studentgigs.xyz](https://studentgigs.xyz)
 
@@ -12,10 +12,6 @@
 ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
-
-[Explore the docs »](https://github.com/victordupreez0/Summative_StudentGigs)
-
-[View Demo](https://studentgigs.xyz) · [Report Bug](https://github.com/victordupreez0/Summative_StudentGigs/issues) · [Request Feature](https://github.com/victordupreez0/Summative_StudentGigs/issues)
 
 </div>
 
